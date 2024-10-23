@@ -1,30 +1,31 @@
+# Carbon.txt validator
+
+This validator reads carbon.txt files, and validates them against a spec defined on http://carbontxt.org.
+
 
 
 
 # Usage
 
+## With the CLI
 
-Run a validation against a given domain, and see if a) there is a CSRD report, and b) that the datapoints for a greenweb verification exist
+Run a validation against a given domain, or file, say if the file is valid TOML, and it confirms to the carbon.txt spec
 
-```
-carbontxt validate --greenweb-csrd domain.com
-```
+```shell
+# parse the carbon.txt file on default paths on some-domain.com
+carbontxt validate domain some-domain.com
 
-Run a validation against a given domain, and only say if the file is valid TOML, and it confirms to the carbon.txt spec
+# parse a remote file available at https://somedomain.com/path-to-carbon.txt
+carbontxt validate file https://somedomain.com/path-to-carbon.txt
 
-```
-carbontxt validate --syntax-only domain
-carbontxt validate --syntax-only -f ./path-to-file.com # look at the file only
-```
+# parse a local file ./path-to-file.com
+carbontxt validate file ./path-to-file.com
 
-Run a validation against a given domain, and only say if the file is valid TOML, and it confirms to the spec, AND if the links are still live
-
-```
-carbontxt validate --greenweb-csrd --syntax-only --check-links domain
-```
-
-Run a validation against a given domain, and download the evidence. Take a screenshot of the page if a webpage downloading it and the HTML, (maybe WARCing it), otherwise download the file directly otherwise.
+# pipe the contents of a file into the file validation command as part of a pipeline
+cat ./path-to-file.com | carbontxt validate file
 
 ```
-carbontxt fetch --greenweb-csrd --fetch
-```
+
+## With the HTTP API
+
+(Coming up next)
