@@ -31,13 +31,38 @@ class FileFinder:
         """Try a DNS TXT record lookup for the given domain"""
 
         # look for a TXT record on the domain first
-        # if have it, return that
+        # if there is a valid TXT record it, return that
         try:
-            dns_record = dns.resolver.resolve(domain, "TXT")
-            if dns_record:
-                url = dns_record[0].strings[0].decode()
-                rich.print(url)
-                return url
+            answers = dns.resolver.resolve(domain, "TXT")
+
+            for answer in answers:
+
+                txt_record = answer.to_text().strip('"')
+                if txt_record.startswith("carbon-txt"):
+                    # pull out our url to check
+                    _, txt_record_body = txt_record.split("=")
+
+                    domain_hash_check = txt_record_body.split(" ")
+
+                    # check for delegation with no domain hash
+                    if len(domain_hash_check) == 1:
+                        override_url = domain_hash_check[0]
+                        logger.info(
+                            f"Found an override_url to use from the DNS lookup: {override_url}"
+                        )
+                        return override_url
+
+                    # check for delegation WITH a domain hash
+                    if len(domain_hash_check) == 2:
+                        override_url = domain_hash_check[0]
+
+                        # TODO add verification of domain hash
+                        domain_hash = domain_hash_check[1]
+
+                        logger.info(
+                            f"Found an override_url to use from the DNS lookup: {override_url}"
+                        )
+                        return override_url
 
         except dns.resolver.NoAnswer:
             logger.info("No result from TXT lookup")
@@ -80,6 +105,8 @@ class FileFinder:
         # if there is no http or https scheme, we assume a local file
         if not parsed_uri:
             path_to_file = Path(uri)
+            if not path_to_file.exists():
+                raise FileNotFoundError(f"File not found at {path_to_file.absolute()}")
             return str(path_to_file.resolve())
 
         response = httpx.head(parsed_uri.geturl())
