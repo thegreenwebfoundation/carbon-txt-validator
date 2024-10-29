@@ -36,7 +36,12 @@ class CarbonTxtParser:
         Accept a parsed TOML object and return a CarbonTxtFile, validating that
         necessary keys are present and values are of the correct type.
         """
+        from pydantic import ValidationError
+        import rich
 
-        carb_txt_obj = schemas.CarbonTxtFile(**parsed)
-
-        return carb_txt_obj
+        try:
+            carb_txt_obj = schemas.CarbonTxtFile(**parsed)
+            return carb_txt_obj
+        except ValidationError as e:
+            rich.print(e)
+            return e

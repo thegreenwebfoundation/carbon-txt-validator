@@ -1,0 +1,26 @@
+[upstream]
+providers = [
+    # These providers include my hosting (Netlify - they use AWS/GCP under the hood),
+    # as well as all the third-party services I use on this site.
+    # I feel it makes sense to keep these all together.
+    # To be honest, I like this structure a bit more than just an array of strings.
+    { domain = 'netlify.com' },
+    { domain = 'usefathom.com' },
+    { domain = 'clearbit.com' },
+    { domain = 'cloudflare.com' },                            # This site has an API which runs on Cloudflare Workers.
+    { domain = 'cloud.google.com', region = 'us-central1' },  # This site also uses Google Cloud Functions to run tests. One function is hosted on us-central1.
+    { domain = 'cloud.google.com', region = 'europe-west1' }, # The other is hosted on europe-west1.
+]
+
+[org]
+credentials = [
+    # These are evidence of things I do to account for the carbon emissions of this website.
+    { domain = "fershad.com", doctype = "webpage", url = "https://fershad.com/for-good/" },
+]
+
+# What would I like to see returned when validating this?
+# For providers:
+#   - Use renewables/account for emissions: { verified: true, evidence: {}, updated: dateTime }
+#   - If not: { verified: false, reason: 'no data' } (or 'insuffiencent data' if that is the case).
+#
+# I'm honestly not sure what I'd expect to see returned for the cloud function providers.
