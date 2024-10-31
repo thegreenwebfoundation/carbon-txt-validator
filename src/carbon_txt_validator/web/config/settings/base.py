@@ -14,6 +14,10 @@ import pathlib
 import environ
 import os
 
+import logging
+
+logger = logging.getLogger(__name__)
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = pathlib.Path(__file__).resolve().parent.parent.parent
 
@@ -23,20 +27,17 @@ env = environ.Env(
     ENV_PATH=(str, ".env"),
 )
 
-
 # fetch environment variables from .env file
 dotenv_file = pathlib.Path(env("ENV_PATH")).absolute()
 if dotenv_file.exists():
     env.read_env(env("ENV_PATH"))
 
+settings_module = os.getenv("DJANGO_SETTINGS_MODULE")
 
-# Ensure that the required environment variables are set
-if not env("SECRET_KEY"):
+
+# if we are in a production environment, we need to ensure that the SECRET_KEY is set
+if not env("SECRET_KEY") and "settings.production" in settings_module:
     raise RuntimeError("The SECRET_KEY environment variable is not set.")
-
-# in some cases we don't have a .env file to work from - the environment
-# variables are provided via docker for example. So, we only try to load the
-# .env file if it exists.
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
