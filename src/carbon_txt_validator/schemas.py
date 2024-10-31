@@ -17,7 +17,7 @@ class Provider(BaseModel):
 
 class Credential(BaseModel):
     """
-    Credentiials are essentially supporting documentation for a claim to be running on
+    Credentials are essentially supporting documentation for a claim to be running on
     green energy.
     """
 

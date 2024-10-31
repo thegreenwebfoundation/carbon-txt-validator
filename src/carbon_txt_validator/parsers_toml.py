@@ -4,6 +4,13 @@ import httpx
 import pathlib
 
 
+import logging
+
+logger = logging.getLogger(__name__)
+# Do not surface warning messages, as we show them at the end anyway.
+logger.setLevel(logging.ERROR)
+
+
 class CarbonTxtParser:
     """
     Responsible for parsing carbon.txt files, checking
@@ -37,11 +44,10 @@ class CarbonTxtParser:
         necessary keys are present and values are of the correct type.
         """
         from pydantic import ValidationError
-        import rich
 
         try:
             carb_txt_obj = schemas.CarbonTxtFile(**parsed)
             return carb_txt_obj
         except ValidationError as e:
-            rich.print(e)
+            logger.warning(e)
             return e
