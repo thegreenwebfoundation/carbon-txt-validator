@@ -1,6 +1,6 @@
 [project]
 name = "carbon-txt-validator"
-version = "0.0.1"
+version = "0.0.2"
 description = "A validator for carbon.txt files, by the Green Web Foundation"
 authors = [
     { name = "Chris Adams" },
@@ -25,7 +25,10 @@ dependencies = [
 
 [project.scripts]
 # we have a shorter version of the command line tool, for convenience
-# but having the full name allows for runnign directly via uv, for example
+# but having the full name allows for running directly via uv, for example
+# like so:
+# uv tool run carbon-txt-validator validate
+
 carbon-txt = "carbon_txt_validator.cli:app"
 carbon-txt-validator = "carbon_txt_validator.cli:app"
 
@@ -41,4 +44,8 @@ dev-dependencies = [
     "pytest-django>=4.9.0",
     "pytest-watch>=4.2.0",
     "pytest>=8.3.3",
+    "sphinx>=8.1.3",
+    "myst-parser>=4.0.0",
+    "furo>=2024.8.6",
+    "sphinx-autobuild>=2024.10.3",
 ]
