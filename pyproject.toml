@@ -1,6 +1,6 @@
 [project]
 name = "carbon-txt-validator"
-version = "0.0.1"
+version = "0.0.2"
 description = "A validator for carbon.txt files, by the Green Web Foundation"
 authors = [
     { name = "Chris Adams" },
