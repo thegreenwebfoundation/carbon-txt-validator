@@ -18,8 +18,15 @@ Including another URLconf
 from django.contrib import admin
 from django.urls import path
 from .api import ninja_api
+from django.shortcuts import redirect
+
+
+def redirect_to_docs(request):
+    return redirect("/api/docs")
+
 
 urlpatterns = [
     path("admin/", admin.site.urls),
     path("api/", ninja_api.urls),
+    path("", redirect_to_docs),
 ]
