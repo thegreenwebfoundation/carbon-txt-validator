@@ -9,4 +9,7 @@ build:
     - asdf install uv latest
     - asdf global uv latest
     - uv sync  --frozen
-    - uv run sphinx-build docs docs/_build/html
+    # RTD needs to build the docs into a specific directory
+    # https://docs.readthedocs.io/en/stable/build-customization.html#where-to-put-files
+    - mkdir --parents $READTHEDOCS_OUTPUT/html/
+    - uv run sphinx-build docs $READTHEDOCS_OUTPUT/html
