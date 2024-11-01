@@ -1,3 +1,7 @@
+import pathlib
+
+import tomllib
+
 # Configuration file for the Sphinx documentation builder.
 #
 # For the full list of built-in configuration values, see the documentation:
@@ -9,7 +13,11 @@
 project = "Carbon.txt Validator"
 copyright = "2024, Chris Adams, Fershad Irani, Hannah Smith"
 author = "Chris Adams, Fershad Irani, Hannah Smith"
-release = "0.0.2"
+
+pypproject_toml = pathlib.Path(".").absolute().parent / "pyproject.toml"
+parsed_toml = tomllib.loads(pypproject_toml.read_text())
+
+release = parsed_toml["project"]["version"]
 
 # -- General configuration ---------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#general-configuration
