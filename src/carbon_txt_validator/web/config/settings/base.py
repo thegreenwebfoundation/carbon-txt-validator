@@ -21,9 +21,11 @@ logger = logging.getLogger(__name__)
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = pathlib.Path(__file__).resolve().parent.parent.parent
 
+DEFAULT_SECRET_KEY = "default-insecure-secret-key"
+
 env = environ.Env(
     DEBUG=(bool, False),
-    SECRET_KEY=(str, os.getenv("SECRET_KEY")),
+    SECRET_KEY=(str, os.getenv("SECRET_KEY", DEFAULT_SECRET_KEY)),
     ENV_PATH=(str, ".env"),
 )
 
@@ -34,10 +36,19 @@ if dotenv_file.exists():
 
 settings_module = os.getenv("DJANGO_SETTINGS_MODULE")
 
-
 # if we are in a production environment, we need to ensure that the SECRET_KEY is set
-if not env("SECRET_KEY") and "settings.production" in settings_module:
-    raise RuntimeError("The SECRET_KEY environment variable is not set.")
+if env("SECRET_KEY") == DEFAULT_SECRET_KEY and "settings.production" in settings_module:
+    raise RuntimeError(
+        "you are using the default SECRET_KEY value in a production environment. "
+        "Please set a proper SECRET_KEY, via the SECRET_KEY environment variable."
+    )
+
+if env("SECRET_KEY") == DEFAULT_SECRET_KEY:
+    logger.warning(
+        "Running with default SECRET_KEY value. To understand the risks, see then django docs: "
+        "https://docs.djangoproject.com/en/5.1/ref/settings/#std-setting-SECRET_KEY"
+    )
+
 
 # Quick-start development settings - unsuitable for production
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/

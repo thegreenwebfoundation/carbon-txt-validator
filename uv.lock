@@ -92,11 +92,6 @@ dependencies = [
     { name = "typer" },
 ]
 
-[package.optional-dependencies]
-docs = [
-    { name = "sphinx" },
-]
-
 [package.dev-dependencies]
 dev = [
     { name = "furo" },
@@ -118,7 +113,6 @@ requires-dist = [
     { name = "granian", specifier = ">=1.6.2" },
     { name = "httpx", specifier = ">=0.27.2" },
     { name = "rich", specifier = ">=13.9.2" },
-    { name = "sphinx", marker = "extra == 'docs'", specifier = ">=8.1.3" },
     { name = "typer", specifier = ">=0.12.5" },
 ]
 
