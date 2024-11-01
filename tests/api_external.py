@@ -9,7 +9,7 @@ def check_carbon_txt_contents():
     ) as toml_file:
         toml_contents = toml_file.read()
 
-        api_url = "http://127.0.0.1:8000/api/validate/file"
+        api_url = "http://127.0.0.1:8000/api/validate/file/"
         data = {"domain": "string", "text_contents": toml_contents}
         res = httpx.post(api_url, json=data, follow_redirects=True)
         rich.print(res)
@@ -17,7 +17,7 @@ def check_carbon_txt_contents():
 
 
 def check_carbon_txt_url():
-    api_url = "http://127.0.0.1:8000/api/validate/url"
+    api_url = "http://127.0.0.1:8000/api/validate/url/"
     data = {"url": "https://aremythirdpartiesgreen.com/carbon.txt"}
     res = httpx.post(api_url, json=data, follow_redirects=True)
     rich.print(res)
