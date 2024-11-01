@@ -34,7 +34,7 @@ class CarbonTextUrlSubmission(Schema):
 
 
 @ninja_api.post(
-    "/validate/file",
+    "/validate/file/",
     description="Accept contents of a carbon.txt file and validate it.",
 )
 def validate_contents(
@@ -68,7 +68,7 @@ def validate_contents(
 
 
 @ninja_api.post(
-    "/validate/url", description="Fetch a file at a given URL and validate it."
+    "/validate/url/", description="Fetch a file at a given URL and validate it."
 )
 def validate_url(
     request: HttpRequest, carbon_txt_url_data: CarbonTextUrlSubmission
