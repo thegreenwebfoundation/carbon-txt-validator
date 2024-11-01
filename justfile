@@ -28,3 +28,8 @@ docs:
 # generate docs, serve the locally over http, and update them when files change
 docs-watch:
   uv run sphinx-autobuild docs docs/_build/html
+
+# clear the dist directory, and build the project, ready for publishing
+build:
+  rm -rf ./dist
+  uv build
