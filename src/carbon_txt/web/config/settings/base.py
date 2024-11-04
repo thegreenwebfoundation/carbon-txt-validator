@@ -16,7 +16,10 @@ import os
 
 import logging
 
+from carbon_txt.exceptions import InsecureKeyException
+
 logger = logging.getLogger(__name__)
+
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = pathlib.Path(__file__).resolve().parent.parent.parent
@@ -38,8 +41,8 @@ settings_module = os.getenv("DJANGO_SETTINGS_MODULE")
 
 # if we are in a production environment, we need to ensure that the SECRET_KEY is set
 if env("SECRET_KEY") == DEFAULT_SECRET_KEY and "settings.production" in settings_module:
-    raise RuntimeError(
-        "you are using the default SECRET_KEY value in a production environment. "
+    raise InsecureKeyException(
+        "You are using the default SECRET_KEY value in a production environment. "
         "Please set a proper SECRET_KEY, via the SECRET_KEY environment variable."
     )
 

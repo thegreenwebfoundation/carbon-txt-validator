@@ -10,6 +10,7 @@ from django.core.management import execute_from_command_line
 
 from . import finders, parsers_toml
 from .schemas import CarbonTxtFile
+from .exceptions import InsecureKeyException
 
 logger = logging.getLogger(__name__)
 
@@ -138,34 +139,56 @@ def serve(
         help="Run in as django server or in production with the granian server",
     ),
     production: bool = typer.Option(False, help="Run in production mode"),
+    django_settings: str = typer.Option(
+        None, "--django-settings", "-ds", help="path to Django settings module"
+    ),
 ):
     """Run the carbon.txt validator web server"""
+    try:
+        web_dir = Path(__file__).parent / "web"
+        os.chdir(web_dir)
 
-    web_dir = Path(__file__).parent / "web"
-    os.chdir(web_dir)
+        # override the prod / non prod switch if a custom settings module is provided
+        if django_settings:
+            rich.print(f"Using custom settings module: {django_settings}")
+            settings_module = django_settings
+        else:
+            if production:
+                rich.print("Running in production mode")
+                settings_module = "carbon_txt.web.config.settings.production"
+            else:
+                settings_module = "carbon_txt.web.config.settings.development"
 
-    if production:
-        rich.print("Running in production mode")
         rich.print("\n ----------------\n")
-        # Run Granian instead of Django development server
-        # Configure Django first
         configure_django(
             debug=debug,
-            settings_module="carbon_txt.web.config.settings.production",
-        )
-    else:
-        configure_django(
-            debug=debug,
-            settings_module="carbon_txt.web.config.settings.development",
+            settings_module=settings_module,
         )
 
-    if server == "granian":
-        rich.print("Running with Granian server")
-        rich.print("\n ----------------\n")
-        # Run Granian instead of Django development server
-        os.system("granian --interface wsgi carbon_txt.web.config.wsgi:application")
-    else:
-        execute_from_command_line(["manage.py", "runserver", f"{host}:{port}"])
+        if server == "granian":
+            rich.print("Running with Granian server")
+            rich.print("\n ----------------\n")
+            # Run Granian instead of Django development server
+            os.system("granian --interface wsgi carbon_txt.web.config.wsgi:application")
+        else:
+            execute_from_command_line(["manage.py", "runserver", f"{host}:{port}"])
+    except InsecureKeyException as e:
+        rich.print(f"{e}")
+        rich.print(
+            "For more, see the docs at https://carbon-txt-validator.readthedocs.io/en/latest/deployment.html"
+        )
+        sys.exit(1)
+    # anything unexpected we provide a clear path to raising an issue to fix it
+    except Exception as e:
+        rich.print(f"An error occurred: {e}")
+        rich.print(
+            (
+                "Please consider raising an issue at: "
+                "https://github.com/thegreenwebfoundation/carbon-txt-validator/issues/new, "
+                "with steps to reproduce this error"
+            )
+        )
+        sys.exit(1)
 
 
 if __name__ == "__main__":
