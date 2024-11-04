@@ -1,7 +1,6 @@
-import pytest
 from typer.testing import CliRunner
 
-from carbon_txt_validator.cli import app
+from carbon_txt.cli import app
 
 runner = CliRunner()
 

@@ -1,11 +1,10 @@
 import httpx
 import dns.resolver
-import tomllib as toml
 from pathlib import Path
 from urllib.parse import urlparse, ParseResult
 from typing import Optional
 import logging
-import rich
+import rich  # noqa
 
 logger = logging.getLogger(__name__)
 
@@ -36,7 +35,6 @@ class FileFinder:
             answers = dns.resolver.resolve(domain, "TXT")
 
             for answer in answers:
-
                 txt_record = answer.to_text().strip('"')
                 if txt_record.startswith("carbon-txt"):
                     # pull out our url to check
@@ -57,7 +55,7 @@ class FileFinder:
                         override_url = domain_hash_check[0]
 
                         # TODO add verification of domain hash
-                        domain_hash = domain_hash_check[1]
+                        domain_hash = domain_hash_check[1]  # noqa
 
                         logger.info(
                             f"Found an override_url to use from the DNS lookup: {override_url}"

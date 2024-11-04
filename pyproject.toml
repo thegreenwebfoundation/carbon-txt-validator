@@ -1,7 +1,7 @@
 [project]
-name = "carbon-txt-validator"
+name = "carbon-txt"
 version = "0.0.4"
-description = "A validator for carbon.txt files, by the Green Web Foundation"
+description = "A command line tool containing a validator for carbon.txt files, by the Green Web Foundation"
 authors = [
     { name = "Chris Adams" },
     { name = "Hannah Smith" },
@@ -25,13 +25,7 @@ dependencies = [
 ]
 
 [project.scripts]
-# we have a shorter version of the command line tool, for convenience
-# but having the full name allows for running directly via uv, for example
-# like so:
-# uv tool run carbon-txt-validator validate
-
-carbon-txt = "carbon_txt_validator.cli:app"
-carbon-txt-validator = "carbon_txt_validator.cli:app"
+carbon-txt = "carbon_txt.cli:app"
 
 
 [build-system]

@@ -15,7 +15,7 @@ For local hosting you might run the development server like so:
 
 ```shell
 # run the validator in development
-carbon-txt-validator serve
+carbon-txt serve
 ```
 
 Ihn production, you're better off using Granian, and passing the explicit
@@ -24,7 +24,7 @@ secure settings suited to production.
 
 ```shell
 # run in production with appropriate flags
-carbon-txt-validator serve --production --server granian
+carbon-txt serve --production --server granian
 ```
 
 ```{warning}

@@ -1,4 +1,4 @@
-from carbon_txt_validator.parsers_toml import CarbonTxtParser
+from carbon_txt.parsers_toml import CarbonTxtParser
 import pytest
 
 parser = CarbonTxtParser()
@@ -66,6 +66,6 @@ class TestParseCarbonTxt:
         carbon_txt_content = request.getfixturevalue(carbon_txt_fixture)
         parsed = parser.parse_toml(carbon_txt_content)
 
-        # errors are triggeed on instantiation, so if the parsed data
+        # errors are triggered on instantiation, so if the parsed data
         # validates, then the test passes
-        data = parser.validate_as_carbon_txt(parsed)
+        parser.validate_as_carbon_txt(parsed)

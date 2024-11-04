@@ -13,7 +13,7 @@ from django.core.wsgi import get_wsgi_application
 
 
 os.environ.setdefault(
-    "DJANGO_SETTINGS_MODULE", "carbon_txt_validator.web.config.settings.development"
+    "DJANGO_SETTINGS_MODULE", "carbon_txt.web.config.settings.development"
 )
 
 application = get_wsgi_application()
