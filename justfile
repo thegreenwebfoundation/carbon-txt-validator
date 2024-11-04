@@ -33,3 +33,6 @@ docs-watch:
 build:
   rm -rf ./dist
   uv build
+
+publish: build
+  uv run twine upload dist/*

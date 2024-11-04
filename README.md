@@ -42,15 +42,18 @@ You can now run the command line tool with `uv run carbon-txt`
 
 ### Running outside a project
 
-If you have uv installed, you can run the command line tool using the slightly
-longer `carbon-txt` command instead (we need a cli command that shares the name
-of the project).
-
-This will download the latest published version from pypi and run the cli:
+If you have uv installed, you can run the command line tool like so:
 
 ```
+# check a file
 uv tool run carbon-txt validate ./path/to/file
+
+# run a server
+uv tool run carbon-txt serve
 ```
+
+This will download the latest published version from pypi and run the
+corresponding CLI command
 
 ## With the HTTP API
 
