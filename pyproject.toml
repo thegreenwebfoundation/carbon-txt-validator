@@ -43,4 +43,5 @@ dev-dependencies = [
     "myst-parser>=4.0.0",
     "furo>=2024.8.6",
     "sphinx-autobuild>=2024.10.3",
+    "twine>=5.1.1",
 ]
