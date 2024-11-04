@@ -1,8 +1,8 @@
 from ninja import NinjaAPI, Schema
 from django.http import HttpRequest, HttpResponse
 
-from carbon_txt_validator.parsers_toml import CarbonTxtParser
-from carbon_txt_validator.schemas import CarbonTxtFile
+from carbon_txt.parsers_toml import CarbonTxtParser
+from carbon_txt.schemas import CarbonTxtFile
 from pydantic import HttpUrl
 
 # Initialize the NinjaAPI with OpenAPI documentation details

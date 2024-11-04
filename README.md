@@ -32,10 +32,10 @@ If you are not using virtual environments directly, you can use it with
 [uv](https://docs.astral.sh/uv/), which is the recommended way to run the
 project.
 
-Add carbon-txt-validator to a project with `uv add`:
+Add carbon-txt to a project with `uv add`:
 
 ```
-uv add carbon-txt-validator
+uv add carbon-txt
 ```
 
 You can now run the command line tool with `uv run carbon-txt`
@@ -43,13 +43,13 @@ You can now run the command line tool with `uv run carbon-txt`
 ### Running outside a project
 
 If you have uv installed, you can run the command line tool using the slightly
-longer `carbon-txt-validator` command instead (we need a cli command that shares
-the name of the project).
+longer `carbon-txt` command instead (we need a cli command that shares the name
+of the project).
 
 This will download the latest published version from pypi and run the cli:
 
 ```
-uv tool run carbon-txt-validator validate ./path/to/file
+uv tool run carbon-txt validate ./path/to/file
 ```
 
 ## With the HTTP API

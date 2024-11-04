@@ -1,13 +1,7 @@
-import hashlib
-import pathlib
-
-import pytest
-
-from carbon_txt_validator.finders import FileFinder
+from carbon_txt.finders import FileFinder
 
 
 class TestFinder:
-
     def test_looking_up_domain_simple(self):
         """
         Look up a domain with a carbon.txt file based on the domain, and return the carbon.txt file URL

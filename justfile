@@ -19,7 +19,7 @@ test-watch *options:
 
 # serve the django app, using the django manage.py script
 serve:
-  uv run python ./src/carbon_txt_validator/web/manage.py runserver
+  uv run python ./src/carbon_txt/web/manage.py runserver
 
 # generate docs into the docs/_build/html directory
 docs:

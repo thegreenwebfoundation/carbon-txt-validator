@@ -106,7 +106,7 @@ def validate_file(
 
 def configure_django(
     debug=True,
-    settings_module: str = "carbon_txt_validator.web.config.settings.development",
+    settings_module: str = "carbon_txt.web.config.settings.development",
 ):
     """Configure Django settings programmatically"""
 
@@ -151,21 +151,19 @@ def serve(
         # Configure Django first
         configure_django(
             debug=debug,
-            settings_module="carbon_txt_validator.web.config.settings.production",
+            settings_module="carbon_txt.web.config.settings.production",
         )
     else:
         configure_django(
             debug=debug,
-            settings_module="carbon_txt_validator.web.config.settings.development",
+            settings_module="carbon_txt.web.config.settings.development",
         )
 
     if server == "granian":
         rich.print("Running with Granian server")
         rich.print("\n ----------------\n")
         # Run Granian instead of Django development server
-        os.system(
-            "granian --interface wsgi carbon_txt_validator.web.config.wsgi:application"
-        )
+        os.system("granian --interface wsgi carbon_txt.web.config.wsgi:application")
     else:
         execute_from_command_line(["manage.py", "runserver", f"{host}:{port}"])
 

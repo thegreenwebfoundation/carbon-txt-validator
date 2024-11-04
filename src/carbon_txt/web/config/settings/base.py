@@ -83,7 +83,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
-    "carbon_txt_validator.web.middleware.AddTrailingSlashMiddleware",
+    "carbon_txt.web.middleware.AddTrailingSlashMiddleware",
 ]
 
 ROOT_URLCONF = "config.urls"
