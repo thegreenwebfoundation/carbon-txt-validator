@@ -52,6 +52,71 @@ true.
 CORS_ALLOW_ALL_ORIGINS = True
 ```
 
-```{admonition} TODO
-Add support for setting new CORS ALLOWED ORIGINS in production once we deploy to production.
+## Custom django Settings
+
+### Custom Django Settings
+
+You can customize the Django settings used by the carbon.txt validator by using
+the `--django-settings` flag in the CLI. This allows you to specify a custom
+settings module.
+
+For example, if you are in `/tmp` and have a custom settings file located at
+`/tmp/local_settings.py`, you can run the validator with your custom settings
+like this:
+
+```shell
+# run the validator with custom Django settings
+carbon-txt serve --django-settings local_settings
+```
+
+#### Using config file in a folder
+
+You are importing a python module, so mae sure that the settings module path is
+a dot-separated Python import path:
+
+```shell
+# run the validator with custom Django settings file at config/settings/custom.py
+carbon-txt serve --django-settings config.settings.custom
+```
+
+#### Using custom settings file to override settings
+
+Using a custom django settings file lets you override specific settings, so if
+you need to make a site CORS accessible, you might pass in a file like this:
+
+```py
+# local_config.py
+
+from carbon_txt.web.config.settings.development import *  # noqa
+
+# Allow connections from any domain, using the installed django-cors-headers package
+# https://github.com/adamchainz/django-cors-headers#cors_allow_all_origins-bool
+CORS_ALLOW_ALL_ORIGINS = True
+
+print("Look! I accept CORS requests from everywhere.\n")
+```
+
+Then run it like this:
+
+```
+carbon-txt serve --django-settings local_config
+```
+
+You should see output like this:
+
+```text
+Using custom settings module: local_config
+
+ ----------------
+
+Look! I accept CORS requests from everywhere
+
+Watching for file changes with StatReloader
+Performing system checks...
+
+System check identified no issues (0 silenced).
+November 05, 2024 - 11:22:41
+Django version 5.1.3, using settings 'local_config'
+Starting development server at http://127.0.0.1:8000/
+Quit the server with CONTROL-C.
 ```

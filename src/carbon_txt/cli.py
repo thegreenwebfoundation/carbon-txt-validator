@@ -1,6 +1,7 @@
 import logging
 import os
 import sys
+
 from pathlib import Path
 
 import django
@@ -127,6 +128,7 @@ def serve(
     ),
 ):
     """Run the carbon.txt validator web server"""
+
     try:
         # override the prod / non prod switch if a custom settings module is provided
         if django_settings:
