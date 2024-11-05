@@ -1,6 +1,7 @@
 import logging
 import os
 import sys
+
 from pathlib import Path
 
 import django
@@ -9,8 +10,8 @@ import typer
 from django.core.management import execute_from_command_line
 
 from . import finders, parsers_toml
-from .schemas import CarbonTxtFile
 from .exceptions import InsecureKeyException
+from .schemas import CarbonTxtFile
 
 logger = logging.getLogger(__name__)
 
@@ -106,26 +107,10 @@ def validate_file(
 
 
 def configure_django(
-    debug=True,
     settings_module: str = "carbon_txt.web.config.settings.development",
 ):
     """Configure Django settings programmatically"""
-
-    # Get the path to the web directory containing manage.py
-    web_dir = Path(__file__).parent / "web"
-
-    if not web_dir.exists():
-        rich.print(
-            "[red]Error: Could not find web directory containing Django app[/red]"
-        )
-        sys.exit(1)
-
-    # Add the web directory to the Python path
-    sys.path.insert(0, str(web_dir))
-
-    # Set the Django settings module
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", settings_module)
-
     django.setup()
 
 
@@ -133,7 +118,6 @@ def configure_django(
 def serve(
     host: str = typer.Option("127.0.0.1", help="Host to bind to"),
     port: int = typer.Option(8000, help="Port to listen on"),
-    debug: bool = typer.Option(True, help="Run in debug mode"),
     server: str = typer.Option(
         "django",
         help="Run in as django server or in production with the granian server",
@@ -144,12 +128,14 @@ def serve(
     ),
 ):
     """Run the carbon.txt validator web server"""
-    try:
-        web_dir = Path(__file__).parent / "web"
-        os.chdir(web_dir)
 
+    try:
         # override the prod / non prod switch if a custom settings module is provided
         if django_settings:
+            # because we want to support importing a custtom settings file in the
+            # same directory where we are calling `carbon-txt serve` we add the current
+            # directory to the python path
+            sys.path.insert(0, os.getcwd())
             rich.print(f"Using custom settings module: {django_settings}")
             settings_module = django_settings
         else:
@@ -161,7 +147,6 @@ def serve(
 
         rich.print("\n ----------------\n")
         configure_django(
-            debug=debug,
             settings_module=settings_module,
         )
 

@@ -18,21 +18,21 @@ test-watch *options:
   uv run pytest-watch -- {{ options }}
 
 # serve the django app, using the django manage.py script
-serve:
-  uv run python ./src/carbon_txt/web/manage.py runserver
+serve *options:
+  uv run python ./src/carbon_txt/web/manage.py runserver {{ options }}
 
 # generate docs into the docs/_build/html directory
-docs:
-  uv run sphinx-build docs docs/_build/html
+docs *options:
+  uv run sphinx-build docs docs/_build/html {{ options }}
 
 # generate docs, serve the locally over http, and update them when files change
-docs-watch:
-  uv run sphinx-autobuild docs docs/_build/html
+docs-watch *options:
+  uv run sphinx-autobuild docs docs/_build/html {{ options }}
 
 # clear the dist directory, and build the project, ready for publishing
 build:
   rm -rf ./dist
   uv build
 
-publish: build
-  uv run twine upload dist/*
+publish *options: build
+  uv run twine upload dist/* {{ options }}
