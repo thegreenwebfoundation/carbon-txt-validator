@@ -17,7 +17,7 @@ Including another URLconf
 
 from django.contrib import admin
 from django.urls import path
-from .api import ninja_api
+from ..api import ninja_api
 from django.shortcuts import redirect
 
 
