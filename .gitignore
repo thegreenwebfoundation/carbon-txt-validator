@@ -5,12 +5,14 @@ build/
 dist/
 wheels/
 *.egg-info
+cov.xml
+.coverage
 
 # Django files
-
 *.sqlite3
 
 # Virtual environments
 .venv
 
-_build/
+# Env vars
+.env
