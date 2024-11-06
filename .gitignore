@@ -6,6 +6,10 @@ dist/
 wheels/
 *.egg-info
 
+# Django files
+
+*.sqlite3
+
 # Virtual environments
 .venv
 
