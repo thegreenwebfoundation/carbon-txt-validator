@@ -120,3 +120,20 @@ Django version 5.1.3, using settings 'local_config'
 Starting development server at http://127.0.0.1:8000/
 Quit the server with CONTROL-C.
 ```
+
+
+### Monitoring and tracking errors with Sentry
+
+The Django application served by the carbon.txt validator is set up to support instrumentation with Sentry.
+
+To activate it, you need to declare the `SENTRY_DSN`, `SENTRY_TRACE_SAMPLE_RATE` and `SENTRY_PROFILE_SAMPLE_RATE` environment variables when running the web server.
+
+The easiest way to do this is declare them in an .env file like so:
+
+```
+# .env
+
+SENTRY_DSN="https://LONG_ALPHANUMERIC_STRING.ingest.de.sentry.io/NUMERIC_ID"
+SENTRY_TRACE_SAMPLE_RATE="1.0"
+SENTRY_PROFILE_SAMPLE_RATE="1.0"
+```

@@ -10,11 +10,12 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
-import pathlib
-import environ
-import os
-
 import logging
+import os
+import pathlib
+
+import environ
+import sentry_sdk
 
 from carbon_txt.exceptions import InsecureKeyException
 
@@ -30,6 +31,9 @@ env = environ.Env(
     DEBUG=(bool, False),
     SECRET_KEY=(str, os.getenv("SECRET_KEY", DEFAULT_SECRET_KEY)),
     ENV_PATH=(str, ".env"),
+    SENTRY_DSN=(str, ""),
+    SENTRY_TRACE_SAMPLE_RATE=(float, 0),
+    SENTRY_PROFILE_SAMPLE_RATE=(float, 0),
 )
 
 # fetch environment variables from .env file
@@ -162,3 +166,16 @@ STATIC_URL = "static/"
 # https://docs.djangoproject.com/en/5.1/ref/settings/#default-auto-field
 
 DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
+
+
+if env("SENTRY_DSN"):
+    sentry_sdk.init(
+        dsn=env("SENTRY_DSN"),
+        # Set traces_sample_rate to 1.0 to capture 100%
+        # of transactions for tracing.
+        traces_sample_rate=env("SENTRY_TRACE_SAMPLE_RATE"),
+        # Set profiles_sample_rate to 1.0 to profile 100%
+        # of sampled transactions.
+        # We recommend adjusting this value in production.
+        profiles_sample_rate=env("SENTRY_PROFILE_SAMPLE_RATE"),
+    )
