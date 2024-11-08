@@ -21,9 +21,12 @@ jobs:
 
     strategy:
       matrix:
-        python-version: [3.11]
+        python-version: [3.11, 3.12, 3.13]
 
     steps:
+        # https://github.com/marketplace/actions/setup-just
+      - uses: extractions/setup-just@v2
+
       - uses: actions/checkout@v4
 
       - name: Use Python ${{ matrix.python-version }}
@@ -32,12 +35,9 @@ jobs:
           python-version: ${{ matrix.python-version }}
 
       - name: Install tooling for managing dependencies
-        run: |
-          python -m pip install --upgrade uv wheel
-
+        run: uv sync
 
       - name: Run tests
-        run: |
-          uv run pytest
+        run: just ci
         env:
           SECRET_KEY: "test"
