@@ -101,3 +101,18 @@ def validate_url(
 
     # Return errors if validation failed
     return {"success": False, "errors": result.errors()}
+
+
+@ninja_api.get(
+    "/json_schema/",
+    summary="Retrieve JSON Schema",
+    description="Get the JSON schema representation of carbon.txt file spec for validation",
+)
+def get_json_schema(request: HttpRequest) -> HttpResponse:
+    """
+    Endpoint to get the JSON schema for a carbon.txt file.
+    """
+    # Get the JSON schema for a carbon.txt file
+    schema = CarbonTxtFile.model_json_schema()
+
+    return schema

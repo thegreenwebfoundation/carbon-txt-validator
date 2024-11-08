@@ -1,7 +1,7 @@
+import json
 import logging
 import os
 import sys
-
 from pathlib import Path
 
 import django
@@ -104,6 +104,14 @@ def validate_file(
         return 1
 
     return parsed_result
+
+
+@app.command()
+def schema():
+    schema = CarbonTxtFile.model_json_schema()
+
+    rich.print(json.dumps(schema, indent=2))
+    return schema
 
 
 def configure_django(
