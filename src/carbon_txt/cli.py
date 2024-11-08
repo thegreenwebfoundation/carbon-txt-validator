@@ -1,7 +1,7 @@
+import json
 import logging
 import os
 import sys
-
 from pathlib import Path
 
 import django
@@ -23,6 +23,8 @@ app.add_typer(
     name="validate",
     help="Validate carbon.txt files, either online, or locally.",
 )
+
+err_console = rich.console.Console(stderr=True)
 
 
 file_finder = finders.FileFinder()
@@ -103,7 +105,21 @@ def validate_file(
         _log_validated_carbon_txt_object(validation_results)
         return 1
 
-    return parsed_result
+
+@app.command()
+def schema():
+    """
+    Generate a JSON Schema representation of a carbon.txt file for validation
+    """
+    schema = CarbonTxtFile.model_json_schema()
+
+    err_console.print("JSON Schema for a carbon.txt file: \n")
+
+    if sys.stdout.isatty():
+        rich.print(json.dumps(schema, indent=2))
+    else:
+        print(json.dumps(schema, indent=2))
+    return 0
 
 
 def configure_django(

@@ -1,8 +1,10 @@
+import json
+
 from typer.testing import CliRunner
 
 from carbon_txt.cli import app
 
-runner = CliRunner()
+runner = CliRunner(mix_stderr=False)
 
 
 class TestCLI:
@@ -33,3 +35,17 @@ class TestCLI:
         )
         assert result.exit_code == 0
         assert "https://used-in-tests.carbontxt.org" in result.stdout
+
+    def test_schema(self):
+        """
+        Run our CLI to `carbontxt schema`, and confirm we
+        get back the expected JSON Schema representation of our domain objects
+        """
+
+        result = runner.invoke(app, ["schema"])
+        parsed_schema = json.loads(result.stdout)
+
+        assert result.exit_code == 0
+        assert "JSON Schema for a carbon.txt file" in result.stderr
+        assert "CarbonTxtFile" in parsed_schema.get("title")
+        assert "$defs" in parsed_schema.keys()
