@@ -24,6 +24,9 @@ jobs:
         python-version: [3.11, 3.12, 3.13]
 
     steps:
+
+      - uses: actions/checkout@v4
+
         # https://github.com/marketplace/actions/setup-just
       - uses: extractions/setup-just@v2
         name: install just
@@ -32,10 +35,8 @@ jobs:
       - name: Install uv
         uses: astral-sh/setup-uv@v3
         with:
+          version: "0.5.0"
           enable-cache: true
-
-
-      - uses: actions/checkout@v4
 
       - name: Use Python ${{ matrix.python-version }}
         uses: actions/setup-python@v5
