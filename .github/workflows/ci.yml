@@ -26,6 +26,11 @@ jobs:
     steps:
         # https://github.com/marketplace/actions/setup-just
       - uses: extractions/setup-just@v2
+        name: install just
+
+        # https://docs.astral.sh/uv/guides/integration/github/
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
 
       - uses: actions/checkout@v4
 
