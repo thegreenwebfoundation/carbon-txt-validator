@@ -108,6 +108,9 @@ def validate_file(
 
 @app.command()
 def schema():
+    """
+    Generate a JSON Schema representation of a carbon.txt file for validation
+    """
     schema = CarbonTxtFile.model_json_schema()
 
     rich.print(json.dumps(schema, indent=2))
