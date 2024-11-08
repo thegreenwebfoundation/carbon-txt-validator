@@ -32,6 +32,9 @@ test-watch *options:
 serve *options:
   uv run python ./src/carbon_txt/web/manage.py runserver {{ options }}
 
+manage *options:
+  uv run python ./src/carbon_txt/web/manage.py {{ options }}
+
 # generate docs into the docs/_build/html directory
 docs *options:
   uv run sphinx-build docs docs/_build/html {{ options }}
