@@ -9,13 +9,24 @@ set dotenv-load
 default:
   just --list
 
+# invoke the cli, as if you were running `carbon-txt` after downloading the package
+run-cli *options:
+  uv run carbon-txt
+
+# show the environment variables available
+env:
+  env
+
 # run all the tests, with the ability to pass in options
 test *options:
-  uv run pytest {{ options }}
+  uv run pytest {{ options }} --cov
+# run the tests for a CI environment, generating a coverage report
+ci *options:
+  uv run pytest {{ options }} --cov --cov-report xml:cov.xml
 
 # run all the tests, and re-run them when files change
 test-watch *options:
-  uv run pytest-watch -- {{ options }}
+  uv run pytest-watch -- {{ options }} --cov --cov-report xml:cov.xml
 
 # serve the django app, using the django manage.py script
 serve *options:
@@ -34,5 +45,6 @@ build:
   rm -rf ./dist
   uv build
 
+# publish the built python project to pypi
 publish *options: build
   uv run twine upload dist/* {{ options }}
