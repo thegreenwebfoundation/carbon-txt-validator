@@ -91,6 +91,26 @@ class FileFinder:
 
         # TODO allow file on the domain to override the one specificed in a 'via'
 
+    def _check_for_via_delegation(self, url: httpx.URL) -> httpx.URL:
+        """
+        Check for a 'via' header in the response, and return the URL in the 'via' header if present
+        """
+
+        if "via" in url.headers:
+            via_header = url.headers.get("via")
+
+            version, via_url, *rest = via_header.split(" ")
+            logger.info(f"Found a 'via' header, following to {via_url}")
+
+            try:
+                parsed_url = httpx.URL(via_url)
+                return str(parsed_url)
+            except httpx.InvalidURL:
+                logger.error(f"Invalid URL in 'via' header: {via_url}")
+                return None
+
+        return None
+
     def resolve_uri(self, uri: str) -> str:
         """
         Accept a URI pointing to a carbon.txt file, and return the final
@@ -100,19 +120,24 @@ class FileFinder:
         # check if the uri looks like one we might reach over HTTP / HTTPS
         parsed_uri = self._parse_uri(uri)
 
-        # if there is no http or https scheme, we assume a local file
+        # if there is no http or https scheme, we assume a local file, return the
+        # absolute path of the file
         if not parsed_uri:
             path_to_file = Path(uri)
             if not path_to_file.exists():
                 raise FileNotFoundError(f"File not found at {path_to_file.absolute()}")
             return str(path_to_file.resolve())
 
+        # if the URI is a valid HTTP or HTTPS URI, we check if the URI is reachable
         response = httpx.head(parsed_uri.geturl())
+
+        # catch any errors from the request
+        response.raise_for_status()
+
+        # check if there is a 'via' header in the response containing a domain to delegate
+        # the carbon.txt file lookup to
+        if via_domain := self._check_for_via_delegation(response):
+            return via_domain
+
         if response.status_code == 200:
             return parsed_uri.geturl()
-
-        # fallback to doing retry or notifying us if the domain is unreachable
-        # TODO:
-
-        # check if there is a via header
-        # TODO: do we follow multiple 'via' headers? If so, how many hops do we follow before we timeout?
