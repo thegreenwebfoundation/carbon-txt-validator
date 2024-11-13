@@ -10,7 +10,7 @@ import typer
 from django.core.management import execute_from_command_line
 
 from . import finders, parsers_toml
-from .exceptions import InsecureKeyException
+from . import exceptions
 from .schemas import CarbonTxtFile
 
 logger = logging.getLogger(__name__)
@@ -51,7 +51,7 @@ def validate_domain(domain: str):
         rich.print(f"Carbon.txt file found at {result}.\n")
     else:
         rich.print(f"No valid carbon.txt file found on {domain}.\n")
-        return 1
+        typer.Exit(code=1)
 
     # fetch and parse file
     content = parser.get_carbon_txt_file(result)
@@ -62,11 +62,11 @@ def validate_domain(domain: str):
     if isinstance(validation_results, CarbonTxtFile):
         _log_validation_results(success=True)
         _log_validated_carbon_txt_object(validation_results)
-        return 0
+        typer.Exit(code=0)
     else:
         _log_validation_results(success=False)
         _log_validated_carbon_txt_object(validation_results)
-        return 1
+        typer.Exit(code=1)
 
 
 @validate_app.command("file")
@@ -77,33 +77,44 @@ def validate_file(
 ):
     if file_path == "-":
         content = typer.get_text_stream("stdin").read()
+        parsed_result = parser.parse_toml(content)
     else:
         try:
             result = file_finder.resolve_uri(file_path)
+            parsed_result = parser.fetch_parsed_carbon_txt_file(result)
+
+        # the file path is local, but we can't access it
         except FileNotFoundError:
             full_file_path = Path(file_path).absolute()
             rich.print(f"No valid carbon.txt file found at {full_file_path}. \n")
-            return 1
+            raise typer.Exit(code=1)
 
-        if result:
-            rich.print(f"Carbon.txt file found at {result}.\n")
-            content = parser.get_carbon_txt_file(result)
-        else:
-            full_file_path = Path(file_path).absolute()
-            rich.print(f"No valid carbon.txt file found at {full_file_path}. \n")
-            return 1
+        # the file path is remote, and we can't access it
+        except exceptions.UnreachableCarbonTxtFile as e:
+            logger.error(f"Error: {e}")
+            raise typer.Exit(code=1)
 
-    parsed_result = parser.parse_toml(content)
+        # the file path is reachable, and but it's not valid TOML
+        except exceptions.NotParseableTOML as e:
+            rich.print(
+                f"A carbon.txt file was found at {file_path}: but it wasn't parseable TOML. Error was: {e}"
+            )
+            raise typer.Exit(code=1)
+
+        except Exception as e:
+            rich.print(f"An unexpected error occurred: {e}")
+            raise typer.Exit(code=1)
+
     validation_results = parser.validate_as_carbon_txt(parsed_result)
 
     if isinstance(validation_results, CarbonTxtFile):
         _log_validation_results(success=True)
         _log_validated_carbon_txt_object(validation_results)
-        return 0
+        return typer.Exit(code=0)
     else:
         _log_validation_results(success=False)
         _log_validated_carbon_txt_object(validation_results)
-        return 1
+        return typer.Exit(code=0)
 
 
 @app.command()
@@ -119,7 +130,7 @@ def schema():
         rich.print(json.dumps(schema, indent=2))
     else:
         print(json.dumps(schema, indent=2))
-    return 0
+    typer.Exit(code=0)
 
 
 def configure_django(
@@ -173,12 +184,12 @@ def serve(
             os.system("granian --interface wsgi carbon_txt.web.config.wsgi:application")
         else:
             execute_from_command_line(["manage.py", "runserver", f"{host}:{port}"])
-    except InsecureKeyException as e:
+    except exceptions.InsecureKeyException as e:
         rich.print(f"{e}")
         rich.print(
             "For more, see the docs at https://carbon-txt-validator.readthedocs.io/en/latest/deployment.html"
         )
-        sys.exit(1)
+        typer.Exit(code=1)
     # anything unexpected we provide a clear path to raising an issue to fix it
     except Exception as e:
         rich.print(f"An error occurred: {e}")
@@ -189,7 +200,7 @@ def serve(
                 "with steps to reproduce this error"
             )
         )
-        sys.exit(1)
+        typer.Exit(code=1)
 
 
 if __name__ == "__main__":

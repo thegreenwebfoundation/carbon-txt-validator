@@ -36,6 +36,17 @@ class TestCLI:
         assert result.exit_code == 0
         assert "https://used-in-tests.carbontxt.org" in result.stdout
 
+    def test_lookup_missing_file(self):
+        """
+        Run our CLI to `carbontxt validate file https://some-domain.com/carbon.txt`,
+        """
+
+        # Update to a domain we know will not ever have a carbon.txt file
+        result = runner.invoke(
+            app, ["validate", "file", "https://www.thegreenwebfoundation.org"]
+        )
+        assert result.exit_code == 1
+
     def test_schema(self):
         """
         Run our CLI to `carbontxt schema`, and confirm we

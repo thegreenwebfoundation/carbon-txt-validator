@@ -6,6 +6,8 @@ from typing import Optional
 import logging
 import rich  # noqa
 
+from .exceptions import UnreachableCarbonTxtFile
+
 logger = logging.getLogger(__name__)
 
 logger.setLevel(logging.DEBUG)
@@ -129,8 +131,13 @@ class FileFinder:
             return str(path_to_file.resolve())
 
         # if the URI is a valid HTTP or HTTPS URI, we check if the URI is reachable
-        response = httpx.head(parsed_uri.geturl())
-
+        # and if there is a 'via' header in the response, we follow that
+        try:
+            response = httpx.head(parsed_uri.geturl())
+        except httpx._exceptions.ConnectError:
+            raise UnreachableCarbonTxtFile(
+                f"Could not connect to {parsed_uri.geturl()}."
+            )
         # catch any errors from the request
         response.raise_for_status()
 

@@ -3,6 +3,8 @@ from . import schemas
 import httpx
 import pathlib
 
+from . import exceptions
+
 
 import logging
 
@@ -30,13 +32,29 @@ class CarbonTxtParser:
         if pathlib.Path(str).exists():
             return pathlib.Path(str).read_text()
 
+    def fetch_parsed_carbon_txt_file(self, uri: str) -> dict:
+        """
+        Accept a URI and return a parsed TOML object.
+        """
+        try:
+            carbon_txt = self.get_carbon_txt_file(uri)
+            logger.info("Carbon.txt file found at {result}.\n")
+            parsed = self.parse_toml(carbon_txt)
+            logger.info("Carbon.txt file parsed .\n")
+            return parsed
+        except toml.TOMLDecodeError as e:
+            raise exceptions.NotParseableTOML(e)
+
     def parse_toml(self, str) -> dict:
         """
-        Accept a string of TOML and return a CarbonTxtFile
-        object
+        Accept a string of TOML and return a dict representing the
+        keys and values going into a CarbonTxtFile object.
         """
-        parsed = toml.loads(str)
-        return parsed
+        try:
+            parsed = toml.loads(str)
+            return parsed
+        except toml.TOMLDecodeError as e:
+            raise exceptions.NotParseableTOML(e)
 
     def validate_as_carbon_txt(self, parsed) -> schemas.CarbonTxtFile:
         """
