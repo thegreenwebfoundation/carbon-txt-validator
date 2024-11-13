@@ -77,13 +77,11 @@ def validate_file(
 ):
     if file_path == "-":
         content = typer.get_text_stream("stdin").read()
+        parsed_result = parser.parse_toml(content)
     else:
         try:
             result = file_finder.resolve_uri(file_path)
-            logger.info("Carbon.txt file found at {result}.\n")
-            content = parser.get_carbon_txt_file(result)
-            logger.info("Carbon.txt file parsed .\n")
-            parsed_result = parser.parse_toml(content)
+            parsed_result = parser.fetch_parsed_carbon_txt_file(result)
 
         # the file path is local, but we can't access it
         except FileNotFoundError:

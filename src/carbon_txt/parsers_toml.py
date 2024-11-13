@@ -32,13 +32,15 @@ class CarbonTxtParser:
         if pathlib.Path(str).exists():
             return pathlib.Path(str).read_text()
 
-    def fetch_pared_carbon_txt_file(self, uri: str) -> dict:
+    def fetch_parsed_carbon_txt_file(self, uri: str) -> dict:
         """
         Accept a URI and return a parsed TOML object.
         """
         try:
             carbon_txt = self.get_carbon_txt_file(uri)
+            logger.info("Carbon.txt file found at {result}.\n")
             parsed = self.parse_toml(carbon_txt)
+            logger.info("Carbon.txt file parsed .\n")
             return parsed
         except toml.TOMLDecodeError as e:
             raise exceptions.NotParseableTOML(e)
