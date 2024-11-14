@@ -10,6 +10,12 @@ Fixed, Changed, Added, Removed, Fixed, Security
 
 ## Unreleased
 
+### [0.0.9]
+
+### Fixed
+
+- Fix ordering of optional params when used with Granian webserver
+
 ## [0.0.8]
 
 ### Changed
