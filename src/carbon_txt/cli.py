@@ -183,8 +183,9 @@ def serve(
             # Run Granian instead of Django development server
             os.system(
                 (
-                    "granian --interface wsgi carbon_txt.web.config.wsgi:application"
-                    "--host {host} --port {port}"
+                    "granian --interface wsgi "
+                    f"--host {host} --port {port} "
+                    "carbon_txt.web.config.wsgi:application"
                 )
             )
         else:

@@ -4,6 +4,8 @@ The Carbon-txt validator is an open source project and contributions are welcome
 
 Our [issue tracker is on Github](https://github.com/thegreenwebfoundation/carbon-txt-validator/issues), and maintain a high level roadmap of coming releases as milestones.
 
+
+
 ### Getting set up
 
 Follow the instructions in [installation](installation.md) to get set up if you are on a local machine.
@@ -40,7 +42,7 @@ Then make a git tag, making sure you have the `v` prefix for the version number:
 git tag v1.2.3
 ```
 
-There is a Github action set up in `.github/workflows/release.yml` that listens for new tags being pushed to the main repo, and then pushes the arelease to PyPi using the [Trusted publisher](https://docs.pypi.org/trusted-publishers/) process.
+There is a Github action set up in `.github/workflows/release.yml` that listens for new tags being pushed to the main repo, and then pushes the release to PyPi using the [Trusted publisher](https://docs.pypi.org/trusted-publishers/) process.
 
 To push a git tag, use the tag name when pushing to the origin repository.
 
@@ -50,9 +52,21 @@ In our case we could push like so:
 git push origin v1.2.3
 ```
 
+#### What happens after I push a tag?
+
+It's always worth reviewing [the Github action directly in the source code](https://github.com/thegreenwebfoundation/carbon-txt-validator/blob/main/.github/workflows/release.yml), but in the nutshell. It does the following in order:
+
+1. Checkout that specific tag from the git source repository
+2. Install dependencies for building the python package
+3. Build the package, checking that the git tag and the python release version match
+4. Publish to the main PyPi package repository
+
+Assuming the action has successfully run, your release should be visible on PyPi at https://pypi.org/project/carbon-txt, and if your release version was 1.2.3, it would be available at https://pypi.org/project/carbon-txt/1.2.3/
+
+
 #### Deleting a tag
 
-Tags are tied to specific commits, not branches. So if you have created a tag for a release _but have not pushed it_, you can delete the tag, locally with:
+Tags are tied to specific commits, not branches. So if you have created a tag for a release _but have not pushed it_, you can delete the tag, locally like so:
 
 ```
 git tag -d v1.2.3
@@ -64,3 +78,17 @@ You can then re-tag the relevant commit, ready to push and publish:
 git tag v1.2.3
 git push origin v1.2.3
 ```
+
+Once a tag has been pushed to Github, and used in the publishing workflow, you will not be able to re-use it
+
+##### If you're not sure about pushing a release yet
+
+This project broadly follows Semantic versioning.as defined on [the Python Packaging website page on versioning](https://packaging.python.org/en/latest/discussions/versioning/).
+
+**If you want to test the package with others first**
+
+If you want to test out publishing a release on the main PyPi site, use a release candidate suffix, (i.e. `v1.2.3rc1`) with your tags and versions.
+
+**If you want to test the release process itself to get comfortable with it**
+
+Use the PyPi test site. you can
