@@ -11,7 +11,7 @@ default:
 
 # invoke the cli, as if you were running `carbon-txt` after downloading the package
 run-cli *options:
-  uv run carbon-txt
+  uv run carbon-txt {{ options }}
 
 # show the environment variables available
 env:
