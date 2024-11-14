@@ -49,3 +49,18 @@ In our case we could push like so:
 ```
 git push origin v1.2.3
 ```
+
+#### Deleting a tag
+
+Tags are tied to specific commits, not branches. So if you have created a tag for a release _but have not pushed it_, you can delete the tag, locally with:
+
+```
+git tag -d v1.2.3
+```
+
+You can then re-tag the relevant commit, ready to push and publish:
+
+```
+git tag v1.2.3
+git push origin v1.2.3
+```
