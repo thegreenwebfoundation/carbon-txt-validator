@@ -10,4 +10,5 @@ installation
 architecture
 deployment
 contributing
+runbook
 ```

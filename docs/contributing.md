@@ -1,4 +1,6 @@
-# Contributing to the carbon-txt validator project
+# Contributing
+
+## How to contribute the carbon-txt validator project
 
 The Carbon-txt validator is an open source project and contributions are welcomed.
 
@@ -91,4 +93,33 @@ If you want to test out publishing a release on the main PyPi site, use a releas
 
 **If you want to test the release process itself to get comfortable with it**
 
-Use the PyPi test site. you can
+Use the PyPi test site. Can deploy to the test PyPi site by setting up a `.pypirc` file in your home directory and placing the tokens issued to on the test.pypi.org website.
+
+```
+# ~/.pypirc
+
+[pypi]
+username = __token__
+password = pypi-LONGPASSWORD
+
+[testpypi]
+username = __token__
+password = pypi-LONGPASSWORD
+```
+
+You can then trigger an upload manually using twine:
+
+```
+uv run twine upload --repository testpypi dist/* --verbose
+```
+
+Assumign you have set up Trusted publishing on test.pypi.org you can try a test publish by adjusting the `Publish to PyPi` Github action in `release.yml`
+
+```yaml
+      - name: Publish package distributions to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        # this bit switches where the "Publish to PyPi" action
+        # publishes to
+        with:
+          repository-url: https://test.pypi.org/legacy
+```
