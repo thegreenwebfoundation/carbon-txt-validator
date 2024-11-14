@@ -8,6 +8,7 @@ on:
 jobs:
   release_to_pypi:
     runs-on: ubuntu-latest
+    environment: release
     permissions:
       # IMPORTANT: this permission is mandatory for trusted publishing
       id-token: write
@@ -51,5 +52,3 @@ jobs:
 
       - name: Publish package distributions to PyPI
         uses: pypa/gh-action-pypi-publish@release/v1
-        with:
-          repository-url: https://test.pypi.org/legacy/
