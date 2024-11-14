@@ -10,7 +10,13 @@ Fixed, Changed, Added, Removed, Fixed, Security
 
 ## Unreleased
 
+## [0.0.8]
 
+### Changed
+
+- Switch to using more detailed exceptions
+
+### Added
 - Add support for generating JSON Schema representation with CLI and API
 - Add support for using Sentry to track exceptions, performance and so on.
 
