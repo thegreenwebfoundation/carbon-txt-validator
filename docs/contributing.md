@@ -2,7 +2,7 @@
 
 ## How to contribute the carbon-txt validator project
 
-The Carbon-txt validator is an open source project and contributions are welcomed.
+The Carbon-txt validator is an open source project and contributions are welcome.
 
 Our [issue tracker is on Github](https://github.com/thegreenwebfoundation/carbon-txt-validator/issues), and maintain a high level roadmap of coming releases as milestones.
 
@@ -44,11 +44,9 @@ Then make a git tag, making sure you have the `v` prefix for the version number:
 git tag v1.2.3
 ```
 
-There is a Github action set up in `.github/workflows/release.yml` that listens for new tags being pushed to the main repo, and then pushes the release to PyPi using the [Trusted publisher](https://docs.pypi.org/trusted-publishers/) process.
+There is a Github action set up in `.github/workflows/release.yml` that listens for new tags being pushed to the main repo.When a new tag is pushed to the repo, the action builds the python package, and then pushes the release to PyPi using the [Trusted publisher](https://docs.pypi.org/trusted-publishers/) process.
 
-To push a git tag, use the tag name when pushing to the origin repository.
-
-In our case we could push like so:
+To push a git tag, use the tag name when pushing to the origin repository. In our case of creating  tag `v1.2.3` we push tag `v1.2.3` to `origin`:
 
 ```
 git push origin v1.2.3
@@ -56,14 +54,14 @@ git push origin v1.2.3
 
 #### What happens after I push a tag?
 
-It's always worth reviewing [the Github action directly in the source code](https://github.com/thegreenwebfoundation/carbon-txt-validator/blob/main/.github/workflows/release.yml), but in the nutshell. It does the following in order:
+It's worth reviewing [the Github action source directly as the final source of truth](https://github.com/thegreenwebfoundation/carbon-txt-validator/blob/main/.github/workflows/release.yml), but in the nutshell, the github action responsible for creating releases does the following:
 
 1. Checkout that specific tag from the git source repository
 2. Install dependencies for building the python package
 3. Build the package, checking that the git tag and the python release version match
 4. Publish to the main PyPi package repository
 
-Assuming the action has successfully run, your release should be visible on PyPi at https://pypi.org/project/carbon-txt, and if your release version was 1.2.3, it would be available at https://pypi.org/project/carbon-txt/1.2.3/
+Assuming the action has successfully run, your release should be visible on PyPi at [https://pypi.org/project/carbon-txt](https://pypi.org/project/carbon-txt). If your release version was 1.2.3, it would be available at [https://pypi.org/project/carbon-txt/1.2.3/](https://pypi.org/project/carbon-txt/1.2.3)
 
 
 #### Deleting a tag
@@ -93,7 +91,7 @@ If you want to test out publishing a release on the main PyPi site, use a releas
 
 **If you want to test the release process itself to get comfortable with it**
 
-Use the PyPi test site. Can deploy to the test PyPi site by setting up a `.pypirc` file in your home directory and placing the tokens issued to on the test.pypi.org website.
+Use the PyPi test site. Can deploy to the test PyPi site by setting up a `.pypirc` file in your home directory and adding inside that file tokens issued on the [test.pypi.org](https://test.pypi.org) website.
 
 ```
 # ~/.pypirc
@@ -107,13 +105,13 @@ username = __token__
 password = pypi-LONGPASSWORD
 ```
 
-You can then trigger an upload manually using twine:
+You can then trigger an upload manually using the [twine](https://pypi.org/project/twine/) library :
 
 ```
 uv run twine upload --repository testpypi dist/* --verbose
 ```
 
-Assumign you have set up Trusted publishing on test.pypi.org you can try a test publish by adjusting the `Publish to PyPi` Github action in `release.yml`
+Assuming you have set up Trusted Publishing on [test.pypi.org](https://test.pypi.org) you can try a test publish by adjusting the `Publish to PyPi` Github action in `release.yml` like so:
 
 ```yaml
       - name: Publish package distributions to PyPI
