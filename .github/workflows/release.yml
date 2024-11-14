@@ -8,6 +8,7 @@ on:
 jobs:
   release_to_pypi:
     runs-on: ubuntu-latest
+    environment: testpypi
     permissions:
       # IMPORTANT: this permission is mandatory for trusted publishing
       id-token: write
