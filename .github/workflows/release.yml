@@ -1,0 +1,57 @@
+name: Publish Python Package
+
+on:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  release_to_pypi:
+    runs-on: ubuntu-latest
+    permissions:
+      # IMPORTANT: this permission is mandatory for trusted publishing
+      id-token: write
+
+    steps:
+      - uses: actions/checkout@v4
+
+        # https://github.com/marketplace/actions/setup-just
+      - uses: extractions/setup-just@v2
+        name: install just
+
+        # https://docs.astral.sh/uv/guides/integration/github/
+      - name: Install uv
+        uses: astral-sh/setup-uv@v3
+        with:
+          version: "0.5.0"
+          enable-cache: true
+
+      - name: Use Python ${{ matrix.python-version }}
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.1.12"
+
+      - name: Install tooling for managing dependencies
+        run: uv sync
+
+      - name: Extract project version from pyproject.toml
+        id: extract_version
+        run: |
+          VERSION=$(grep -Po '(?<=version = ")[^"]*' pyproject.toml)
+          echo "VERSION=$VERSION" >> $GITHUB_ENV
+
+      - name: Check if tag matches version
+        run: |
+          TAG=${GITHUB_REF#refs/tags/v}
+          if [ "$TAG" != "$VERSION" ]; then
+            echo "Tag ($TAG) does not match version ($VERSION) in pyproject.toml"
+            exit 1
+          fi
+
+      - name: Built package
+        run: just build
+
+      - name: Publish package distributions to PyPI
+        uses: pypa/gh-action-pypi-publish@release/v1
+        with:
+          repository-url: https://test.pypi.org/legacy/

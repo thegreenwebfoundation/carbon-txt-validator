@@ -10,9 +10,23 @@ Fixed, Changed, Added, Removed, Fixed, Security
 
 ## Unreleased
 
+## [0.0.8]
+
+### Changed
+
+- Switch to using more detailed exceptions
+
+### Added
 
 - Add support for generating JSON Schema representation with CLI and API
 - Add support for using Sentry to track exceptions, performance and so on.
+- Add github action for automated publishing of releases to Pypi
+
+### Fixed
+
+- Respect the provided `port` and `host` values with `carbon-txt serve` [#27](https://github.com/thegreenwebfoundation/carbon-txt-validator/issues/27)
+
+
 
 ## [0.0.7]
 

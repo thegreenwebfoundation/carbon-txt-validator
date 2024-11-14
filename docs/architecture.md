@@ -3,7 +3,7 @@
 ## How carbon.txt is designed.
 
 ```{admonition} TODO
-This page needs variants of the diagrams from on [our initiial report](https://www.thegreenwebfoundation.org/publications/carbon-txt-energy-efficiency-briefing/) to be added
+This page needs variants of the diagrams from on [our initial report](https://www.thegreenwebfoundation.org/publications/carbon-txt-energy-efficiency-briefing/) to be added
 ```
 
 The carbon.txt validator is split into a series of components, with clear

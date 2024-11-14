@@ -181,7 +181,12 @@ def serve(
             rich.print("Running with Granian server")
             rich.print("\n ----------------\n")
             # Run Granian instead of Django development server
-            os.system("granian --interface wsgi carbon_txt.web.config.wsgi:application")
+            os.system(
+                (
+                    "granian --interface wsgi carbon_txt.web.config.wsgi:application"
+                    "--host {host} --port {port}"
+                )
+            )
         else:
             execute_from_command_line(["manage.py", "runserver", f"{host}:{port}"])
     except exceptions.InsecureKeyException as e:
