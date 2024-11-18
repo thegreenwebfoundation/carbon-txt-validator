@@ -15,11 +15,11 @@ We've included the example below to demonstrate a relatively simple, repeatable 
 
 We use a tweaked version of this playbook ourselves. It assumes you have a dedicated user set up to run the service running on a linux server, called `YOUR_USER`, and sets up a folder structure to run the service, using the tool `uv` to run the latest published version of the package.
 
-Referring to a config file accessible in the folder structure.
+It refers to a django config file accessible in the same folder as where the command is run.
 
 It also sets up a systemd service to run the service behind a reverse proxy server like Nginx or Caddy (in our case, we use Caddy). Systemd handles restarts and failures, and collects logs to be sent to a centralised logging server.
 
-This playbook is designed to be run from a developer's server, or by an internal github action in an separate "infrastructure" repository.
+This playbook is designed to be run from a developer's server, or as part of an internal github action in an separate "infrastructure" repository.
 
 
 ```yaml
@@ -53,6 +53,13 @@ This playbook is designed to be run from a developer's server, or by an internal
       ansible.builtin.template:
         src: run_carbon_txt_api.sh.j2
         dest: "{{ project_path }}/run_carbon_txt_api.sh"
+        mode: "0755"
+      tags: [setup-script]
+
+    - name: Upload django settings module for running carbon.txt.api
+      ansible.builtin.template:
+        src: carbon_txt_api_config.j2
+        dest: "{{ project_path }}/local_config.sh"
         mode: "0755"
       tags: [setup-script]
 
@@ -90,7 +97,9 @@ This playbook is designed to be run from a developer's server, or by an internal
       tags: [systemd-service]
 ```
 
-This uses playbook uses two
+The carbon_txt_api file is the file run by Systemd. Every time this is run, it pulls down the latest published version of the carbon-txt package and runs the `serve` command.
+
+It also uses a `local_config` file - this can be used to add extra configuration.
 
 ```shell
 # written to /var/www/carbon-txt-api.greenweb.org/run_carbon_txt_api.sh
@@ -100,10 +109,26 @@ This uses playbook uses two
 --port <PORT> \
 --host <HOST> \
 --server granian
+```
+
+The local config file is templated out into the the same directory as where the command is run from. and the same directory as the environment variables file:
+
+```shell
+# written to /var/www/carbon-txt-api.greenweb.org/local_config.py
+
+# local_config.py
+
+from carbon_txt.web.config.settings.production import *  # noqa
+
+# extra settings here
+EXTRA_CONFIG = True
+SOME_SETTING = "some value"
 
 ```
 
-The templates out Systemd service file looks like the example below. It uses the `run_carbon_txt_api` to run the service, and any required environment variables are placed in the `.env ` environment file.
+
+
+The templated out Systemd service file looks like the example below. It uses the `run_carbon_txt_api.sh` script to run the service. Any required environment variables are placed in the `.env ` environment file.
 
 ```shell
 # written to /etc/systemd/system/carbon_txt_api.service
@@ -138,7 +163,7 @@ See the README on the [carbon-text-site github repository](https://github.com/th
 
 ## Seeing Logs
 
-Logs from the carbon txt validator service, when deployed in Green Web Foundation infrastructure are aggregated by Systemd, and forwarded to a Loki centralised logging server. These logs can be queried at [grafana.greenweb.org](https://grafana.greenweb.org).
+Logs from the carbon txt validator service, when deployed in Green Web Foundation infrastructure are aggregated by Systemd, and forwarded to a Loki centralised logging server. These logs can be queried at [grafana.greenweb.org](https://grafana.greenweb.org) - filter logs by the systemd unit `carbon_txt_api`, using the label filter `{unit="carbon_txt_api.service"}`.
 
 ## Monitoring, and exception tracking
 
