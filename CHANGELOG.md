@@ -12,9 +12,13 @@ Fixed, Changed, Added, Removed, Fixed, Security
 
 ## [0.0.10]
 
+### Added
+
+- Extra details in the runbook section of the docs for operating the carbon.txt API server
+
 ### Fixed
 
-- Fix mismatch between API and CLI responses for certain lookups [#31](https://github.com/thegreenwebfoundation/carbon-txt-validator/issues/30)
+- Fix mismatch between API and CLI responses for certain lookups [#31](https://github.com/thegreenwebfoundation/carbon-txt-validator/issues/30git)
 
 ## [0.0.9]
 
