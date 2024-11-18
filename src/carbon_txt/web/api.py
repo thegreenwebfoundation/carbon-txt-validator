@@ -5,6 +5,13 @@ from carbon_txt.parsers_toml import CarbonTxtParser
 from carbon_txt.schemas import CarbonTxtFile
 from pydantic import HttpUrl
 
+from .. import finders
+from .. import exceptions
+import logging
+
+file_finder = finders.FileFinder()
+logger = logging.getLogger(__name__)
+
 # Initialize the NinjaAPI with OpenAPI documentation details
 ninja_api = NinjaAPI(
     openapi_extra={
@@ -87,20 +94,30 @@ def validate_url(
     parser = CarbonTxtParser()
 
     # Fetch and parse the contents of the URL
-
     url_string = str(carbon_txt_url_data.url)
-    carbon_txt_contents = parser.get_carbon_txt_file(url_string)
-    parsed = parser.parse_toml(carbon_txt_contents)
+    try:
+        result = file_finder.resolve_uri(url_string)
+        parsed_result = parser.fetch_parsed_carbon_txt_file(result)
+    except exceptions.UnreachableCarbonTxtFile as e:
+        logger.error(f"Error: {e}")
+        return {"success": False, "errors": [e]}
+    except exceptions.NotParseableTOML as e:
+        logger.warning(
+            f"A carbon.txt file was found at {url_string}: but it wasn't parseable TOML. Error was: {e}"
+        )
+        return {"success": False, "errors": [e]}
+    except Exception as e:
+        logger.warning(f"unexpected error: {e}")
+        return {"success": False, "errors": [e]}
 
     # Validate the parsed contents as a carbon.txt file
-    result = parser.validate_as_carbon_txt(parsed)
-
+    validation_results = parser.validate_as_carbon_txt(parsed_result)
     # Check if the result is a valid CarbonTxtFile instance
-    if isinstance(result, CarbonTxtFile):
-        return {"success": True, "data": result}
+    if isinstance(validation_results, CarbonTxtFile):
+        return {"success": True, "data": validation_results}
 
     # Return errors if validation failed
-    return {"success": False, "errors": result.errors()}
+    return {"success": False, "errors": validation_results.errors()}
 
 
 @ninja_api.get(
