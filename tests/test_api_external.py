@@ -47,6 +47,14 @@ def test_hitting_validate_url_endpoint_fail(live_server, url_suffix):
     assert res.status_code == 200
 
 
+def test_hitting_validate_url_endpoint_with_via_delegation(live_server):
+    api_url = f"{live_server.url}/api/validate/url/"
+    data = {"url": "https://hosted.carbontxt.org/carbon.txt"}
+    res = httpx.post(api_url, json=data, follow_redirects=True)
+
+    assert res.status_code == 200
+
+
 # TODO do we still need to run this with a full on external server?
 def test_hitting_fetch_json_schema(live_server):
     api_url = f"{live_server.url}/api/json_schema"

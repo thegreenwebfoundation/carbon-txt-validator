@@ -106,15 +106,18 @@ def validate_url(
             f"A carbon.txt file was found at {url_string}: but it wasn't parseable TOML. Error was: {e}"
         )
         return {"success": False, "errors": [e]}
+    except Exception as e:
+        logger.warning(f"unexpected error: {e}")
+        return {"success": False, "errors": [e]}
 
     # Validate the parsed contents as a carbon.txt file
     validation_results = parser.validate_as_carbon_txt(parsed_result)
     # Check if the result is a valid CarbonTxtFile instance
     if isinstance(validation_results, CarbonTxtFile):
-        return {"success": True, "data": result}
+        return {"success": True, "data": validation_results}
 
     # Return errors if validation failed
-    return {"success": False, "errors": result.errors()}
+    return {"success": False, "errors": validation_results.errors()}
 
 
 @ninja_api.get(
