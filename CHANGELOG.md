@@ -10,7 +10,13 @@ Fixed, Changed, Added, Removed, Fixed, Security
 
 ## Unreleased
 
-### [0.0.9]
+## [0.0.10]
+
+### Fixed
+
+- Fix mismatch between API and CLI responses for certain lookups [#31](https://github.com/thegreenwebfoundation/carbon-txt-validator/issues/30)
+
+## [0.0.9]
 
 ### Fixed
 

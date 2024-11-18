@@ -65,7 +65,10 @@ def test_hitting_validate_url_endpoint_with_via_delegation(live_server):
     assert actual_provider_domain == "managed-service.carbontxt.org"
 
 
-# TODO do we still need to run this with a full on external server?
+# TODO: Do we still need to run this with a full on external server?
+# This is captured in #32 - You need a router class to run the tests without
+# the live server
+# https://github.com/thegreenwebfoundation/carbon-txt-validator/issues/32
 def test_hitting_fetch_json_schema(live_server):
     api_url = f"{live_server.url}/api/json_schema"
     res = httpx.get(api_url, follow_redirects=True)
