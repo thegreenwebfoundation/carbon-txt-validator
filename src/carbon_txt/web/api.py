@@ -99,16 +99,22 @@ def validate_url(
         result = file_finder.resolve_uri(url_string)
         parsed_result = parser.fetch_parsed_carbon_txt_file(result)
     except exceptions.UnreachableCarbonTxtFile as e:
-        logger.error(f"Error: {e}")
-        return {"success": False, "errors": [e]}
+        err_class = type(e).__name__
+        error_message = f"Error: {e}"
+        logger.warning(error_message)
+        return {"success": False, "errors": [{err_class: error_message}]}
+
     except exceptions.NotParseableTOML as e:
-        logger.warning(
-            f"A carbon.txt file was found at {url_string}: but it wasn't parseable TOML. Error was: {e}"
-        )
-        return {"success": False, "errors": [e]}
+        err_class = type(e).__name__
+        error_message = f"A carbon.txt file was found at {url_string}: but it wasn't parseable TOML. Error was: {e}"
+        logger.warning(error_message)
+        return {"success": False, "errors": [{err_class: error_message}]}
+
     except Exception as e:
-        logger.warning(f"unexpected error: {e}")
-        return {"success": False, "errors": [e]}
+        error_message = f"An unexpected error occurred: {e}"
+        err_class = type(e).__name__
+        logger.warning(error_message)
+        return {"success": False, "errors": [{err_class: error_message}]}
 
     # Validate the parsed contents as a carbon.txt file
     validation_results = parser.validate_as_carbon_txt(parsed_result)
