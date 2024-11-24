@@ -2,16 +2,17 @@ import json
 import logging
 import os
 import sys
-from pathlib import Path
+
 
 import django
 import rich
 import typer
 from django.core.management import execute_from_command_line
 
-from . import finders, parsers_toml
-from . import exceptions
+
+from . import exceptions, validators
 from .schemas import CarbonTxtFile
+
 
 logger = logging.getLogger(__name__)
 
@@ -27,8 +28,7 @@ app.add_typer(
 err_console = rich.console.Console(stderr=True)
 
 
-file_finder = finders.FileFinder()
-parser = parsers_toml.CarbonTxtParser()
+validator = validators.CarbonTxtValidator()
 
 
 def _log_validation_results(success=True):
@@ -45,27 +45,24 @@ def _log_validated_carbon_txt_object(validation_results: CarbonTxtFile = None):
 
 @validate_app.command("domain")
 def validate_domain(domain: str):
-    result = file_finder.resolve_domain(domain)
+    result = validator.validate_domain(domain)
 
-    if result:
+    carbon_txt_file = result.get("result")
+
+    if carbon_txt_file:
         rich.print(f"Carbon.txt file found at {result}.\n")
     else:
         rich.print(f"No valid carbon.txt file found on {domain}.\n")
         typer.Exit(code=1)
 
-    # fetch and parse file
-    content = parser.get_carbon_txt_file(result)
-    parsed_result = parser.parse_toml(content)
-    validation_results = parser.validate_as_carbon_txt(parsed_result)
-
     # log the results
-    if isinstance(validation_results, CarbonTxtFile):
+    if isinstance(carbon_txt_file, CarbonTxtFile):
         _log_validation_results(success=True)
-        _log_validated_carbon_txt_object(validation_results)
+        _log_validated_carbon_txt_object(carbon_txt_file)
         typer.Exit(code=0)
     else:
         _log_validation_results(success=False)
-        _log_validated_carbon_txt_object(validation_results)
+        _log_validated_carbon_txt_object(carbon_txt_file)
         typer.Exit(code=1)
 
 
@@ -77,35 +74,13 @@ def validate_file(
 ):
     if file_path == "-":
         content = typer.get_text_stream("stdin").read()
-        parsed_result = parser.parse_toml(content)
+        validation_results = validator.validate_contents(content)
     else:
         try:
-            result = file_finder.resolve_uri(file_path)
-            parsed_result = parser.fetch_parsed_carbon_txt_file(result)
-
-        # the file path is local, but we can't access it
-        except FileNotFoundError:
-            full_file_path = Path(file_path).absolute()
-            rich.print(f"No valid carbon.txt file found at {full_file_path}. \n")
-            raise typer.Exit(code=1)
-
-        # the file path is remote, and we can't access it
-        except exceptions.UnreachableCarbonTxtFile as e:
-            logger.error(f"Error: {e}")
-            raise typer.Exit(code=1)
-
-        # the file path is reachable, and but it's not valid TOML
-        except exceptions.NotParseableTOML as e:
-            rich.print(
-                f"A carbon.txt file was found at {file_path}: but it wasn't parseable TOML. Error was: {e}"
-            )
-            raise typer.Exit(code=1)
-
+            validation_results = validator.validate_url(file_path)
         except Exception as e:
             rich.print(f"An unexpected error occurred: {e}")
             raise typer.Exit(code=1)
-
-    validation_results = parser.validate_as_carbon_txt(parsed_result)
 
     if isinstance(validation_results, CarbonTxtFile):
         _log_validation_results(success=True)
