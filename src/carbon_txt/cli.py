@@ -3,16 +3,13 @@ import logging
 import os
 import sys
 
-
 import django
+import pydantic_core
 import rich
 import typer
 from django.core.management import execute_from_command_line
 
-
-from . import exceptions, validators
-from .schemas import CarbonTxtFile
-
+from . import exceptions, schemas, validators
 
 logger = logging.getLogger(__name__)
 
@@ -36,32 +33,26 @@ def _log_validation_results(success=True):
         rich.print("❌ Sad times. Carbon.txt file syntax is invalid. \n")
 
 
-def _log_validated_carbon_txt_object(validation_results: CarbonTxtFile = None):
+def _log_validated_carbon_txt_object(
+    validation_results: schemas.CarbonTxtFile | list[pydantic_core.ErrorDetails],
+):
     rich.print("------- \n")
     rich.print(validation_results)
 
 
 @validate_app.command("domain")
 def validate_domain(domain: str):
-    result = validator.validate_domain(domain)
+    validation_results = validator.validate_domain(domain)
+    carbon_txt_file = validation_results.result
 
-    carbon_txt_file = result.get("result")
-
-    if carbon_txt_file:
-        rich.print(f"Carbon.txt file found at {result}.\n")
-    else:
-        rich.print(f"No valid carbon.txt file found on {domain}.\n")
-        typer.Exit(code=1)
-
-    # log the results
-    if isinstance(carbon_txt_file, CarbonTxtFile):
+    if carbon_txt_file := validation_results.result:
         _log_validation_results(success=True)
         _log_validated_carbon_txt_object(carbon_txt_file)
         typer.Exit(code=0)
-    else:
-        _log_validation_results(success=False)
-        _log_validated_carbon_txt_object(carbon_txt_file)
-        typer.Exit(code=1)
+
+    _log_validation_results(success=False)
+    _log_validated_carbon_txt_object(validation_results.exceptions)
+    typer.Exit(code=1)
 
 
 @validate_app.command("file")
@@ -74,22 +65,16 @@ def validate_file(
         content = typer.get_text_stream("stdin").read()
         validation_results = validator.validate_contents(content)
     else:
-        try:
-            validation_results = validator.validate_url(file_path)
-        except Exception as e:
-            rich.print(f"An unexpected error occurred: {e}")
-            raise typer.Exit(code=1)
+        validation_results = validator.validate_url(file_path)
 
-    carbon_txt_file = validation_results.get("result")
+        if carbon_txt_file := validation_results.result:
+            _log_validation_results(success=True)
+            _log_validated_carbon_txt_object(carbon_txt_file)
+            return typer.Exit(code=0)
 
-    if isinstance(carbon_txt_file, CarbonTxtFile):
-        _log_validation_results(success=True)
-        _log_validated_carbon_txt_object(carbon_txt_file)
-        return typer.Exit(code=0)
-    else:
         _log_validation_results(success=False)
-        _log_validated_carbon_txt_object(carbon_txt_file)
-        return typer.Exit(code=0)
+        _log_validated_carbon_txt_object(validation_results.exceptions)
+        return typer.Exit(code=1)
 
 
 @app.command()
@@ -97,7 +82,7 @@ def schema():
     """
     Generate a JSON Schema representation of a carbon.txt file for validation
     """
-    schema = CarbonTxtFile.model_json_schema()
+    schema = schemas.CarbonTxtFile.model_json_schema()
 
     err_console.print("JSON Schema for a carbon.txt file: \n")
 

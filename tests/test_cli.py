@@ -2,7 +2,7 @@ import json
 
 from typer.testing import CliRunner
 
-from carbon_txt.cli import app
+from carbon_txt.cli import app  # type: ignore
 
 runner = CliRunner(mix_stderr=False)
 

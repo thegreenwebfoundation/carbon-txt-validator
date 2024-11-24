@@ -2,7 +2,8 @@ import tomllib as toml
 from . import schemas
 
 from . import exceptions
-
+import pydantic
+import typing
 
 import logging
 
@@ -29,23 +30,24 @@ class CarbonTxtParser:
             logger.info(msg)
             logs.append(msg)
             return parsed
-        except toml.TOMLDecodeError as e:
-            logs.append(e)
-            raise exceptions.NotParseableTOML(e)
+        except toml.TOMLDecodeError as ex:
+            logs.append(ex)
+            raise exceptions.NotParseableTOML(ex)
 
-    def validate_as_carbon_txt(self, parsed, logs=None) -> schemas.CarbonTxtFile:
+    def validate_as_carbon_txt(
+        self, parsed, logs=None
+    ) -> typing.Optional[schemas.CarbonTxtFile]:
         """
         Accept a parsed TOML object and return a CarbonTxtFile, validating that
         necessary keys are present and values are of the correct type.
         """
-        from pydantic import ValidationError
 
         try:
             carb_txt_obj = schemas.CarbonTxtFile(**parsed)
             msg = "Parsed TOML was recognised as valid Carbon.txt file.\n"
             logs.append(msg)
             return carb_txt_obj
-        except ValidationError as ex:
+        except pydantic.ValidationError as ex:
             logs.append(ex)
             logger.warning(ex)
-            return ex
+            raise ex

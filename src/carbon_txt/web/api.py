@@ -1,8 +1,8 @@
 from ninja import NinjaAPI, Schema
-from django.http import HttpRequest, HttpResponse
+from django.http import HttpRequest, HttpResponse  # noqa
 
 
-from pydantic import HttpUrl
+import pydantic
 
 from .. import finders, validators, schemas, exceptions  # noqa
 import logging
@@ -37,7 +37,7 @@ class CarbonTextUrlSubmission(Schema):
     Schema for the submission of a URL pointing to a carbon.txt file. We expect an URL pointing to a carbon.txt file, which is downloaded and parsed.
     """
 
-    url: HttpUrl
+    url: pydantic.HttpUrl
 
 
 @ninja_api.post(
@@ -58,22 +58,13 @@ def validate_contents(
         dict: A dictionary containing the success status and either the validated data or errors.
     """
 
-    try:
-        result = validator.validate_contents(carbon_txt_submission.text_contents)
-    except Exception as e:
-        error_message = f"An unexpected error occurred: {e}"
-        err_class = type(e).__name__
-        logger.warning(error_message)
-        return {"success": False, "errors": [{err_class: error_message}]}
-
-    carbon_txt_file = result.get("result")
-
-    # Check if the result is a valid CarbonTxtFile instance
-    if isinstance(carbon_txt_file, schemas.CarbonTxtFile):
-        return {"success": True, "data": result}
-
-    # Return errors if validation failed
-    return {"success": False, "errors": []}
+    validation_results = validator.validate_contents(
+        carbon_txt_submission.text_contents
+    )
+    if carbon_txt_file := validation_results.result:
+        return {"success": True, "data": carbon_txt_file}  # type: ignore
+    else:
+        return {"success": False, "data": validation_results.exceptions}  # type: ignore
 
 
 @ninja_api.post(
@@ -93,14 +84,12 @@ def validate_url(
         dict: A dictionary containing the success status and either the validated data or errors.
     """
     url_string = str(carbon_txt_url_data.url)
+
     validation_results = validator.validate_url(str(url_string))
-    carbon_txt_file = validation_results.get("result")
-
-    if isinstance(carbon_txt_file, schemas.CarbonTxtFile):
-        return {"success": True, "data": carbon_txt_file}
-
-    # Return errors if validation failed
-    return {"success": False, "errors": carbon_txt_file.errors()}
+    if carbon_txt_file := validation_results.result:
+        return {"success": True, "data": carbon_txt_file}  # type: ignore
+    else:
+        return {"success": False, "errors": validation_results.exceptions}  # type: ignore
 
 
 @ninja_api.get(
@@ -115,4 +104,4 @@ def get_json_schema(request: HttpRequest) -> HttpResponse:
     # Get the JSON schema for a carbon.txt file
     schema = schemas.CarbonTxtFile.model_json_schema()
 
-    return schema
+    return schema  # type: ignore

@@ -13,7 +13,7 @@ def test_hitting_validate_endpoint_ok(
 ):
     api_url = f"{live_server.url}/api/validate/file{url_suffix}"
     data = {"text_contents": shorter_carbon_txt_string}
-    res = httpx.post(api_url, json=data, follow_redirects=True)
+    res = httpx.post(api_url, json=data, follow_redirects=True, timeout=None)
 
     assert res.status_code == 200
 
@@ -27,7 +27,7 @@ def test_hitting_validate_endpoint_fail(live_server, url_suffix):
     with open(path_to_failing_file) as toml_file:
         api_url = f"{live_server.url}/api/validate/file{url_suffix}"
         data = {"text_contents": toml_file.read()}
-        res = httpx.post(api_url, json=data, follow_redirects=True)
+        res = httpx.post(api_url, json=data, follow_redirects=True, timeout=None)
 
         assert res.status_code == 200
 
@@ -36,7 +36,7 @@ def test_hitting_validate_endpoint_fail(live_server, url_suffix):
 def test_hitting_validate_url_endpoint_ok(live_server, url_suffix):
     api_url = f"{live_server.url}/api/validate/url{url_suffix}"
     data = {"url": "https://aremythirdpartiesgreen.com/carbon.txt"}
-    res = httpx.post(api_url, json=data, follow_redirects=True)
+    res = httpx.post(api_url, json=data, follow_redirects=True, timeout=None)
 
     assert res.status_code == 200
 
@@ -45,7 +45,7 @@ def test_hitting_validate_url_endpoint_ok(live_server, url_suffix):
 def test_hitting_validate_url_endpoint_fail(live_server, url_suffix):
     api_url = f"{live_server.url}/api/validate/url{url_suffix}"
     data = {"url": "https://aremythirdpartiesgreen.com/carbon.txt"}
-    res = httpx.post(api_url, json=data, follow_redirects=True)
+    res = httpx.post(api_url, json=data, follow_redirects=True, timeout=None)
 
     assert res.status_code == 200
 
@@ -73,7 +73,7 @@ def test_hitting_validate_url_endpoint_with_txt_delegation(live_server):
     """
     api_url = f"{live_server.url}/api/validate/url/"
     data = {"url": "https://delegating-with-txt-record.carbontxt.org/carbon.txt"}
-    res = httpx.post(api_url, json=data, follow_redirects=True)
+    res = httpx.post(api_url, json=data, follow_redirects=True, timeout=None)
     assert res.status_code == 200
 
     # https://used-in-tests.carbontxt.org/carbon.txt
@@ -89,5 +89,5 @@ def test_hitting_validate_url_endpoint_with_txt_delegation(live_server):
 # https://github.com/thegreenwebfoundation/carbon-txt-validator/issues/32
 def test_hitting_fetch_json_schema(live_server):
     api_url = f"{live_server.url}/api/json_schema"
-    res = httpx.get(api_url, follow_redirects=True)
+    res = httpx.get(api_url, follow_redirects=True, timeout=None)
     assert res.status_code == 200
