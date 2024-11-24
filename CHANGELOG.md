@@ -14,6 +14,10 @@ Fixed, Changed, Added, Removed, Fixed, Security
 
 - Add architecture docs for how the validator is built [#7e39de2](https://github.com/thegreenwebfoundation/carbon-txt-validator/commit/7e39de25f96d439b03a4a907337a6110a5affd11)
 
+### Fixed
+
+- Fix handling of non TOML responses when carbon.txt files are served [#33]()
+
 ## [0.0.10]
 
 ### Added

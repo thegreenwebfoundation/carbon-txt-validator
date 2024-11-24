@@ -40,6 +40,36 @@ divisions of responsibility
 - **Processors**(s): Processors are responsible for parsing specific kinds of
   linked documents, and data, and returning a valid data structure.
 
+In more detail.
+
+### Finders
+
+The Finder is responsible for locating and fetching a files, either from remote sources or from local paths on the same machine. It's the only part of the system that makes outbound network requests. They are expected to make DNS lookups, and HTTPS requests, local path resolution, and they are responsible for handling related retry and failure handling logic.
+
+They are responsible for sending along strings or datastructures to Parsers and Processors. When links to remote files exist in parsed carbon.txt files, the finders handle finding and fetching too.
+
+The intention is to keep the logic for similar tasks related to finding and retrieving file in one place.`
+
+### Parsers
+
+Parsers in this context are primarily responsible for checking that a datastructure, or contents of a retrieved file meet the expected format and structure.
+
+They don't make network requests. Where a carbon.txt file links to specific kinds of resources like CSRD reports, or external webpages, they delegate to the corresponding processor for that kind of resource.
+
+
+
+
+
+
+
+
+Parsers only work with strings of datastructures and are not responsible for any further IO.
+
+
+
+
+
+
 ### Classes
 
 #### Processors

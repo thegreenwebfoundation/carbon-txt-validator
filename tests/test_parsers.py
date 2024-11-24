@@ -9,7 +9,7 @@ class TestParseCarbonTxt:
         """
         Test parsing a minimal carbon.txt file
         """
-        parsed = parser.parse_toml(minimal_carbon_txt_org)
+        parsed = parser.parse_toml(minimal_carbon_txt_org, logs=[])
         assert "upstream" in parsed
         assert "org" in parsed
         assert "providers" in parsed["upstream"]
@@ -21,7 +21,7 @@ class TestParseCarbonTxt:
         """
         Test parsing a minimal carbon.txt file
         """
-        parsed = parser.parse_toml(shorter_carbon_txt_string)
+        parsed = parser.parse_toml(shorter_carbon_txt_string, logs=[])
         assert parsed
         assert "upstream" in parsed
         assert "org" in parsed
@@ -34,7 +34,7 @@ class TestParseCarbonTxt:
         """
         Test parsing a minimal carbon.txt file
         """
-        parsed = parser.parse_toml(minimal_carbon_txt_org)
+        parsed = parser.parse_toml(minimal_carbon_txt_org, logs=[])
         assert parsed
         assert "upstream" in parsed
         assert "org" in parsed
@@ -64,8 +64,8 @@ class TestParseCarbonTxt:
 
         # request is a magic pytest fixture that can be used to access other fixtures
         carbon_txt_content = request.getfixturevalue(carbon_txt_fixture)
-        parsed = parser.parse_toml(carbon_txt_content)
+        parsed = parser.parse_toml(carbon_txt_content, logs=[])
 
         # errors are triggered on instantiation, so if the parsed data
         # validates, then the test passes
-        parser.validate_as_carbon_txt(parsed)
+        parser.validate_as_carbon_txt(parsed, logs=[])

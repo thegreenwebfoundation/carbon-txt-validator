@@ -33,6 +33,7 @@ class TestCLI:
         result = runner.invoke(
             app, ["validate", "file", "https://used-in-tests.carbontxt.org/carbon.txt"]
         )
+
         assert result.exit_code == 0
         assert "https://used-in-tests.carbontxt.org" in result.stdout
 

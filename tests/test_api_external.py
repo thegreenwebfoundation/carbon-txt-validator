@@ -58,7 +58,7 @@ def test_hitting_validate_url_endpoint_with_via_delegation(live_server):
     """
     api_url = f"{live_server.url}/api/validate/url/"
     data = {"url": "https://hosted.carbontxt.org/carbon.txt"}
-    res = httpx.post(api_url, json=data, follow_redirects=True)
+    res = httpx.post(api_url, json=data, follow_redirects=True, timeout=None)
 
     assert res.status_code == 200
     actual_provider_domain = res.json()["data"]["org"]["credentials"][0]["domain"]
@@ -68,13 +68,15 @@ def test_hitting_validate_url_endpoint_with_via_delegation(live_server):
 def test_hitting_validate_url_endpoint_with_txt_delegation(live_server):
     """
     When we have a carbon.txt url that is delegating to a another server
-    using the http 'via' header, does it follow the delegation and return the
+    using the DNS txt record, does it follow the delegation and return the
     correct response?
     """
     api_url = f"{live_server.url}/api/validate/url/"
     data = {"url": "https://delegating-with-txt-record.carbontxt.org/carbon.txt"}
     res = httpx.post(api_url, json=data, follow_redirects=True)
     assert res.status_code == 200
+
+    # https://used-in-tests.carbontxt.org/carbon.txt
 
     # TODO: Should we serve a different error here, like a 40x?
     # actual_provider_domain = res.json()["data"]["org"]["credentials"][0]["domain"]

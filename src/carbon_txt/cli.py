@@ -26,8 +26,6 @@ app.add_typer(
 )
 
 err_console = rich.console.Console(stderr=True)
-
-
 validator = validators.CarbonTxtValidator()
 
 
@@ -82,13 +80,15 @@ def validate_file(
             rich.print(f"An unexpected error occurred: {e}")
             raise typer.Exit(code=1)
 
-    if isinstance(validation_results, CarbonTxtFile):
+    carbon_txt_file = validation_results.get("result")
+
+    if isinstance(carbon_txt_file, CarbonTxtFile):
         _log_validation_results(success=True)
-        _log_validated_carbon_txt_object(validation_results)
+        _log_validated_carbon_txt_object(carbon_txt_file)
         return typer.Exit(code=0)
     else:
         _log_validation_results(success=False)
-        _log_validated_carbon_txt_object(validation_results)
+        _log_validated_carbon_txt_object(carbon_txt_file)
         return typer.Exit(code=0)
 
 

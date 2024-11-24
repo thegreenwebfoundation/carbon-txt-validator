@@ -1,12 +1,10 @@
 from ninja import NinjaAPI, Schema
 from django.http import HttpRequest, HttpResponse
 
-from carbon_txt.parsers_toml import CarbonTxtParser
-from carbon_txt.schemas import CarbonTxtFile
+
 from pydantic import HttpUrl
 
-from .. import finders
-from .. import exceptions
+from .. import finders, validators, schemas, exceptions  # noqa
 import logging
 
 file_finder = finders.FileFinder()
@@ -22,6 +20,8 @@ ninja_api = NinjaAPI(
     title="Carbon.txt Validator API",
     description="This is the API for validating carbon.txt files. ",
 )
+
+validator = validators.CarbonTxtValidator()
 
 
 class CarbonTextSubmission(Schema):
@@ -57,21 +57,23 @@ def validate_contents(
     Returns:
         dict: A dictionary containing the success status and either the validated data or errors.
     """
-    # Initialize the parser
-    parser = CarbonTxtParser()
 
-    # Parse the TOML contents from the submission
-    parsed = parser.parse_toml(carbon_txt_submission.text_contents)
+    try:
+        result = validator.validate_contents(carbon_txt_submission.text_contents)
+    except Exception as e:
+        error_message = f"An unexpected error occurred: {e}"
+        err_class = type(e).__name__
+        logger.warning(error_message)
+        return {"success": False, "errors": [{err_class: error_message}]}
 
-    # Validate the parsed contents as a carbon.txt file
-    result = parser.validate_as_carbon_txt(parsed)
+    carbon_txt_file = result.get("result")
 
     # Check if the result is a valid CarbonTxtFile instance
-    if isinstance(result, CarbonTxtFile):
+    if isinstance(carbon_txt_file, schemas.CarbonTxtFile):
         return {"success": True, "data": result}
 
     # Return errors if validation failed
-    return {"success": False, "errors": result.errors()}
+    return {"success": False, "errors": []}
 
 
 @ninja_api.post(
@@ -90,40 +92,15 @@ def validate_url(
     Returns:
         dict: A dictionary containing the success status and either the validated data or errors.
     """
-    # Initialize the parser
-    parser = CarbonTxtParser()
-
-    # Fetch and parse the contents of the URL
     url_string = str(carbon_txt_url_data.url)
-    try:
-        result = file_finder.resolve_uri(url_string)
-        parsed_result = parser.fetch_parsed_carbon_txt_file(result)
-    except exceptions.UnreachableCarbonTxtFile as e:
-        err_class = type(e).__name__
-        error_message = f"Error: {e}"
-        logger.warning(error_message)
-        return {"success": False, "errors": [{err_class: error_message}]}
+    validation_results = validator.validate_url(str(url_string))
+    carbon_txt_file = validation_results.get("result")
 
-    except exceptions.NotParseableTOML as e:
-        err_class = type(e).__name__
-        error_message = f"A carbon.txt file was found at {url_string}: but it wasn't parseable TOML. Error was: {e}"
-        logger.warning(error_message)
-        return {"success": False, "errors": [{err_class: error_message}]}
-
-    except Exception as e:
-        error_message = f"An unexpected error occurred: {e}"
-        err_class = type(e).__name__
-        logger.warning(error_message)
-        return {"success": False, "errors": [{err_class: error_message}]}
-
-    # Validate the parsed contents as a carbon.txt file
-    validation_results = parser.validate_as_carbon_txt(parsed_result)
-    # Check if the result is a valid CarbonTxtFile instance
-    if isinstance(validation_results, CarbonTxtFile):
-        return {"success": True, "data": validation_results}
+    if isinstance(carbon_txt_file, schemas.CarbonTxtFile):
+        return {"success": True, "data": carbon_txt_file}
 
     # Return errors if validation failed
-    return {"success": False, "errors": validation_results.errors()}
+    return {"success": False, "errors": carbon_txt_file.errors()}
 
 
 @ninja_api.get(
@@ -136,6 +113,6 @@ def get_json_schema(request: HttpRequest) -> HttpResponse:
     Endpoint to get the JSON schema for a carbon.txt file.
     """
     # Get the JSON schema for a carbon.txt file
-    schema = CarbonTxtFile.model_json_schema()
+    schema = schemas.CarbonTxtFile.model_json_schema()
 
     return schema

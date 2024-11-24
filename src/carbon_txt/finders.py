@@ -1,16 +1,22 @@
-import httpx
-import dns.resolver
-from pathlib import Path
-from urllib.parse import urlparse, ParseResult
-from typing import Optional
 import logging
+import pathlib
+from pathlib import Path
+from typing import Optional
+from urllib.parse import ParseResult, urlparse
+
+import dns.resolver
+import httpx
 import rich  # noqa
 
+from . import parsers_toml
 from .exceptions import UnreachableCarbonTxtFile
 
 logger = logging.getLogger(__name__)
 
 logger.setLevel(logging.DEBUG)
+
+
+parser = parsers_toml.CarbonTxtParser()
 
 
 class FileFinder:
@@ -28,11 +34,30 @@ class FileFinder:
             return parsed_uri
         return None
 
-    def _lookup_dns(self, domain):
-        """Try a DNS TXT record lookup for the given domain"""
+    def fetch_carbon_txt_file(self, str, logs=None) -> str:
+        """
+        Accept a URI and either fetch the file over HTTP(S), or read the local file.
+        Return a string of contents of the remote carbon.txt file, or the local file.
+        """
+        if str.startswith("http"):
+            result = httpx.get(str).text
+
+            logger.info(f"result is type {type(result)}")
+
+            # breakpoint()
+            return result
+
+        if pathlib.Path(str).exists():
+            return pathlib.Path(str).read_text()
+
+    def _lookup_dns(self, domain: str) -> str:
+        """
+        Try a DNS TXT record lookup for the given domain,
+        returning the delegated carbon.txt URI if found
+        """
 
         # look for a TXT record on the domain first
-        # if there is a valid TXT record it, return that
+        # if there is a valid TXT record on it, return that
         try:
             answers = dns.resolver.resolve(domain, "TXT")
 
@@ -68,18 +93,23 @@ class FileFinder:
             logger.info("No result from TXT lookup")
             return None
 
-    def resolve_domain(self, domain) -> str:
+    def resolve_domain(self, domain, logs=None) -> str:
         """
         Accepts a domain, and returns a URI to fetch a carbon.txt file from.
+
+        Follows delegation logic from DNS TXT records, and the 'via' header in
+        HTTP responses to resolve to a final URL for a carbon.txt file.
         """
 
         uri_from_domain = self._lookup_dns(domain)
 
         if uri_from_domain:
-            return self._parse_uri(uri_from_domain).geturl()
+            return self.resolve_uri(uri_from_domain)
+            # return self._parse_uri(uri_from_domain).geturl()
 
-        # otherwise we look for a carbon.txt file at the root of the domain, then fallback to
-        # one at the .well-known path following the well-known convention
+        # otherwise we look for a carbon.txt file at the root of the domain.
+        # IF that isn't there try a fallback to one at the `.well-known`` path
+        # following the well-known convention
         default_paths = ["/carbon.txt", "/.well-known/carbon.txt"]
 
         for url_path in default_paths:
@@ -113,10 +143,13 @@ class FileFinder:
 
         return None
 
-    def resolve_uri(self, uri: str) -> str:
+    def resolve_uri(self, uri: httpx.URL | str, logs=None) -> str:
         """
         Accept a URI pointing to a carbon.txt file, and return the final
         resolved URI, following any 'via' referrers or similar.
+
+        This is a recursive function, so it expects to be called, following redirections until
+        it either arrives at a 200 OK response, or a non 400/500.
         """
 
         # check if the uri looks like one we might reach over HTTP / HTTPS
@@ -130,8 +163,15 @@ class FileFinder:
                 raise FileNotFoundError(f"File not found at {path_to_file.absolute()}")
             return str(path_to_file.resolve())
 
-        # if the URI is a valid HTTP or HTTPS URI, we check if the URI is reachable
-        # and if there is a 'via' header in the response, we follow that
+        # this is a remote file, check for delegation before returning the final URI
+
+        # check for DNS TXT record delegation first, and call this function again
+        # with the resolved URI, to follow the delegation
+        if delegated_dns_uri := self._lookup_dns(parsed_uri.netloc):
+            return self.resolve_uri(delegated_dns_uri)
+
+        # If the URI is a valid HTTP or HTTPS URI, check if the URI is reachable.
+        # If there is a 'via' header in the response, we follow that
         try:
             response = httpx.head(parsed_uri.geturl())
         except httpx._exceptions.ConnectError:
@@ -139,12 +179,16 @@ class FileFinder:
                 f"Could not connect to {parsed_uri.geturl()}."
             )
         # catch any errors from the request
+        # rich.inspect(response)
+        # if "via" in response.headers:
+        # rich.inspect(response)
+        # rich.inspect(response.headers)
         response.raise_for_status()
 
         # check if there is a 'via' header in the response containing a domain to delegate
         # the carbon.txt file lookup to
         if via_domain := self._check_for_via_delegation(response):
-            return via_domain
+            return self.resolve_uri(via_domain)
 
         if response.status_code == 200:
             return parsed_uri.geturl()
