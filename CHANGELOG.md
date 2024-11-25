@@ -10,13 +10,13 @@ Fixed, Changed, Added, Removed, Fixed, Security
 
 ## Unreleased
 
-## [0.0.10]
+## [0.0.11]
 
 ### Added
 
 - Add architecture docs for how the validator is built [#7e39de2](https://github.com/thegreenwebfoundation/carbon-txt-validator/commit/7e39de25f96d439b03a4a907337a6110a5affd11)
 - Add new Validator class that wraps the behaviour exposed to the CLI and API, making it more consistent
-- Add new logging behaviour in the validator 
+- Add new logging behaviour in the validator
 - Add new API checker notebook
 
 ### Changed
