@@ -46,10 +46,14 @@ def validate_domain(domain: str):
     carbon_txt_file = validation_results.result
 
     if carbon_txt_file := validation_results.result:
+        for log in validation_results.logs:
+            rich.print(log)
         _log_validation_results(success=True)
         _log_validated_carbon_txt_object(carbon_txt_file)
         raise typer.Exit(code=0)
 
+    for log in validation_results.logs:
+        rich.print(log)
     _log_validation_results(success=False)
     _log_validated_carbon_txt_object(validation_results.exceptions)
     raise typer.Exit(code=1)
@@ -68,10 +72,14 @@ def validate_file(
         validation_results = validator.validate_url(file_path)
 
         if carbon_txt_file := validation_results.result:
+            for log in validation_results.logs:
+                rich.print(log)
             _log_validation_results(success=True)
             _log_validated_carbon_txt_object(carbon_txt_file)
             raise typer.Exit(code=0)
 
+        for log in validation_results.logs:
+            rich.print(log)
         _log_validation_results(success=False)
         _log_validated_carbon_txt_object(validation_results.exceptions)
         raise typer.Exit(code=1)

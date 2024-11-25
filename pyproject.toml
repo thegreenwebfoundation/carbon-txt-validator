@@ -1,6 +1,6 @@
 [project]
 name = "carbon-txt"
-version = "0.0.10"
+version = "0.0.11"
 description = "A command line tool containing a validator for carbon.txt files, by the Green Web Foundation"
 authors = [
     { name = "Chris Adams" },
@@ -47,4 +47,5 @@ dev-dependencies = [
     "sphinx-autobuild>=2024.10.3",
     "twine>=5.1.1",
     "pytest-coverage>=0.0",
+    "marimo>=0.9.23",
 ]

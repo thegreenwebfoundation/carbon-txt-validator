@@ -12,6 +12,15 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.ERROR)
 
 
+def log_safely(log_message: str, logs: typing.Optional[list], level=logging.INFO):
+    """
+    Log a message, and append it to a list of logs
+    """
+    logger.log(level, log_message)
+    if logs:
+        logs.append(log_message)
+
+
 class CarbonTxtParser:
     """
     Responsible for parsing carbon.txt files, checking
@@ -26,12 +35,10 @@ class CarbonTxtParser:
         """
         try:
             parsed = toml.loads(str)
-            msg = "Carbon.txt file parsed as valid TOML.\n"
-            logger.info(msg)
-            logs.append(msg)
+            log_safely("Carbon.txt file parsed as valid TOML.", logs)
             return parsed
         except toml.TOMLDecodeError as ex:
-            logs.append(ex)
+            log_safely("TOML parsing failed.", logs, level=logging.WARNING)
             raise exceptions.NotParseableTOML(ex)
 
     def validate_as_carbon_txt(
@@ -44,10 +51,9 @@ class CarbonTxtParser:
 
         try:
             carb_txt_obj = schemas.CarbonTxtFile(**parsed)
-            msg = "Parsed TOML was recognised as valid Carbon.txt file.\n"
-            logs.append(msg)
+            message = "Parsed TOML was recognised as valid Carbon.txt file.\n"
+            logs.append(message)
             return carb_txt_obj
         except pydantic.ValidationError as ex:
-            logs.append(ex)
-            logger.warning(ex)
+            log_safely("Validation failed.", logs, level=logging.WARNING)
             raise ex
