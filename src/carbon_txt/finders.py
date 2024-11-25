@@ -107,10 +107,10 @@ class FileFinder:
         Return a string of contents of the remote carbon.txt file, or the local file.
         """
         if uri.startswith("http"):
-            result = httpx.get(uri).text
+            response = httpx.get(uri)
 
+            result = response.text
             logger.info(f"result is type {type(result)}")
-
             return result
 
         if pathlib.Path(uri).exists():
@@ -156,6 +156,8 @@ class FileFinder:
 
         This is a recursive function, so it expects to be called, following redirections until
         it either arrives at a 200 OK response, or a non 400/500.
+
+        This does NOT try to fetch the file, just resolve the final URI to fetch it from
         """
 
         # check if the uri looks like one we might reach over HTTP / HTTPS

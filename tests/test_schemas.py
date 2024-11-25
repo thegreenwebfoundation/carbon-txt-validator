@@ -1,5 +1,5 @@
 import pytest
-from carbon_txt.schemas import Organisation
+from carbon_txt.schemas import Organisation  # type: ignore
 
 from pydantic import ValidationError
 

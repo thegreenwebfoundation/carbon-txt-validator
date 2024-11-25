@@ -42,10 +42,11 @@ class TestCLI:
         Run our CLI to `carbontxt validate file https://some-domain.com/carbon.txt`,
         """
 
-        # Update to a domain we know will not ever have a carbon.txt file
+        # TODO: Update to a domain we know will not ever have a carbon.txt file
         result = runner.invoke(
             app, ["validate", "file", "https://www.thegreenwebfoundation.org"]
         )
+
         assert result.exit_code == 1
 
     def test_schema(self):
