@@ -48,11 +48,11 @@ def validate_domain(domain: str):
     if carbon_txt_file := validation_results.result:
         _log_validation_results(success=True)
         _log_validated_carbon_txt_object(carbon_txt_file)
-        typer.Exit(code=0)
+        raise typer.Exit(code=0)
 
     _log_validation_results(success=False)
     _log_validated_carbon_txt_object(validation_results.exceptions)
-    typer.Exit(code=1)
+    raise typer.Exit(code=1)
 
 
 @validate_app.command("file")
@@ -70,11 +70,11 @@ def validate_file(
         if carbon_txt_file := validation_results.result:
             _log_validation_results(success=True)
             _log_validated_carbon_txt_object(carbon_txt_file)
-            return typer.Exit(code=0)
+            raise typer.Exit(code=0)
 
         _log_validation_results(success=False)
         _log_validated_carbon_txt_object(validation_results.exceptions)
-        return typer.Exit(code=1)
+        raise typer.Exit(code=1)
 
 
 @app.command()
@@ -90,7 +90,7 @@ def schema():
         rich.print(json.dumps(schema, indent=2))
     else:
         print(json.dumps(schema, indent=2))
-    typer.Exit(code=0)
+    raise typer.Exit(code=0)
 
 
 def configure_django(
@@ -166,7 +166,7 @@ def serve(
                 "with steps to reproduce this error"
             )
         )
-        typer.Exit(code=1)
+        raise typer.Exit(code=1)
 
 
 if __name__ == "__main__":
