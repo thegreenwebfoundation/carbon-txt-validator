@@ -22,17 +22,17 @@ class ValidationResult:
     exceptions: list
 
 
-def safely_log_exception(exception: Exception, message: str, errors: list, logs: list):  # noqa
+def log_exception_safely(
+    exception: Exception, message: str, errors: list, logs: list, level=logging.WARNING
+):  # noqa
     """
     Log an an exception, and append it to a list of errors in a form that can
     be displayed as JSON.
     """
     dumpable_error = f"{type(exception).__name__}: {exception}"
-    logger.warning(message)
+    logger.log(level, message)
     logs.append(message)
     errors.append(dumpable_error)
-
-    return errors, logs
 
 
 class CarbonTxtValidator:
@@ -73,7 +73,7 @@ class CarbonTxtValidator:
             )
         except Exception as ex:
             message = f"An unexpected error occurred: {ex}"
-            safely_log_exception(ex, message, errors, self.event_log)
+            log_exception_safely(ex, message, errors, self.event_log)
             validation_results = None
             return ValidationResult(
                 result=validation_results, logs=self.event_log, exceptions=errors
@@ -107,7 +107,7 @@ class CarbonTxtValidator:
         except FileNotFoundError as ex:
             full_file_path = pathlib.Path(url).absolute()
             message = f"No valid carbon.txt file found at {full_file_path}. \n"
-            safely_log_exception(ex, message, errors, self.event_log)
+            log_exception_safely(ex, message, errors, self.event_log)
             validation_results = None
             return ValidationResult(
                 result=validation_results, logs=self.event_log, exceptions=errors
@@ -126,7 +126,7 @@ class CarbonTxtValidator:
         # the file path is remote, and we can't access it
         except exceptions.UnreachableCarbonTxtFile as ex:
             message = f"Could not fetch the carbon.txt file at {url}. Error was: {ex}"
-            safely_log_exception(ex, message, errors, self.event_log)
+            log_exception_safely(ex, message, errors, self.event_log)
             validation_results = None
             return ValidationResult(
                 result=validation_results, logs=self.event_log, exceptions=errors
@@ -136,7 +136,7 @@ class CarbonTxtValidator:
         # with the url listed in the error message, so it's clear to what URL the error refers to
         except exceptions.NotParseableTOML as ex:
             message = f"A file was found at {url}: but it wasn't parseable TOML. Error was: {ex}"
-            safely_log_exception(ex, message, errors, self.event_log)
+            log_exception_safely(ex, message, errors, self.event_log)
             validation_results = None
             return ValidationResult(
                 result=validation_results, logs=self.event_log, exceptions=errors
@@ -145,7 +145,7 @@ class CarbonTxtValidator:
         # the file path is reachable, but the server returned a 404
         except httpx.HTTPStatusError as ex:
             message = f"An error occurred while fetching the carbon.txt file at {url}."
-            errors, logs = safely_log_exception(
+            errors, logs = log_exception_safely(
                 ex, message, errors, logs=self.event_log
             )
             validation_results = None
@@ -155,7 +155,7 @@ class CarbonTxtValidator:
 
         except Exception as ex:
             message = f"An unexpected error occurred: {ex}"
-            errors, logs = safely_log_exception(
+            errors, logs = log_exception_safely(
                 ex, message, errors, logs=self.event_log
             )
             validation_results = None
@@ -188,7 +188,7 @@ class CarbonTxtValidator:
             )
         except Exception as ex:
             message = f"An unexpected error occurred: {ex}"
-            safely_log_exception(ex, message, errors, self.event_log)
+            log_exception_safely(ex, message, errors, self.event_log)
             validation_results = None
             return ValidationResult(
                 result=validation_results, logs=self.event_log, exceptions=errors
