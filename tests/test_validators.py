@@ -11,6 +11,7 @@ class TestCarbonTxtValidator:
         """
         res = validator.validate_url("https://www.thegreenwebfoundation.org")
         assert not res.result
+        assert res.exceptions
 
     def test_validate_file_with_greenweb_carbon_txt(self):
         """
@@ -18,3 +19,13 @@ class TestCarbonTxtValidator:
         """
         res = validator.validate_url("https://www.thegreenwebfoundation.org/carbon.txt")
         assert not res.result
+        assert res.exceptions
+
+    def test_validate_file_at_unreachable_url(self):
+        """
+        This should show a failure safely, as the URL is not reachable
+        """
+        res = validator.validate_url("https://does-not-matter.carbontxt.org/carbon.txt")
+
+        assert not res.result
+        assert res.exceptions

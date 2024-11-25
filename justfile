@@ -51,3 +51,11 @@ build:
 # publish the built python project to pypi
 publish *options: build
   uv run twine upload dist/* {{ options }}
+
+# run a local version of a Marimo API checking notebook
+marimo_api_checker:
+  uv run marimo run ./docs/notebook.py
+
+# run a editable version of a Marimo API checking notebook
+marimo_api_checker_edit:
+  uv run marimo edit ./docs/notebook.py

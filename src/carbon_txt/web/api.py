@@ -62,9 +62,17 @@ def validate_contents(
         carbon_txt_submission.text_contents
     )
     if carbon_txt_file := validation_results.result:
-        return {"success": True, "data": carbon_txt_file}  # type: ignore
+        return {
+            "success": True,
+            "data": carbon_txt_file,
+            "logs": validation_results.logs,
+        }  # type: ignore
     else:
-        return {"success": False, "data": validation_results.exceptions}  # type: ignore
+        return {
+            "success": False,
+            "data": validation_results.exceptions,
+            "logs": validation_results.logs,
+        }  # type: ignore
 
 
 @ninja_api.post(
@@ -87,9 +95,17 @@ def validate_url(
 
     validation_results = validator.validate_url(str(url_string))
     if carbon_txt_file := validation_results.result:
-        return {"success": True, "data": carbon_txt_file}  # type: ignore
+        return {
+            "success": True,
+            "data": carbon_txt_file,
+            "logs": validation_results.logs,
+        }  # type: ignore
     else:
-        return {"success": False, "errors": validation_results.exceptions}  # type: ignore
+        return {
+            "success": False,
+            "errors": validation_results.exceptions,
+            "logs": validation_results.logs,
+        }  # type: ignore
 
 
 @ninja_api.get(
