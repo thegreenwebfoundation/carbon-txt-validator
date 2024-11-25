@@ -9,6 +9,7 @@ def __():
     import marimo as mo
     import httpx
     import rich
+
     return httpx, mo, rich
 
 
@@ -43,7 +44,11 @@ def __(mo):
 
 @app.cell(hide_code=True)
 def __(mo):
-    text = mo.ui.text(placeholder="Search...", label="Enter the URL to a carbon.txt file try validating it. Tab out to fire the request", full_width=True)
+    text = mo.ui.text(
+        placeholder="Search...",
+        label="Enter the URL to a carbon.txt file try validating it. Tab out to fire the request",
+        full_width=True,
+    )
     text
     return (text,)
 
@@ -80,12 +85,13 @@ def __(check_url, httpx, rich):
     _local_url = "http://localhost:9000"
 
     def check_url_against_api(check_url, api_url):
-        
         _now = datetime.datetime.now()
         _data = {"url": check_url}
         rich.print(f"Time is: {_now}")
         api_path = "/api/validate/url/"
-        return httpx.post(f"{api_url}{api_path}", json=_data, follow_redirects=True, timeout=None)
+        return httpx.post(
+            f"{api_url}{api_path}", json=_data, follow_redirects=True, timeout=None
+        )
 
     rich.inspect(check_url)
     # rich.print(res)
