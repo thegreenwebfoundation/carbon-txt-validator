@@ -18,12 +18,12 @@ def check_carbon_txt_contents():
 
 def check_carbon_txt_url():
     api_url = "http://127.0.0.1:9000/api/validate/url/"
-    data = {"url": "https://hosted.carbontxt.org/carbon.txt"}
+    data = {"url": "https://delegating-with-txt-record.carbontxt.org/carbon.txt"}
     res = httpx.post(api_url, json=data, follow_redirects=True)
     rich.print(res)
-    breakpoint()
+    # breakpoint()
     pretty.pprint(res.json())
 
 
 # check_carbon_txt_contents()
-# check_carbon_txt_url()
+check_carbon_txt_url()

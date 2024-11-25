@@ -2,7 +2,7 @@ import json
 
 from typer.testing import CliRunner
 
-from carbon_txt.cli import app
+from carbon_txt.cli import app  # type: ignore
 
 runner = CliRunner(mix_stderr=False)
 
@@ -33,6 +33,7 @@ class TestCLI:
         result = runner.invoke(
             app, ["validate", "file", "https://used-in-tests.carbontxt.org/carbon.txt"]
         )
+
         assert result.exit_code == 0
         assert "https://used-in-tests.carbontxt.org" in result.stdout
 
@@ -41,10 +42,11 @@ class TestCLI:
         Run our CLI to `carbontxt validate file https://some-domain.com/carbon.txt`,
         """
 
-        # Update to a domain we know will not ever have a carbon.txt file
+        # TODO: Update to a domain we know will not ever have a carbon.txt file
         result = runner.invoke(
             app, ["validate", "file", "https://www.thegreenwebfoundation.org"]
         )
+
         assert result.exit_code == 1
 
     def test_schema(self):

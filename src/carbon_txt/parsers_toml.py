@@ -1,10 +1,9 @@
 import tomllib as toml
 from . import schemas
-import httpx
-import pathlib
 
 from . import exceptions
-
+import pydantic
+import typing
 
 import logging
 
@@ -20,52 +19,35 @@ class CarbonTxtParser:
     have the expected top level keys and values.
     """
 
-    def get_carbon_txt_file(self, str) -> str:
-        """
-        Accept a URI and either fetch the file over HTTP(S), or read the local file.
-        Return a string of contents of the remote carbon.txt file, or the local file.
-        """
-        if str.startswith("http"):
-            result = httpx.get(str).text
-            return result
-
-        if pathlib.Path(str).exists():
-            return pathlib.Path(str).read_text()
-
-    def fetch_parsed_carbon_txt_file(self, uri: str) -> dict:
-        """
-        Accept a URI and return a parsed TOML object.
-        """
-        try:
-            carbon_txt = self.get_carbon_txt_file(uri)
-            logger.info("Carbon.txt file found at {result}.\n")
-            parsed = self.parse_toml(carbon_txt)
-            logger.info("Carbon.txt file parsed .\n")
-            return parsed
-        except toml.TOMLDecodeError as e:
-            raise exceptions.NotParseableTOML(e)
-
-    def parse_toml(self, str) -> dict:
+    def parse_toml(self, str, logs=None) -> dict:
         """
         Accept a string of TOML and return a dict representing the
         keys and values going into a CarbonTxtFile object.
         """
         try:
             parsed = toml.loads(str)
+            msg = "Carbon.txt file parsed as valid TOML.\n"
+            logger.info(msg)
+            logs.append(msg)
             return parsed
-        except toml.TOMLDecodeError as e:
-            raise exceptions.NotParseableTOML(e)
+        except toml.TOMLDecodeError as ex:
+            logs.append(ex)
+            raise exceptions.NotParseableTOML(ex)
 
-    def validate_as_carbon_txt(self, parsed) -> schemas.CarbonTxtFile:
+    def validate_as_carbon_txt(
+        self, parsed, logs=None
+    ) -> typing.Optional[schemas.CarbonTxtFile]:
         """
         Accept a parsed TOML object and return a CarbonTxtFile, validating that
         necessary keys are present and values are of the correct type.
         """
-        from pydantic import ValidationError
 
         try:
             carb_txt_obj = schemas.CarbonTxtFile(**parsed)
+            msg = "Parsed TOML was recognised as valid Carbon.txt file.\n"
+            logs.append(msg)
             return carb_txt_obj
-        except ValidationError as e:
-            logger.warning(e)
-            return e
+        except pydantic.ValidationError as ex:
+            logs.append(ex)
+            logger.warning(ex)
+            raise ex
