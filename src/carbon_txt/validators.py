@@ -103,7 +103,7 @@ class CarbonTxtValidator:
                 result=validation_results, logs=self.event_log, exceptions=errors
             )
 
-        # # the file path is local, but we can't access it
+        # the file path is local, but we can't access it
         except FileNotFoundError as ex:
             full_file_path = pathlib.Path(url).absolute()
             message = f"No valid carbon.txt file found at {full_file_path}. \n"
@@ -132,7 +132,7 @@ class CarbonTxtValidator:
                 result=validation_results, logs=self.event_log, exceptions=errors
             )
 
-        # # the file path is reachable, and but it's not valid TOML. We re-raise the exception
+        # the file path is reachable, and but it's not valid TOML. We re-raise the exception
         # with the url listed in the error message, so it's clear to what URL the error refers to
         except exceptions.NotParseableTOML as ex:
             message = f"A file was found at {url}: but it wasn't parseable TOML. Error was: {ex}"
@@ -145,19 +145,15 @@ class CarbonTxtValidator:
         # the file path is reachable, but the server returned a 404
         except httpx.HTTPStatusError as ex:
             message = f"An error occurred while fetching the carbon.txt file at {url}."
-            errors, logs = log_exception_safely(
-                ex, message, errors, logs=self.event_log
-            )
+            log_exception_safely(ex, message, errors, self.event_log)
             validation_results = None
             return ValidationResult(
-                result=validation_results, logs=logs, exceptions=errors
+                result=validation_results, logs=self.event_log, exceptions=errors
             )
 
         except Exception as ex:
             message = f"An unexpected error occurred: {ex}"
-            errors, logs = log_exception_safely(
-                ex, message, errors, logs=self.event_log
-            )
+            log_exception_safely(ex, message, errors, self.event_log)
             validation_results = None
             return ValidationResult(
                 result=validation_results, logs=self.event_log, exceptions=errors
