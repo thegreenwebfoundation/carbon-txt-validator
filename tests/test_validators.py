@@ -29,3 +29,14 @@ class TestCarbonTxtValidator:
 
         assert not res.result
         assert res.exceptions
+
+    def test_validate_file_at_with_multiple_validation_errors(self):
+        """
+        This should safely handle multiple validation errors gracefully
+        """
+        res = validator.validate_url(
+            "https://99ddb36a.used-in-tests-carbontxt.pages.dev/multiple-exceptions.carbon.txt"
+        )
+
+        assert not res.result
+        assert res.exceptions

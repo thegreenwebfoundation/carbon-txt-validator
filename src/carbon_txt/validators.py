@@ -66,7 +66,7 @@ class CarbonTxtValidator:
         except pydantic.ValidationError as ex:
             message = f"Validation error: {ex}"
             self.event_log.append(message)
-            errors.append(*ex.errors())
+            errors.extend(ex.errors())
             validation_results = None
             return ValidationResult(
                 result=validation_results, logs=self.event_log, exceptions=errors
@@ -117,7 +117,7 @@ class CarbonTxtValidator:
         except pydantic.ValidationError as ex:
             message = f"Validation error: {ex}"
             self.event_log.append(message)
-            errors.append(*ex.errors())
+            errors.extend(ex.errors())
             validation_results = None
             return ValidationResult(
                 result=validation_results, logs=self.event_log, exceptions=errors

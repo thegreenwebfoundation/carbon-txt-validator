@@ -10,6 +10,16 @@ Fixed, Changed, Added, Removed, Fixed, Security
 
 ## Unreleased
 
+
+
+### Changed
+
+- Update pre-commit hooks to 0.5.0 and Ruff to 0.8.0
+
+### Fixed
+
+- Fix case of handling multiple validation errors
+
 ## [0.0.11]
 
 ### Added
