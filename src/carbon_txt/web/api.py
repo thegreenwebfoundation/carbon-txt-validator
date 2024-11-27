@@ -70,7 +70,7 @@ def validate_contents(
     else:
         return {
             "success": False,
-            "data": validation_results.exceptions,
+            "errors": validation_results.exceptions,
             "logs": validation_results.logs,
         }  # type: ignore
 
