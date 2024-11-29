@@ -1,6 +1,7 @@
 import json
 import logging
 import os
+import subprocess
 import sys
 
 import django
@@ -149,13 +150,20 @@ def serve(
             rich.print("Running with Granian server")
             rich.print("\n ----------------\n")
             # Run Granian instead of Django development server
-            os.system(
-                (
-                    "granian --interface wsgi "
-                    f"--host {host} --port {port} "
-                    "carbon_txt.web.config.wsgi:application"
-                )
-            )
+
+            cmd_args = [
+                "granian",
+                "--interface",
+                "wsgi",
+                "--host",
+                str(host),
+                "--port",
+                str(port),
+                # without the access log flag we see no requests in the logs
+                "--access-log",
+                "carbon_txt.web.config.wsgi:application",
+            ]
+            subprocess.run(cmd_args)
         else:
             execute_from_command_line(["manage.py", "runserver", f"{host}:{port}"])
     except exceptions.InsecureKeyException as e:
