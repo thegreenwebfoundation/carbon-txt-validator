@@ -183,8 +183,6 @@ def __(mo):
         OK, we have what looks like the matching fact. We're expecting the figure to be something like 23%.
 
         Let's see if it is that. We can turn it into a `dict` to see a bunch of other values.
-
-
         """
     )
     return
@@ -213,10 +211,16 @@ def __(mo, org_renewables):
 
 
 @app.cell
-def __(org_renewables, path_to_sample_file):
+def __(org_renewables, path_to_remote_file):
     print(
-        f"Our value for the report at {path_to_sample_file} is {float(org_renewables.value):.2%}"
+        f"Our value for the report at {path_to_remote_file} is {float(org_renewables.value):.2%}"
     )
+    return
+
+
+@app.cell
+def __(model_xbrls):
+    model_xbrls
     return
 
 
