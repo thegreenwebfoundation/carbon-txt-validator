@@ -1,13 +1,19 @@
-from arelle import ModelXbrl
-from arelle.api.Session import Session
-from arelle.RuntimeOptions import RuntimeOptions
-from arelle import ModelInstanceObject
+from arelle import (  # type: ignore
+    ModelInstanceObject,
+    ModelXbrl,
+)
+from arelle.api.Session import Session  # type: ignore
+from arelle.RuntimeOptions import RuntimeOptions  # type: ignore
 
-# model_xbrl = model_xbrls[0]
-# model_xbrl.factsByQname
 
-# this file is the same one as in this gist
-# https://gist.github.com/mrchrisadams/fb14e79d2d52977255c0b1db6de86726
+class NoMatchingDatapointsError(ValueError):
+    """
+    Thrown when a report does not have the expected datapoint.
+
+    This could be because a data point is either
+    1. missing, or
+    2. intentionallty omitted because it was deemed immaterial
+    """
 
 
 class CSRDProcessor:
@@ -15,6 +21,7 @@ class CSRDProcessor:
     A processor for reading and parsing CSRD report documents.
     """
 
+    report_url: str
     xbrls: list[ModelXbrl.ModelXbrl]
 
     esrs_datapoints: list[str] = [
@@ -25,6 +32,8 @@ class CSRDProcessor:
         """
         Initialize the Processor loading the report from the given URL.
         """
+
+        self.report_url = report_url
 
         options = RuntimeOptions(
             entrypointFile=str(report_url),
@@ -37,6 +46,7 @@ class CSRDProcessor:
         with Session() as session:
             session.run(options)
             self.xbrls = session.get_models()
+            session.close()
 
     def parsed_reports(self) -> list[ModelXbrl.ModelXbrl]:
         """
@@ -49,6 +59,13 @@ class CSRDProcessor:
     ) -> list[ModelInstanceObject.ModelFact]:
         try:
             res = self.xbrls[0].factsByLocalName.get(datapoint_code)
+            if not res:
+                raise NoMatchingDatapointsError(
+                    f"Could not find datapoint with code {datapoint_code}, for report {self.report_url}"
+                )
+
             return [*res]
         except KeyError:
-            raise ValueError(f"Could not find datapoint with code {datapoint_code}")
+            raise NoMatchingDatapointsError(
+                f"Could not find datapoint with code {datapoint_code}"
+            )
