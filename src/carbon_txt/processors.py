@@ -56,7 +56,7 @@ class CSRDProcessor:
 
     def get_esrs_datapoint_values(
         self, datapoint_code: str
-    ) -> list[ModelInstanceObject.ModelFact]:
+    ) -> list[ModelInstanceObject.ModelInlineFact]:
         try:
             res = self.xbrls[0].factsByLocalName.get(datapoint_code)
             if not res:

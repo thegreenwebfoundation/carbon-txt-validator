@@ -5,6 +5,10 @@ from carbon_txt import processors  # type: ignore
 
 from rich.logging import RichHandler
 
+from arelle import (  # type: ignore
+    ModelXbrl,
+)
+
 logger = logging.getLogger(__name__)
 logger.addHandler(RichHandler())
 # logger.setLevel(logging.INFO)
@@ -30,6 +34,18 @@ def local_esrs_2_csrd_file():
 
 
 class TestCSRDProcessorValidate:  # noqa
+    def test_basic_fetch_of_CSRD_reports(self, local_esrs_1_csrd_file):
+        """
+        Test that we can fetch a remote CSRD report, and that it is not empty.
+        """
+
+        processor = processors.CSRDProcessor(local_esrs_1_csrd_file)
+        res = processor.parsed_reports()
+
+        assert res
+        assert isinstance(res[0], ModelXbrl.ModelXbrl)
+        assert len(res) > 0
+
     def test_basic_validation_of_CSRD_report(self, local_esrs_1_csrd_file):
         """
         Test that we can parse a remote CSRD report, and pull out the values for a specific datapoint.
