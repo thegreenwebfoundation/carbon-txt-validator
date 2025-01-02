@@ -48,36 +48,39 @@ class TestCSRDProcessorValidate:  # noqa
 
     def test_basic_validation_of_CSRD_report(self, local_esrs_1_csrd_file):
         """
-        Test that we can parse a remote CSRD report, and pull out the values for a specific datapoint.
+        Test that we can parse a remote CSRD report, and pull out values for specific datapoints.
         """
 
         processor = processors.CSRDProcessor(local_esrs_1_csrd_file)
         res = processor.get_esrs_datapoint_values(
-            "PercentageOfRenewableSourcesInTotalEnergyConsumption"
+            ["PercentageOfRenewableSourcesInTotalEnergyConsumption"]
         )
 
         assert len(res) is not None
-        for val in res:
-            assert val.isNumeric
-            assert float(val.effectiveValue) > 0.2
-            assert float(val.effectiveValue) < 0.3
+        for datapoint in res["PercentageOfRenewableSourcesInTotalEnergyConsumption"]:
+            assert (
+                datapoint.name
+                == "Percentage of renewable sources in total energy consumption"
+            )
+            assert datapoint.value > 0.2
+            assert datapoint.value < 0.3
 
     def test_basic_validation_of_CSRD_report_no_value(self, local_esrs_2_csrd_file):
         """
-        Test that we get a graceful when we try to pull the datapoint
+        Test that we get a graceful failure when we try to pull datapoints
         from a report without the values
         """
 
         processor = processors.CSRDProcessor(local_esrs_2_csrd_file)
+        datapoint_code = "PercentageOfRenewableSourcesInTotalEnergyConsumption"
 
-        with pytest.raises(processors.NoMatchingDatapointsError):
-            processor.get_esrs_datapoint_values(
-                "PercentageOfRenewableSourcesInTotalEnergyConsumption"
-            )
+        res = processor.get_esrs_datapoint_values([datapoint_code])
+        for item in res[datapoint_code]:
+            assert isinstance(item, processors.NoMatchingDatapointsError)
 
 
 @pytest.mark.skip(
-    "Skipped in CI, as we onlt use it to check local EFRAG example reports in bulk"
+    "Skipped in CI, as we only use it to check local EFRAG example reports in bulk"
 )  # type: ignore
 class TestCSRDProcessorEFRAGValidateAll:
     """ """
@@ -93,7 +96,7 @@ class TestCSRDProcessorEFRAGValidateAll:
             try:
                 processor = processors.CSRDProcessor(str(file))
                 res = processor.get_esrs_datapoint_values(
-                    "PercentageOfRenewableSourcesInTotalEnergyConsumption"
+                    ["PercentageOfRenewableSourcesInTotalEnergyConsumption"]
                 )
                 assert res
                 good_files.append(file)
