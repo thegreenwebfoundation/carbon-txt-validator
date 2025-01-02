@@ -16,3 +16,5 @@ cov.xml
 
 # Env vars
 .env
+
+data
