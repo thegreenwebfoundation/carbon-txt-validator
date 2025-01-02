@@ -111,16 +111,28 @@ def __(form, mo, vals):
     message = None
 
     if form.value and vals:
-        re_percentage_vals = vals.get(form.value["datapoint"])
+        first_datapoint, *rest = vals.get(form.value["datapoint"])
+        if first_datapoint.unit == "percentage":
+            datapoint_value = f"{first_datapoint.value:.2%}"
+        else:
+            datapoint_value = first_datapoint.value
 
-        if re_percentage_vals and isinstance(re_percentage_vals[0], DataPoint):
+        if first_datapoint and isinstance(first_datapoint, DataPoint):
             message = f"""
-            {re_percentage_vals[0].name} was {re_percentage_vals[0].value:.2%}
-            between {re_percentage_vals[0].start_date} and {re_percentage_vals[0].end_date}.
+
+            {first_datapoint.name} was {datapoint_value}
+            between {first_datapoint.start_date} and {first_datapoint.end_date}.
             """
 
     mo.md(message).callout(kind="success") if message else None
-    return DataPoint, NoMatchingDatapointsError, message, re_percentage_vals
+    return (
+        DataPoint,
+        NoMatchingDatapointsError,
+        datapoint_value,
+        first_datapoint,
+        message,
+        rest,
+    )
 
 
 @app.cell
