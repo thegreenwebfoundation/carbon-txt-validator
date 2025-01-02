@@ -87,6 +87,39 @@ class TestCSRDProcessorValidate:  # noqa
         with pytest.raises(processors.NoLoadableCSRDFile):
             processors.CSRDProcessor("https://www.example.com/no-csrd-report")
 
+    def test_basic_validation_of_multiple_values_in_CSRD_report(
+        self, local_esrs_1_csrd_file
+    ):
+        """
+        Test that we can parse a remote CSRD report, and pull out values for specific datapoints.
+        """
+
+        processor = processors.CSRDProcessor(local_esrs_1_csrd_file)
+
+        res = processor.get_esrs_datapoint_values(processor.local_datapoint_codes)
+
+        assert len(res) is not None
+
+        # checkl for first datapoint
+        for datapoint in res["PercentageOfRenewableSourcesInTotalEnergyConsumption"]:
+            assert (
+                datapoint.name
+                == "Percentage of renewable sources in total energy consumption"
+            )
+            assert datapoint.value > 0.2
+            assert datapoint.value < 0.3
+
+        # is there another datapoint in the returned values?
+        for datapoint in res[
+            "ConsumptionOfPurchasedOrAcquiredElectricityHeatSteamAndCoolingFromRenewableSources"
+        ]:
+            logger.warning(datapoint.name)
+            assert (
+                datapoint.name
+                == "Consumption of purchased or acquired electricity, heat, steam, and cooling from renewable sources"
+            )
+            assert datapoint.value == "450000"
+
 
 @pytest.mark.skip(
     "Skipped in CI, as we only use it to check local EFRAG example reports in bulk"

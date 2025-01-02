@@ -94,7 +94,11 @@ def __(form, parsed_report_data):
 @app.cell
 def __(processors):
     def show_datapoint_values():
-        return processors.CSRDProcessor.esrs_datapoints
+        form_options = {}
+        for item in processors.CSRDProcessor.esrs_datapoints.items():
+            form_options[item[1]] = item[0].replace("esrs:", "")
+
+        return form_options
 
     form_datapoint_values = show_datapoint_values()
     return form_datapoint_values, show_datapoint_values
@@ -107,55 +111,53 @@ def __(form, mo, vals):
     message = None
 
     if form.value and vals:
-        re_percentage_vals = vals.get(
-            "PercentageOfRenewableSourcesInTotalEnergyConsumption"
-        )
+        first_datapoint, *rest = vals.get(form.value["datapoint"])
+        if first_datapoint.unit == "percentage":
+            datapoint_value = f"{first_datapoint.value:.2%}"
+        else:
+            datapoint_value = first_datapoint.value
 
-        if re_percentage_vals and isinstance(re_percentage_vals[0], DataPoint):
+        if first_datapoint and isinstance(first_datapoint, DataPoint):
             message = f"""
-            {re_percentage_vals[0].name} was {re_percentage_vals[0].value:.2%}
-            between {re_percentage_vals[0].start_date} and {re_percentage_vals[0].end_date}.
+
+            {first_datapoint.name} was {datapoint_value}
+            between {first_datapoint.start_date} and {first_datapoint.end_date}.
             """
 
     mo.md(message).callout(kind="success") if message else None
-    return DataPoint, NoMatchingDatapointsError, message, re_percentage_vals
+    return (
+        DataPoint,
+        NoMatchingDatapointsError,
+        datapoint_value,
+        first_datapoint,
+        message,
+        rest,
+    )
 
 
 @app.cell
 def __(NoMatchingDatapointsError, form, mo, vals):
     error_message = None
+
     if form.value and vals:
         if isinstance(
-            vals["PercentageOfRenewableSourcesInTotalEnergyConsumption"][0],
+            vals[form.value["datapoint"]][0],
             NoMatchingDatapointsError,
         ):
-            parse_errors = vals["PercentageOfRenewableSourcesInTotalEnergyConsumption"][
-                0
-            ].__str__()
+            parse_errors = vals[form.value["datapoint"]][0].__str__()
             error_message = f"""
-            Sorry, we couldn't find any values for 'Percentage Of Renewable Sources In Total Energy Consumption' datapoint.
+            Sorry, we couldn't find any values for {form.value['datapoint']} datapoint.
 
             Error was:
 
             {parse_errors}
             """
 
-    if form.value["url"] and not vals:
+    if form.value and form.value["url"] and not vals:
         error_message = f"Sorry, we were unable to load the file at {form.value['url']}. Is it definitely reachable and a valid XML file?"
 
     mo.md(error_message).callout(kind="danger") if error_message else None
     return error_message, parse_errors
-
-
-@app.cell
-def __():
-    return
-
-
-@app.cell
-def __(vals):
-    vals
-    return
 
 
 @app.cell
