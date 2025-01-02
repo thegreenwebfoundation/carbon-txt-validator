@@ -19,6 +19,12 @@ class NoMatchingDatapointsError(ValueError):
     """
 
 
+class NoLoadableCSRDFile(ValueError):
+    """
+    Thrown when a the link CSRD file can't be loaded by Arelle.
+    """
+
+
 class DataPoint(BaseModel):
     """
     Datapoints are the values that are extracted from the CSRD report, that
@@ -64,6 +70,10 @@ class CSRDProcessor:
         with Session() as session:
             session.run(options)
             self.xbrls = session.get_models()
+            if "FileNotLoadable" in self.xbrls[0].errors:
+                raise NoLoadableCSRDFile(
+                    f"Could not load the file at {self.report_url} as a CSRD report"
+                )
             session.close()
 
     def parsed_reports(self) -> list[ModelXbrl.ModelXbrl]:

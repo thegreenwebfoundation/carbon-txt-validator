@@ -78,6 +78,15 @@ class TestCSRDProcessorValidate:  # noqa
         for item in res[datapoint_code]:
             assert isinstance(item, processors.NoMatchingDatapointsError)
 
+    def test_safe_error_when_CSRD_unparsable(self):
+        """
+        Test that we get a graceful failure when we try to parse a unreachable or unparseable
+        CSRD report.
+        """
+
+        with pytest.raises(processors.NoLoadableCSRDFile):
+            processors.CSRDProcessor("https://www.example.com/no-csrd-report")
+
 
 @pytest.mark.skip(
     "Skipped in CI, as we only use it to check local EFRAG example reports in bulk"

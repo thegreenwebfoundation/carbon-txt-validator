@@ -41,7 +41,7 @@ def __(processors):
 
 
 @app.cell
-def __(mo):
+def __(form_datapoint_values, mo):
     form = (
         mo.md("""
         **Your form.**
@@ -53,7 +53,7 @@ def __(mo):
         .batch(
             url=mo.ui.text(placeholder="Url to fetch CSRD file from", full_width=True),
             datapoint=mo.ui.dropdown(
-                options=["PercentageOfRenewableSourcesInTotalEnergyConsumption"],
+                options=form_datapoint_values,
                 label="chosen data point",
             ),
         )
@@ -64,78 +64,98 @@ def __(mo):
 
 
 @app.cell
-def __(check_csrd_report, form):
+def __(NoLoadableCSRDFile, check_csrd_report, form):
     parsed_report_data = None
 
     if form.value:
         _url = form.value.get("url")
         if _url:
-            parsed_report_data = check_csrd_report(form.value.get("url"))
+            try:
+                parsed_report_data = check_csrd_report(form.value.get("url"))
+            except NoLoadableCSRDFile:
+                # we can't load the file, fail gracefully and show the error below
+                pass
     parsed_report_data
     return (parsed_report_data,)
 
 
 @app.cell
-def __(parsed_report_data):
+def __(form, parsed_report_data):
     def fetch_datapoints():
         if parsed_report_data:
-            return parsed_report_data.esrs_datapoints[0]
+            return parsed_report_data.get_esrs_datapoint_values(
+                [form.value["datapoint"]]
+            )
 
     vals = fetch_datapoints()
     return fetch_datapoints, vals
 
 
 @app.cell
-def __(parsed_report_data):
+def __(processors):
     def show_datapoint_values():
-        if parsed_report_data:
-            vals = parsed_report_data.get_esrs_datapoint_values(
-                [parsed_report_data.esrs_datapoints[0]]
-            )
-            return vals
+        return processors.CSRDProcessor.esrs_datapoints
 
-    val = show_datapoint_values()
-    val
-    return show_datapoint_values, val
+    form_datapoint_values = show_datapoint_values()
+    return form_datapoint_values, show_datapoint_values
 
 
 @app.cell
-def __(mo, val):
+def __(form, mo, vals):
     from carbon_txt.processors import DataPoint, NoMatchingDatapointsError
 
     message = None
 
-    if isinstance(
-        val["PercentageOfRenewableSourcesInTotalEnergyConsumption"][0], DataPoint
-    ):
-        message = f"""
-        {val["PercentageOfRenewableSourcesInTotalEnergyConsumption"][0].name} was  {val["PercentageOfRenewableSourcesInTotalEnergyConsumption"][0].value:.2%} between {val["PercentageOfRenewableSourcesInTotalEnergyConsumption"][0].start_date} and {val["PercentageOfRenewableSourcesInTotalEnergyConsumption"][0].end_date}.
-        """
+    if form.value and vals:
+        re_percentage_vals = vals.get(
+            "PercentageOfRenewableSourcesInTotalEnergyConsumption"
+        )
+
+        if re_percentage_vals and isinstance(re_percentage_vals[0], DataPoint):
+            message = f"""
+            {re_percentage_vals[0].name} was {re_percentage_vals[0].value:.2%}
+            between {re_percentage_vals[0].start_date} and {re_percentage_vals[0].end_date}.
+            """
 
     mo.md(message).callout(kind="success") if message else None
-    return DataPoint, NoMatchingDatapointsError, message
+    return DataPoint, NoMatchingDatapointsError, message, re_percentage_vals
 
 
 @app.cell
-def __(NoMatchingDatapointsError, mo, val):
+def __(NoMatchingDatapointsError, form, mo, vals):
     error_message = None
-    if isinstance(
-        val["PercentageOfRenewableSourcesInTotalEnergyConsumption"][0],
-        NoMatchingDatapointsError,
-    ):
-        parse_errors = val["PercentageOfRenewableSourcesInTotalEnergyConsumption"][
-            0
-        ].__str__()
-        error_message = f"""
-        Sorry, we couldn't find any values for 'Percentage Of Renewable Sources In Total Energy Consumption' datapoint.
+    if form.value and vals:
+        if isinstance(
+            vals["PercentageOfRenewableSourcesInTotalEnergyConsumption"][0],
+            NoMatchingDatapointsError,
+        ):
+            parse_errors = vals["PercentageOfRenewableSourcesInTotalEnergyConsumption"][
+                0
+            ].__str__()
+            error_message = f"""
+            Sorry, we couldn't find any values for 'Percentage Of Renewable Sources In Total Energy Consumption' datapoint.
 
-        Error was:
+            Error was:
 
-        {parse_errors}
-        """
+            {parse_errors}
+            """
+
+    if form.value["url"] and not vals:
+        error_message = f"Sorry, we were unable to load the file at {form.value['url']}. Is it definitely reachable and a valid XML file?"
 
     mo.md(error_message).callout(kind="danger") if error_message else None
     return error_message, parse_errors
+
+
+@app.cell
+def __():
+    return
+
+
+@app.cell
+def __(vals):
+    vals
+    return
 
 
 @app.cell
