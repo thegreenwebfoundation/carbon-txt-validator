@@ -48,9 +48,23 @@ class CSRDProcessor:
     report_url: str
     xbrls: list[ModelXbrl.ModelXbrl]
 
-    esrs_datapoints: list[str] = [
-        "PercentageOfRenewableSourcesInTotalEnergyConsumption",
-    ]
+    esrs_datapoints: dict[str, str] = {
+        "esrs:PercentageOfRenewableSourcesInTotalEnergyConsumption": "E1-5 AR 34 Percentage of renewable sources in total energy consumption",
+        "esrs:PercentageOfEnergyConsumptionFromNuclearSourcesInTotalEnergyConsumption": "E1-5 AR 34 Percentage of nuclear in total energy consumption",
+        "esrs:EnergyConsumptionRelatedToOwnOperations": "E1-5 37 Total energy consumption related to own operations",
+        "esrs:EnergyConsumptionFromFossilSources": "E1-5 37 a - Total energy consumption from fossil sources",
+        "esrs:EnergyConsumptionFromNuclearSources": "E1-5 37 b - Total energy consumption from nuclear sources",
+        "esrs:EnergyConsumptionFromRenewableSources": "E1-5 37 c - Total energy consumption from renewable sources",
+        # "esrs:EnergyConsumptionFromRenewableSources": "E1-5 37 c i - Fuel consumption from renewable sources",
+        "esrs:ConsumptionOfPurchasedOrAcquiredElectricityHeatSteamAndCoolingFromRenewableSources": "E1-5 37 c ii Consumption of purchased or acquired electricity, heat, steam, and cooling from renewable sources",
+        "esrs:ConsumptionOfSelfgeneratedNonfuelRenewableEnergy": "E1-5 37 c iii - Consumption of self-generated non-fuel renewable energy",
+    }
+    # these data points are ones we might look for too
+    # "esrs:PercentageOfContractualInstrumentsUsedForSaleAndPurchaseOfUnbundledEnergyAttributeClaimsInRelationToScope2GHGEmissions",
+    # "esrs:PercentageOfContractualInstrumentsUsedForSaleAndPurchaseOfEnergyBundledWithAttributesAboutEnergyGenerationInRelationToScope2GHGEmissions",
+    # "esrs:DisclosureOfEnergyConsumptionAndMixExplanatory",
+    # "esrs:DisclosureOfTypesOfContractualInstrumentsUsedForSaleAndPurchaseOfEnergyBundledWithAttributesAboutEnergyGenerationOrForUnbundledEnergyAttributeClaimsExplanatory",
+    # "esrs:RenewableEnergyProduction",
 
     def __init__(self, report_url: str) -> None:
         """
@@ -75,6 +89,12 @@ class CSRDProcessor:
                     f"Could not load the file at {self.report_url} as a CSRD report"
                 )
             session.close()
+
+    @property
+    def local_datapoint_codes(self) -> list[str]:
+        qualified_names = self.esrs_datapoints.keys()
+
+        return [qname.replace("esrs:", "") for qname in qualified_names]
 
     def parsed_reports(self) -> list[ModelXbrl.ModelXbrl]:
         """

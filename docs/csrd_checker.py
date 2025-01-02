@@ -94,7 +94,11 @@ def __(form, parsed_report_data):
 @app.cell
 def __(processors):
     def show_datapoint_values():
-        return processors.CSRDProcessor.esrs_datapoints
+        form_options = {}
+        for item in processors.CSRDProcessor.esrs_datapoints.items():
+            form_options[item[1]] = item[0].replace("esrs:", "")
+
+        return form_options
 
     form_datapoint_values = show_datapoint_values()
     return form_datapoint_values, show_datapoint_values
@@ -107,9 +111,7 @@ def __(form, mo, vals):
     message = None
 
     if form.value and vals:
-        re_percentage_vals = vals.get(
-            "PercentageOfRenewableSourcesInTotalEnergyConsumption"
-        )
+        re_percentage_vals = vals.get(form.value["datapoint"])
 
         if re_percentage_vals and isinstance(re_percentage_vals[0], DataPoint):
             message = f"""
@@ -124,38 +126,26 @@ def __(form, mo, vals):
 @app.cell
 def __(NoMatchingDatapointsError, form, mo, vals):
     error_message = None
+
     if form.value and vals:
         if isinstance(
-            vals["PercentageOfRenewableSourcesInTotalEnergyConsumption"][0],
+            vals[form.value["datapoint"]][0],
             NoMatchingDatapointsError,
         ):
-            parse_errors = vals["PercentageOfRenewableSourcesInTotalEnergyConsumption"][
-                0
-            ].__str__()
+            parse_errors = vals[form.value["datapoint"]][0].__str__()
             error_message = f"""
-            Sorry, we couldn't find any values for 'Percentage Of Renewable Sources In Total Energy Consumption' datapoint.
+            Sorry, we couldn't find any values for {form.value['datapoint']} datapoint.
 
             Error was:
 
             {parse_errors}
             """
 
-    if form.value["url"] and not vals:
+    if form.value and form.value["url"] and not vals:
         error_message = f"Sorry, we were unable to load the file at {form.value['url']}. Is it definitely reachable and a valid XML file?"
 
     mo.md(error_message).callout(kind="danger") if error_message else None
     return error_message, parse_errors
-
-
-@app.cell
-def __():
-    return
-
-
-@app.cell
-def __(vals):
-    vals
-    return
 
 
 @app.cell
