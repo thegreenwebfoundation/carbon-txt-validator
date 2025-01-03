@@ -1,0 +1,205 @@
+# Adding functionality via a plugin system for the carbon.txt validator
+
+## Status
+
+Proposed
+
+## Context
+
+Part of our work on the carbon.txt project is to build a carbon.txt validator - an open source piece of software designed to validate carbon.txt files based on their contents.
+
+We want to grow an ecosystem based around the idea of using publicly disclosed, machine readable information, that is coming into the public domain as a result of new laws. We want the investment we have made into building tooling to fetch and validate carbon.txt files to me something that be useful for other groups wanting to work with this data too.
+
+
+## Decision
+
+**What is the change that we're proposing and/or doing?**
+
+We would introduce a plugin system to the carbon.txt validator to allow new plugins extend the functionlity without needing to change the core code.
+
+These would "hook into" various stages of the lifecycle validating a carbon.txt file.
+
+### What kind of functionality we expect to support.
+
+A plugin system like this would allow us to support actions like:
+
+- looking for new kinds of evidence we look for when an organisation is trying to back claims - like CSRD reports, EED submissions or similar.
+- changing the information the validator looks for within the evidence linked from a carbon.txt file - we look for informatino about green energy, but some evidence forms have rich data related to other domains.
+- archiving the evidence linked in a carbon.txt file.to cheap, redundant storage for later reference in case they change
+
+
+## How it would work
+
+### What plugin system is being proposed?
+
+The proposed approach is to use widely used plugin framework, in the python ecosystem called Pluggy. A number of well known python projects use this plugin, like [Datasette](https://docs.datasette.io/en/stable/writing_plugins.html#writing-one-off-plugins), [LLM](https://llm.datasette.io/en/stable/plugins/index.html), [Pytest](https://docs.pytest.org/en/latest/how-to/writing_plugins.html#pip-installable-plugins), [Tox](https://tox.wiki/en/latest/plugins.html#) and others.
+
+#### How does Pluggy work?
+
+Pluggy allows a **host program**, (in our case the carbon.txt validator), to be extended by defining specific **hooks** in the lifecycle of a program or serving a request.
+
+This allows code in plugins to intervene at these specific points in the lifecycle, by implementing these **hook functions** themselves.
+
+At runtime, code in these plugins is added to a **Plugin Registry**, and the functions that match a given **hook** are then called by the **host program**, passing in arguments to the plugin function code as specified in the original hook.
+
+#### A concrete use case
+
+For example, we have a predefined set of documents we accept in our current spec for carbon.txt, which is listed in a schema. We might define a hook with the name `process_document_type`, and pass into it a given document to process.
+
+In a plugin, we would then implement the `process_document_type` hook function, which includes specific logic for working with that document in a desired way. In our case we might use this hook to look for specific information about green energy in a CSRD report
+
+
+### What initial hooks would we consider?
+
+We have a few candidate hooks to start with.
+
+#### Register document type
+
+This, when run on startup extends our schema, to support new document types we might look for in a carbon.txt file.
+
+A concrete example might be a `CSRD-Report` document type if we don't support it already, or an `EED Submission` document type to represent the structured data that companies need to disclose as a result of the Energy Efficiency Directive. [See more on the Green Web Foundation blog](https://www.thegreenwebfoundation.org/news/happy-e-e-d-day-to-those-who-celebrate/)
+
+When parsing a document, we would reflect this new document type in the Validation Schema used, so that a `EED Submission` would be considered a valid document type in validation life cycle.
+
+A mechanism like this would allow for new kinds of evidence, and prototype support for new kinds of documents in the carbon.txt spec.
+
+#### Process document type
+
+This hook, when run after the initial validation of the carbon.txt file structure would support further processing of documents lined in the carbon.txt file, to either run further validation steps or otherwise process the data.
+
+The hook function would run for each document linked in a carbon.txt file, accepting a reference to the document, and would returning a list of new data structures created as a result of processing the document..
+
+A concrete example would be processing a CSRD Report document linked in a report, and returning a datastructure containing the specific datapoints fetched from the report.
+
+Another example would be processing each linked webpage, to download a copy of the page and save a timestamped version to object storage. In this case the returned values might be a datastructure containing the links to the stored files.
+
+### How will people use these plugins?
+
+Pluggy supports a number of ways to add plugins to a Plugin Registry to run at predefined stages of the life cycle. Projects using it, tend to support the registering of plugins three main ways:
+
+1. registering 'internal' plugins defined in the project code base at runtime
+2. registering 'external' plugins in a pre-defined directory at start up
+3. registering 'external' pre-built plugins
+
+#### 1. Registing internal plugins:
+
+There will often be functionality in a project that is bundled into it, to provide some default functionality, that could have been implemented using the same plugin hooks as offered to external projects.
+
+On startup, code like the sample project code below loads the plugins to add the functionality in the plugins to the host program:
+
+```python
+DEFAULT_PLUGINS = ('myproject.internal_plugin1', 'myproject.internal_plugin2')
+
+# Load default plugins
+for plugin in DEFAULT_PLUGINS:
+    # load the plugin into memory as a python module, `mod`
+    mod = importlib.import_module(plugin)
+
+    # assume 'pm' is the object responsible for controlling access to the Plugin Registry
+    pm.register(mod, plugin)
+```
+
+These work as evidence of 'dogfooding' (using the same plugin APIs and interfaces we expect others to use) but also provide a convenient package of functionality that can be changed by overrriding the DEFAULT_PLUGINS to use different plugins.
+
+
+
+
+
+#### 2. Registering external plugins:
+
+An idiomatic way to allow third party code to be used as a plugin, is to define a plugin directory to place code into, and load it at run-time.
+
+The Datasette project does this,  to allow people to download the published command line tool, and register a single file plugin placed in a  directory specified by command line flag when running the command line tool.
+
+So, if we had a plugin in a python file called `example-plugin.py` like so:
+
+```python
+# ./plugins-directory/example-plugin.py
+from carbon_txt import hookimpl
+
+@hookimpl
+def process_document(document):
+    # assume do_some_work is a function defined elsewhere
+    if document.doctype == "csrd-report":
+        results = do_some_work(document)
+        return results
+
+```
+
+And it was in the directory `plugins-directory`, then we would include the plugin's functionality by specifying the directory `--plugin-dir ./plugins-directory/` when we run the command:
+
+```
+carbon-txt validate --plugin-dir ./plugins-directory/`
+```
+
+Internally  code at startup searches for valid files in the specified directory. Below is slightly edited implementation from [the live project code](https://github.com/simonw/datasette/blob/main/datasette/app.py#L399-L408):
+
+```python
+# assume our CLI lets us specify a plugins directory to look for plugins in, specified by plugins_dir
+
+if self.plugins_dir:
+
+    for filepath in glob.glob(os.path.join(self.plugins_dir, "*.py")):
+        if not os.path.isfile(filepath):
+            continue
+
+        # load chosen python file importing the code as a module
+        mod = module_from_path(filepath, name=os.path.basename(filepath))
+
+        try:
+            # add the module to the Plugin Registry, `pm`
+            pm.register(mod)
+        except ValueError:
+            # Plugin already registered
+            pass
+```
+
+The benefit of this approach is that it supports extending a project that consumes our validator, with one-off plugins, to add required functionality, without the author needing to change the original core project code, nor them having to build and publish a separate project to an external repository.
+
+Datasette's own [documentation shows how to use this approach to write simple plugins](https://docs.datasette.io/en/stable/writing_plugins.html#writing-one-off-plugins). This would likely the first tutorial we offer for people looking to create their own plugins themselves, and would support teams looking to create internal plugins on existing projects.
+
+A third approach is common for making plugins available for others to use.
+
+#### 3. Registering 'external' pre-built plugins
+
+The final common approach is to offer support for plugins that have already been built and published to repository. When these plugins are installed into a project using common installation commands like `pip install`, they contain code that will be run to make the plugin visible to the Pluggy plugin manager and added to the plugin registry.
+
+For this to be possible, plugins need to be packaged for distribution, and contain a `pyproject.toml` file containing metadata about the project that lays out which files should be made accessible to the appropriate "host" project using Pluggy.
+
+In the sample below our 'host' project with the plugin system is identified with the `[project.entry-points.carbon_txt]` toml snippet, and the relevant code in the project is identified by the snippet `myproject = "myproject.pluginmodule"`
+
+```toml
+# sample ./pyproject.toml file
+
+# hatchling is a default build system in python when creating python packages
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "myproject"
+
+[project.entry-points.carbon_txt]
+myproject = "myproject.pluginmodule"
+```
+
+Pluggy discovers code in external plugins by looking up for a specific "entry point" as outlined above, nothing else needs to be done - these plugins are included by default by the plugin manager in our host validator programme.
+
+#### Further control over which plugins to use when running code
+
+Most projects that use Pluggy provide further support for finer-grained control of which plugins to keep active.
+
+Command line flags like `disabled_plugins=plugin1,plugin2` are common, as are having specific named settings in the host program. We already support external config files in our `carbon-txt` command line tool. This allows us to set values for `DEFAULT_PLUGINS` in a sensible place that are easy to override.
+
+
+## Consequences
+
+**What becomes easier or more difficult to do because of this change?**
+
+Extending the functionality without access to the main codebase becomes easier with this system, as long as the exposed "hooks" are well thought through, and useful.
+
+The system can become harder to change, if people grow reliant on a given "hook" working a specific way.
+
+If we learn that our initial approach for implementing a feature needs rethinking, or parts of our design need the same, then we need a way to communicate changes to anyone 'downstream'.
+
+For this reason, it's better to be conservative with introducing hooks, and only doing so when we are confident they have a concrete use case that is valuable.
