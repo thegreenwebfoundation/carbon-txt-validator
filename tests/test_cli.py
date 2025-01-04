@@ -62,3 +62,24 @@ class TestCLI:
         assert "JSON Schema for a carbon.txt file" in result.stderr
         assert "CarbonTxtFile" in parsed_schema.get("title")
         assert "$defs" in parsed_schema.keys()
+
+    def test_lookup_domain_with_test_plugin(self):
+        """
+        Test that we can run the CLI with a custom plugin directory
+        """
+
+        result = runner.invoke(
+            app,
+            [
+                "validate",
+                "domain",
+                "used-in-tests.carbontxt.org",
+                "--plugins-dir",
+                "tests/test_plugins",
+            ],
+        )
+        assert result.exit_code == 0
+        assert "used-in-tests.carbontxt.org" in result.stdout
+
+        # check that we see output from the test plugin
+        assert "Test Plugin:" in result.stdout
