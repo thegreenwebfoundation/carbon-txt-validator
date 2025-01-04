@@ -34,6 +34,7 @@ env = environ.Env(
     SENTRY_DSN=(str, ""),
     SENTRY_TRACE_SAMPLE_RATE=(float, 0),
     SENTRY_PROFILE_SAMPLE_RATE=(float, 0),
+    CARBON_TXT_PLUGINS_DIR=(str, None),
 )
 
 # fetch environment variables from .env file
@@ -179,3 +180,5 @@ if env("SENTRY_DSN"):
         # We recommend adjusting this value in production.
         profiles_sample_rate=env("SENTRY_PROFILE_SAMPLE_RATE"),
     )
+
+CARBON_TXT_PLUGINS_DIR = env("CARBON_TXT_PLUGINS_DIR")

@@ -5,6 +5,7 @@ import subprocess
 import sys
 
 import django
+from typing import Optional
 import pydantic_core
 import rich
 import typer
@@ -24,7 +25,6 @@ app.add_typer(
 )
 
 err_console = rich.console.Console(stderr=True)
-validator = validators.CarbonTxtValidator()
 
 
 def _log_validation_results(success=True):
@@ -41,8 +41,20 @@ def _log_validated_carbon_txt_object(
     rich.print(validation_results)
 
 
+def _log_processed_documents(document_results):
+    rich.print("------- \n")
+    rich.print("Results of processing linked documents in the carbon.txt file: \n")
+    rich.print(document_results)
+
+
 @validate_app.command("domain")
-def validate_domain(domain: str):
+def validate_domain(
+    domain: str,
+    plugins_dir: str = typer.Option(
+        None, "--plugins-dir", help="path to optional plugin directory"
+    ),
+):
+    validator = validators.CarbonTxtValidator(plugins_dir=plugins_dir)
     validation_results = validator.validate_domain(domain)
     carbon_txt_file = validation_results.result
 
@@ -51,6 +63,8 @@ def validate_domain(domain: str):
             rich.print(log)
         _log_validation_results(success=True)
         _log_validated_carbon_txt_object(carbon_txt_file)
+        if validation_results.document_results:
+            _log_processed_documents(validation_results.document_results)
         raise typer.Exit(code=0)
 
     for log in validation_results.logs:
@@ -65,7 +79,14 @@ def validate_file(
     file_path: str = typer.Argument(
         ..., help="Path to carbon.txt file or '-' to read from STDIN"
     ),
+    plugins_dir: str = typer.Option(
+        None, "--plugins-dir", help="path to optional plugin directory"
+    ),
+    django_settings: str = typer.Option(
+        None, "--django-settings", "-ds", help="path to Django settings module"
+    ),
 ):
+    validator = validators.CarbonTxtValidator(plugins_dir=plugins_dir)
     if file_path == "-":
         content = typer.get_text_stream("stdin").read()
         validation_results = validator.validate_contents(content)
@@ -77,6 +98,8 @@ def validate_file(
                 rich.print(log)
             _log_validation_results(success=True)
             _log_validated_carbon_txt_object(carbon_txt_file)
+            if validation_results.document_results:
+                _log_processed_documents(validation_results.document_results)
             raise typer.Exit(code=0)
 
         for log in validation_results.logs:
@@ -104,8 +127,11 @@ def schema():
 
 def configure_django(
     settings_module: str = "carbon_txt.web.config.settings.development",
+    plugins_dir: Optional[str] = None,
 ):
     """Configure Django settings programmatically"""
+    if plugins_dir is not None:
+        os.environ.setdefault("CARBON_TXT_PLUGINS_DIR", plugins_dir)
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", settings_module)
     django.setup()
 
@@ -121,6 +147,9 @@ def serve(
     production: bool = typer.Option(False, help="Run in production mode"),
     django_settings: str = typer.Option(
         None, "--django-settings", "-ds", help="path to Django settings module"
+    ),
+    plugins_dir: str = typer.Option(
+        None, "--plugins-dir", help="path to optional plugin directory"
     ),
 ):
     """Run the carbon.txt validator web server"""
@@ -148,6 +177,7 @@ def serve(
 
         if server == "granian":
             rich.print("Running with Granian server")
+
             rich.print("\n ----------------\n")
             # Run Granian instead of Django development server
 

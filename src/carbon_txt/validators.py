@@ -6,6 +6,7 @@ import pathlib
 import httpx
 from typing import Optional, Union
 from . import exceptions, finders, parsers_toml, schemas  # noqa
+from .plugins import pm, module_from_path
 import pydantic
 import pydantic_core
 
@@ -17,9 +18,10 @@ logger = logging.getLogger(__name__)
 
 @dataclass
 class ValidationResult:
-    result: Optional[schemas.CarbonTxtFile]
     logs: list
     exceptions: list
+    result: Optional[schemas.CarbonTxtFile]
+    document_results: Optional[list] = None
 
 
 def log_exception_safely(
@@ -45,6 +47,46 @@ class CarbonTxtValidator:
     # expose them to a user for debugging
     event_log: list = []
 
+    def __init__(self, plugins_dir: Optional[str] = None):
+        """
+        Initialise the validator, registering any required plugins in the
+        provided plugin directory `plugins_dir`
+        """
+        if plugins_dir is not None:
+            plugins_path = pathlib.Path(plugins_dir).resolve()
+            for filepath in plugins_path.glob("*.py"):
+                if not filepath.is_file():
+                    continue
+                mod = module_from_path(str(filepath), name=filepath.name)
+                try:
+                    pm.register(mod)
+                except ValueError:
+                    logger.warning(f"Plugin already registered: {mod}")
+                    # Plugin already registered
+                    pass
+
+    def _append_document_processing(
+        self, validation_results: schemas.CarbonTxtFile
+    ) -> list:
+        supporting_documents = validation_results.org.credentials
+        result_list = []
+
+        for supporting_document in supporting_documents:
+            result_sub_list = pm.hook.process_document(
+                document=supporting_document,
+                parsed_carbon_txt_file=validation_results,
+                logs=[],
+            )
+
+            # we need to append all the logs to the event log so we can show them
+            # in the API requests
+            for item in result_sub_list:
+                if hook_logs := item.pop("logs"):
+                    self.event_log.extend(hook_logs)
+
+        result_list.extend(result_sub_list)
+        return result_list
+
     def validate_contents(self, contents: str) -> ValidationResult:
         """
         Validate the provided contents of a carbon.txt file. Returns a CarbonTxtFile object,
@@ -60,8 +102,17 @@ class CarbonTxtValidator:
             validation_results = parser.validate_as_carbon_txt(
                 parsed_result, logs=self.event_log
             )
+
+            if validation_results:
+                result_list = self._append_document_processing(validation_results)
+
+            assert len(result_list) == 1
+
             return ValidationResult(
-                result=validation_results, logs=self.event_log, exceptions=errors
+                result=validation_results,
+                logs=self.event_log,
+                exceptions=errors,
+                document_results=result_list or [],
             )
         except pydantic.ValidationError as ex:
             message = f"Validation error: {ex}"
@@ -99,8 +150,15 @@ class CarbonTxtValidator:
             validation_results = parser.validate_as_carbon_txt(
                 parsed_result, logs=self.event_log
             )
+
+            if validation_results:
+                result_list = self._append_document_processing(validation_results)
+
             return ValidationResult(
-                result=validation_results, logs=self.event_log, exceptions=errors
+                result=validation_results,
+                logs=self.event_log,
+                exceptions=errors,
+                document_results=result_list or [],
             )
 
         # the file path is local, but we can't access it
@@ -179,8 +237,17 @@ class CarbonTxtValidator:
             validation_results = parser.validate_as_carbon_txt(
                 parsed_toml, logs=self.event_log
             )
+
+            logger.info("Validation results: %s", validation_results)
+
+            if validation_results:
+                result_list = self._append_document_processing(validation_results)
+
             return ValidationResult(
-                result=validation_results, logs=self.event_log, exceptions=errors
+                result=validation_results,
+                logs=self.event_log,
+                exceptions=errors,
+                document_results=result_list or [],
             )
         except Exception as ex:
             message = f"An unexpected error occurred: {ex}"
