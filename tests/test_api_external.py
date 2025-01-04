@@ -7,6 +7,11 @@ import logging
 logger = logging.getLogger(__name__)
 
 
+@pytest.fixture()
+def settings_with_plugin_dir_set(settings):
+    settings.CARBON_TXT_PLUGINS_DIR = "tests/test_plugins"
+
+
 @pytest.mark.parametrize("url_suffix", ["", "/"])
 def test_hitting_validate_endpoint_ok(
     live_server, shorter_carbon_txt_string, url_suffix
@@ -91,3 +96,33 @@ def test_hitting_fetch_json_schema(live_server):
     api_url = f"{live_server.url}/api/json_schema"
     res = httpx.get(api_url, follow_redirects=True, timeout=None)
     assert res.status_code == 200
+
+
+def test_hitting_validate_with_plugins_dir_set(
+    # we need the transactional_db fixture because without it the
+    # live_server from the previous tests is used, and
+    # they do not have a `plugins_dir` active
+    transactional_db,
+    settings_with_plugin_dir_set,
+    live_server,
+    shorter_carbon_txt_string,
+):
+    api_url = f"{live_server.url}/api/validate/file"
+    data = {"text_contents": shorter_carbon_txt_string}
+    res = httpx.post(api_url, json=data, follow_redirects=True, timeout=None)
+    assert res.status_code == 200
+
+    parsed_response = res.json()
+    parsed_response
+
+    # do we have the output from the Test Plugin in the logs?
+    assert res.status_code == 200
+    assert any("Test Plugin" in log for log in parsed_response["logs"])
+
+    # do we see the return values of the hook function in document results?
+    plugin_data = parsed_response.get("document_data")
+    assert plugin_data is not None
+    assert (
+        plugin_data[0]["https://www.hillbob.de/klimaneutral"][0]
+        == "TEST PLUGIN RETURN VALUES"
+    )
