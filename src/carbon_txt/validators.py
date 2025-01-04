@@ -81,7 +81,8 @@ class CarbonTxtValidator:
             # we need to append all the logs to the event log so we can show them
             # in the API requests
             for item in result_sub_list:
-                if hook_logs := item.pop("logs"):
+                if item.get("logs"):
+                    hook_logs = item.pop("logs")
                     self.event_log.extend(hook_logs)
 
         result_list.extend(result_sub_list)
