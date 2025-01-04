@@ -1,6 +1,6 @@
 from ninja import NinjaAPI, Schema
 from django.http import HttpRequest, HttpResponse  # noqa
-
+from django.conf import settings
 
 import pydantic
 
@@ -21,7 +21,7 @@ ninja_api = NinjaAPI(
     description="This is the API for validating carbon.txt files. ",
 )
 
-validator = validators.CarbonTxtValidator()
+validator = validators.CarbonTxtValidator(plugins_dir=settings.CARBON_TXT_PLUGINS_DIR)
 
 
 class CarbonTextSubmission(Schema):
@@ -62,10 +62,14 @@ def validate_contents(
         carbon_txt_submission.text_contents
     )
     if carbon_txt_file := validation_results.result:
+        if validation_results:
+            result_list = validation_results.document_results
+
         return {
             "success": True,
             "data": carbon_txt_file,
             "logs": validation_results.logs,
+            "document_data": result_list,
         }  # type: ignore
     else:
         return {
@@ -95,9 +99,12 @@ def validate_url(
 
     validation_results = validator.validate_url(str(url_string))
     if carbon_txt_file := validation_results.result:
+        if validation_results:
+            result_list = validation_results.document_results
         return {
             "success": True,
             "data": carbon_txt_file,
+            "document_data": result_list,
             "logs": validation_results.logs,
         }  # type: ignore
     else:
