@@ -1,9 +1,13 @@
-from . import hookspecs
-import pluggy
 import importlib
 import types
 import typing
 
+import pluggy
+
+from . import hookspecs
+
+# we import the hookimpl decorator here so that it is easily available to plugins
+from .hookspecs import hookimpl  # noqa
 
 pm = pluggy.PluginManager("carbon_txt")
 
