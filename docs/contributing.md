@@ -1,11 +1,10 @@
 # Contributing
 
-## How to contribute the carbon-txt validator project
+## How to contribute to the carbon-txt validator project
 
-The Carbon-txt validator is an open source project and contributions are welcome.
+The Carbon.txt validator is an open source project and contributions are welcome.
 
 Our [issue tracker is on Github](https://github.com/thegreenwebfoundation/carbon-txt-validator/issues), and maintain a high level roadmap of coming releases as milestones.
-
 
 
 ### Getting set up

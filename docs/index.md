@@ -9,6 +9,8 @@ but it should at least contain the root `toctree` directive. -->
 installation
 architecture
 deployment
+plugins
+plugin_hooks
 contributing
 runbook
 ```

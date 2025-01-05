@@ -6,7 +6,7 @@
 This content is in flux, and subject to change.
 ```
 
-### How to implement plugins for the carbon.txt validator
+## How to implement plugins for the carbon.txt validator
 
 The carbon-txt validator is designed to support extending its functionality via a plugin system, and there are two supported ways to do use it.
 
@@ -19,7 +19,7 @@ By implmenting functions that use the appropriate hook, you can extend the funct
 
 A number of well known python projects use this plugin, like [Datasette](https://docs.datasette.io/en/stable/writing_plugins.html#writing-one-off-plugins), [LLM](https://llm.datasette.io/en/stable/plugins/index.html), [Pytest](https://docs.pytest.org/en/latest/how-to/writing_plugins.html#pip-installable-plugins), [Tox](https://tox.wiki/en/latest/plugins.html#) and others. It is well documented and battle tested.
 
-### Making one-off projects for internal use
+## Making one-off projects for internal use
 
 As an example, carbon.txt files are intended to make the underlying data and supporting evidence for green claims easy to find. So, when a carbon.file links to this data, one thing you might want to do is see if the linked files are publicly accessible online.
 
@@ -32,7 +32,7 @@ We know that every `Organisation` using a carbon.txt file making green claims ne
 So, every time we see an `url`, we need to send an HTTP request to see if the file is still reachable. The carbon.txt validator bundles the [httpx](https://www.python-httpx.org/) HTTP client library, so we can use that to send the appropriate request.
 
 
-#### Create a new python file implementing the appropriate hook.
+### Create a new python file implementing the appropriate hook.
 
 Checking the plugin hook list online, we see a `process_document` hook we can uses, that fires for every single `Credential` document linked in a carbon.txt file. So, we use that `hook` to implement.
 
@@ -67,7 +67,7 @@ def process_document(document):
 
 ```
 
-#### Make sure the file is accessible when calling the carbon-txt command line tool
+### Make sure the file is accessible when calling the carbon-txt command line tool
 
 Now we have a file, we need a way for the carbon.txt validator to find it and run it.
 
