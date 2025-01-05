@@ -54,8 +54,8 @@ publish *options: build
 
 # run a local version of a Marimo API checking notebook
 marimo_api_checker:
-  uv run marimo run ./docs/notebook.py
+  uv run marimo run ./docs/notebooks/notebook.py
 
 # run a editable version of a Marimo API checking notebook
 marimo_api_checker_edit:
-  uv run marimo edit ./docs/notebook.py
+  uv run marimo edit ./docs/notebooks/notebook.py
