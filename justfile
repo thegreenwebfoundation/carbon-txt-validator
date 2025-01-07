@@ -52,6 +52,11 @@ build:
 publish *options: build
   uv run twine upload dist/* {{ options }}
 
+# run marimo notebook with options
+marimo *options:
+  uv run marimo {{ options}}
+
+
 # run a local version of a Marimo API checking notebook
 marimo_api_checker:
   uv run marimo run ./docs/notebooks/notebook.py
