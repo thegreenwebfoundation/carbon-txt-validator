@@ -1,13 +1,12 @@
-from carbon_txt import validators  # type: ignore
-from django.conf import settings
 import pytest
+from django.conf import settings
 
-import rich
+from carbon_txt import validators  # type: ignore
 
 
 @pytest.fixture()
 def settings_with_active_csrd_plugin_(settings):
-    settings.ACTIVE_CARBON_TXT_PLUGINS = ("carbon_txt.process_document",)
+    settings.ACTIVE_CARBON_TXT_PLUGINS = ("carbon_txt.process_csrd_document",)
 
 
 class TestCarbonTxtValidatorWithCSRDPlugin:
@@ -15,19 +14,19 @@ class TestCarbonTxtValidatorWithCSRDPlugin:
         self, settings_with_active_csrd_plugin_
     ):
         """
-        Test that we can validate a valid CSRD report, and that it passes validation.
+        Test that we can validate a carbon.txt file valid CSRD report, and that
+        we can extract values from the CSRD report.
         """
 
         validator = validators.CarbonTxtValidator(
             active_plugins=settings.ACTIVE_CARBON_TXT_PLUGINS
         )
 
+        # TODO: Arelle is very slow when parsing an CSRD report for the first time.
+        # look into caching, or making this faster
         res = validator.validate_url(
             "https://used-in-tests.carbontxt.org/carbon-txt-with-csrd-and-renewables.txt"
         )
-        # TODO: Arelle is very slow when parsing an CSRD report for the first time.
-        # look into caching
-        rich.print(res.document_results)
 
         csrd_plugin_parse_results = res.document_results[0]
         csrd_report_url = (

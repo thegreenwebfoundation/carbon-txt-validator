@@ -21,7 +21,10 @@ ninja_api = NinjaAPI(
     description="This is the API for validating carbon.txt files. ",
 )
 
-validator = validators.CarbonTxtValidator(plugins_dir=settings.CARBON_TXT_PLUGINS_DIR)
+validator = validators.CarbonTxtValidator(
+    plugins_dir=settings.CARBON_TXT_PLUGINS_DIR,
+    active_plugins=settings.ACTIVE_CARBON_TXT_PLUGINS,
+)
 
 
 class CarbonTextSubmission(Schema):

@@ -3,9 +3,10 @@ import logging
 import os
 import subprocess
 import sys
+from typing import Optional, Sequence
 
 import django
-from typing import Optional
+import environ
 import pydantic_core
 import rich
 import typer
@@ -25,6 +26,29 @@ app.add_typer(
 )
 
 err_console = rich.console.Console(stderr=True)
+
+
+def create_validator(
+    plugins_dir: Optional[str], active_plugins: Optional[Sequence[str]]
+) -> validators.CarbonTxtValidator:
+    # we can't rely on values in the django settings module being set at this point.
+    # We might also want to run multiple plugins. So, we need to parse a string
+    # like "my_plugin,my_other_plugin" into a list two strings
+    env = environ.Env(
+        ACTIVE_CARBON_TXT_PLUGINS=(list, []),
+        CARBON_TXT_PLUGINS_DIR=(str, None),
+    )
+
+    if not active_plugins:
+        active_plugins = env("ACTIVE_CARBON_TXT_PLUGINS")
+
+    if not plugins_dir:
+        env("CARBON_TXT_PLUGINS_DIR")
+
+    validator = validators.CarbonTxtValidator(
+        plugins_dir=plugins_dir, active_plugins=active_plugins
+    )
+    return validator
 
 
 def _log_validation_results(success=True):
@@ -54,7 +78,7 @@ def validate_domain(
         None, "--plugins-dir", help="path to optional plugin directory"
     ),
 ):
-    validator = validators.CarbonTxtValidator(plugins_dir=plugins_dir)
+    validator = create_validator(plugins_dir=plugins_dir, active_plugins=None)
     validation_results = validator.validate_domain(domain)
     carbon_txt_file = validation_results.result
 
@@ -86,7 +110,7 @@ def validate_file(
         None, "--django-settings", "-ds", help="path to Django settings module"
     ),
 ):
-    validator = validators.CarbonTxtValidator(plugins_dir=plugins_dir)
+    validator = create_validator(plugins_dir=plugins_dir, active_plugins=None)
     if file_path == "-":
         content = typer.get_text_stream("stdin").read()
         validation_results = validator.validate_contents(content)
