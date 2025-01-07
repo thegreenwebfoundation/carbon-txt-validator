@@ -18,6 +18,7 @@ import environ
 import sentry_sdk
 
 from carbon_txt.exceptions import InsecureKeyException
+from carbon_txt.plugins import DEFAULT_PLUGINS as DEFAULT_CARBON_TXT_PLUGINS
 
 logger = logging.getLogger(__name__)
 
@@ -35,6 +36,8 @@ env = environ.Env(
     SENTRY_TRACE_SAMPLE_RATE=(float, 0),
     SENTRY_PROFILE_SAMPLE_RATE=(float, 0),
     CARBON_TXT_PLUGINS_DIR=(str, None),
+    ACTIVE_CARBON_TXT_PLUGINS=(list, []),
+    DEFAULT_CARBON_TXT_PLUGINS=(list, DEFAULT_CARBON_TXT_PLUGINS),
 )
 
 # fetch environment variables from .env file
@@ -181,4 +184,5 @@ if env("SENTRY_DSN"):
         profiles_sample_rate=env("SENTRY_PROFILE_SAMPLE_RATE"),
     )
 
+ACTIVE_CARBON_TXT_PLUGINS = env("ACTIVE_CARBON_TXT_PLUGINS")
 CARBON_TXT_PLUGINS_DIR = env("CARBON_TXT_PLUGINS_DIR")
