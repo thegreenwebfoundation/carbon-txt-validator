@@ -55,3 +55,18 @@ def multi_domain_carbon_txt_string():
         carbon_txt_string = carb_file.read()
 
     return carbon_txt_string
+
+
+def minimal_carbon_txt_org_with_csrd_file():
+    """
+    A sample minimal carbon.txt file, assuming no upstream, and
+    linking to a CSRD report containing renewables data
+    """
+    return """
+        [upstream]
+        providers = []
+        [org]
+        credentials = [
+            { domain='used-in-tests.carbontxt.org', doctype = 'csrd-report', url = 'https://used-in-tests.carbontxt.org/esrs-e1-efrag-2026-12-31-en.xhtml'}
+        ]
+    """  # noqa

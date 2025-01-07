@@ -23,7 +23,12 @@ class Credential(BaseModel):
 
     domain: Optional[str] = None
     doctype: Literal[
-        "web-page", "annual-report", "sustainability-page", "certificate", "other"
+        "web-page",
+        "annual-report",
+        "sustainability-page",
+        "certificate",
+        "csrd-report",
+        "other",
     ]
     url: str
 

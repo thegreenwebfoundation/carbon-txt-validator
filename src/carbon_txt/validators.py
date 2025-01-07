@@ -1,10 +1,11 @@
 import logging
 from dataclasses import dataclass
+import importlib
 
 
 import pathlib
 import httpx
-from typing import Optional, Union
+from typing import Optional, Union, Sequence
 from . import exceptions, finders, parsers_toml, schemas  # noqa
 from .plugins import pm, module_from_path
 import pydantic
@@ -47,10 +48,14 @@ class CarbonTxtValidator:
     # expose them to a user for debugging
     event_log: list = []
 
-    def __init__(self, plugins_dir: Optional[str] = None):
+    def __init__(
+        self,
+        plugins_dir: Optional[str] = None,
+        active_plugins: Optional[Sequence[str]] = None,
+    ):
         """
         Initialise the validator, registering any required plugins in the
-        provided plugin directory `plugins_dir`
+        provided plugin directory `plugins_dir`, and activating any plugins
         """
         if plugins_dir is not None:
             plugins_path = pathlib.Path(plugins_dir).resolve()
@@ -64,6 +69,11 @@ class CarbonTxtValidator:
                     logger.warning(f"Plugin already registered: {mod}")
                     # Plugin already registered
                     pass
+        # allow for overriding of plugins
+        if active_plugins:
+            for plugin in active_plugins:
+                mod = importlib.import_module(plugin)
+                pm.register(mod, plugin)
 
     def _append_document_processing(
         self, validation_results: schemas.CarbonTxtFile
