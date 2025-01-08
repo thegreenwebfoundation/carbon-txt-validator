@@ -77,9 +77,9 @@ class CarbonTxtValidator:
 
     def _append_document_processing(
         self, validation_results: schemas.CarbonTxtFile
-    ) -> list:
+    ) -> dict[str, list]:
         supporting_documents = validation_results.org.credentials
-        result_list = []
+        result_list = {}
 
         for supporting_document in supporting_documents:
             result_sub_list = pm.hook.process_document(
@@ -94,8 +94,10 @@ class CarbonTxtValidator:
                 if item.get("logs"):
                     hook_logs = item.pop("logs")
                     self.event_log.extend(hook_logs)
+                document_results = item.get("document_results", [])
+                plugin_name = item.get("plugin_name")
 
-        result_list.extend(result_sub_list)
+        result_list[plugin_name] = document_results
         return result_list
 
     def validate_contents(self, contents: str) -> ValidationResult:

@@ -16,6 +16,9 @@ def log_safely(log_message: str, logs: Optional[list], level=logging.INFO):
         logs.append(log_message)
 
 
+plugin_name = "csrd_greenweb"
+
+
 @hookimpl
 def process_document(
     document: Credential,
@@ -47,7 +50,11 @@ def process_document(
 
             results = processor.get_esrs_datapoint_values(chosen_datapoints)
 
-            return {document.url: results, "logs": logs}
+            return {
+                "plugin_name": plugin_name,
+                "document_results": results,
+                "logs": logs,
+            }
         except Exception as e:
             log_safely(
                 f"Error occurred when loading report at {document.url}: {e}", logs=logs
