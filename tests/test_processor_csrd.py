@@ -50,18 +50,17 @@ class TestCSRDProcessorValidate:  # noqa
         """
         Test that we can parse a remote CSRD report, and pull out values for specific datapoints.
         """
-
+        short_code = "PercentageOfRenewableSourcesInTotalEnergyConsumption"
         processor = processors.CSRDProcessor(local_esrs_1_csrd_file)
-        res = processor.get_esrs_datapoint_values(
-            ["PercentageOfRenewableSourcesInTotalEnergyConsumption"]
-        )
+        res = processor.get_esrs_datapoint_values([short_code])
 
         assert len(res) is not None
-        for datapoint in res["PercentageOfRenewableSourcesInTotalEnergyConsumption"]:
+        for datapoint in res:
             assert (
                 datapoint.name
                 == "Percentage of renewable sources in total energy consumption"
             )
+            assert datapoint.short_code == short_code
             assert datapoint.value > 0.2
             assert datapoint.value < 0.3
 
@@ -75,7 +74,7 @@ class TestCSRDProcessorValidate:  # noqa
         datapoint_code = "PercentageOfRenewableSourcesInTotalEnergyConsumption"
 
         res = processor.get_esrs_datapoint_values([datapoint_code])
-        for item in res[datapoint_code]:
+        for item in res:
             assert isinstance(item, processors.NoMatchingDatapointsError)
 
     def test_safe_error_when_CSRD_unparsable(self):
@@ -95,30 +94,36 @@ class TestCSRDProcessorValidate:  # noqa
         """
 
         processor = processors.CSRDProcessor(local_esrs_1_csrd_file)
+        short_codes = [
+            "PercentageOfRenewableSourcesInTotalEnergyConsumption",
+            "ConsumptionOfPurchasedOrAcquiredElectricityHeatSteamAndCoolingFromRenewableSources",
+        ]
 
         res = processor.get_esrs_datapoint_values(processor.local_datapoint_codes)
 
         assert len(res) is not None
 
-        # checkl for first datapoint
-        for datapoint in res["PercentageOfRenewableSourcesInTotalEnergyConsumption"]:
-            assert (
-                datapoint.name
-                == "Percentage of renewable sources in total energy consumption"
-            )
-            assert datapoint.value > 0.2
-            assert datapoint.value < 0.3
+        first_renewables_percentage, *rest = [
+            datapoint for datapoint in res if datapoint.short_code == short_codes[0]
+        ]
+        first_renewables_consumption, *rest = [
+            datapoint for datapoint in res if datapoint.short_code == short_codes[1]
+        ]
 
-        # is there another datapoint in the returned values?
-        for datapoint in res[
-            "ConsumptionOfPurchasedOrAcquiredElectricityHeatSteamAndCoolingFromRenewableSources"
-        ]:
-            logger.warning(datapoint.name)
-            assert (
-                datapoint.name
-                == "Consumption of purchased or acquired electricity, heat, steam, and cooling from renewable sources"
-            )
-            assert datapoint.value == "450000"
+        assert (
+            first_renewables_percentage.name
+            == "Percentage of renewable sources in total energy consumption"
+        )
+        assert first_renewables_percentage.short_code == short_codes[0]
+        assert first_renewables_percentage.value > 0.2
+        assert first_renewables_percentage.value < 0.3
+
+        assert (
+            first_renewables_consumption.name
+            == "Consumption of purchased or acquired electricity, heat, steam, and cooling from renewable sources"
+        )
+        assert first_renewables_consumption.short_code == short_codes[1]
+        assert first_renewables_consumption.value == "450000"
 
 
 @pytest.mark.skip(

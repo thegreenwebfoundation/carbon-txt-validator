@@ -120,9 +120,6 @@ def test_hitting_validate_with_plugins_dir_set(
     assert any("Test Plugin" in log for log in parsed_response["logs"])
 
     # do we see the return values of the hook function in document results?
-    plugin_data = parsed_response.get("document_data")
+    plugin_data = parsed_response.get("document_data").get("test_plugin")
     assert plugin_data is not None
-    assert (
-        plugin_data[0]["https://www.hillbob.de/klimaneutral"][0]
-        == "TEST PLUGIN RETURN VALUES"
-    )
+    assert plugin_data[0]["test_key"] == "TEST PLUGIN VALUE"
