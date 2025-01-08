@@ -5,6 +5,8 @@ from typing import Optional
 
 logger = logging.getLogger(__name__)
 
+plugin_name = "test_plugin"
+
 
 def log_safely(log_message: str, logs: Optional[list], level=logging.INFO):
     """
@@ -23,14 +25,12 @@ def process_document(document, parsed_carbon_txt_file, logs):
     log_safely(
         f"Test Plugin: Processing supporting document: {document.url}", logs=logs
     )
-    document_processing_results = document.__dict__
-    carbon_test_file_size = parsed_carbon_txt_file.__dict__
-
     return {
-        document.url: [
-            "TEST PLUGIN RETURN VALUES",
-            document_processing_results,
-            carbon_test_file_size,
+        "plugin_name": plugin_name,
+        "document_results": [
+            {
+                "test_key": "TEST PLUGIN VALUE",
+            }
         ],
         "logs": logs,
     }
