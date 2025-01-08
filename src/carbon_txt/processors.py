@@ -15,8 +15,12 @@ class NoMatchingDatapointsError(ValueError):
 
     This could be because a data point is either
     1. missing, or
-    2. intentionallty omitted because it was deemed immaterial
+    2. intentionally omitted because it was deemed immaterial
     """
+
+    def __init__(self, message: str, datapoint_short_code: str) -> None:
+        super().__init__(message)
+        self.datapoint_short_code = datapoint_short_code
 
 
 class NoLoadableCSRDFile(ValueError):
@@ -33,9 +37,11 @@ class DataPoint(BaseModel):
     """
 
     name: str
+    short_code: str
     value: str | float | int
     unit: str  # the type of unit the value is expressed in
     context: str  # the line in the original xml file this value is from
+    file: str  # the url to the file this value is from
     start_date: datetime.date
     end_date: datetime.date
 
@@ -114,7 +120,8 @@ class CSRDProcessor:
 
             if not res:
                 raise NoMatchingDatapointsError(
-                    f"Could not find datapoint with code {datapoint_code}, for report {self.report_url}"
+                    f"Could not find datapoint with code {datapoint_code}, for report {self.report_url}",
+                    datapoint_short_code=datapoint_code,
                 )
 
             for item in res:
@@ -137,39 +144,37 @@ class CSRDProcessor:
 
                 dp = DataPoint(
                     name=readable_label,
+                    short_code=datapoint_code,
                     value=value,
                     unit=unit,
                     context=document_line_reference,
+                    file=self.report_url,
                     start_date=start_date,
                     end_date=end_date,
                 )
                 datapoints.append(dp)
         except KeyError:
             raise NoMatchingDatapointsError(
-                f"Could not find datapoint with code {datapoint_code}"
+                f"Could not find datapoint with code {datapoint_code}",
+                datapoint_short_code=datapoint_code,
             )
 
         return datapoints
 
     def get_esrs_datapoint_values(
         self, datapoint_codes: typing.List[str]
-    ) -> typing.Dict[str, list[DataPoint] | list[NoMatchingDatapointsError]]:
+    ) -> list[DataPoint | NoMatchingDatapointsError]:
         """
         Accept a list of datapoint codes, and return the values for those datapoints as dict
         containing list of DataPoint objects, keyed by the datapoint code, or a list containing
         the error if the datapoint is not found.
         """
-        # redefining the types here to make the mypy happy
-        # TODO: see why mypy complains, as we've already defined the return value in
-        # method signature
-        datapoints_by_code: dict[
-            str, list[DataPoint] | list[NoMatchingDatapointsError]
-        ] = {}
+        document_results: list[DataPoint | NoMatchingDatapointsError] = []
         for datapoint_code in datapoint_codes:
             try:
                 datapoints = self._get_datapoints_for_datapoint_code(datapoint_code)
-                datapoints_by_code[datapoint_code] = datapoints
+                document_results.extend(datapoints)
             except NoMatchingDatapointsError as ex:
-                datapoints_by_code[datapoint_code] = [ex]
+                document_results.extend([ex])
 
-        return datapoints_by_code
+        return document_results

@@ -21,18 +21,11 @@ class TestCarbonTxtValidatorWithCSRDPlugin:
         validator = validators.CarbonTxtValidator(
             active_plugins=settings.ACTIVE_CARBON_TXT_PLUGINS
         )
+        test_domain = "used-in-tests.carbontxt.org"
+        carbon_txt_path = "carbon-txt-with-csrd-and-renewables.txt"
+        csrd_report_path = "esrs-e1-efrag-2026-12-31-en.xhtml"
 
-        # TODO: Arelle is very slow when parsing an CSRD report for the first time.
-        # look into caching, or making this faster
-        res = validator.validate_url(
-            "https://used-in-tests.carbontxt.org/carbon-txt-with-csrd-and-renewables.txt"
-        )
-
-        csrd_plugin_parse_results = res.document_results[0]
-        csrd_report_url = (
-            "https://used-in-tests.carbontxt.org/esrs-e1-efrag-2026-12-31-en.xhtml"
-        )
-        for key in [
+        data_point_codes = [
             "PercentageOfRenewableSourcesInTotalEnergyConsumption",
             "PercentageOfEnergyConsumptionFromNuclearSourcesInTotalEnergyConsumption",
             "EnergyConsumptionRelatedToOwnOperations",
@@ -41,8 +34,18 @@ class TestCarbonTxtValidatorWithCSRDPlugin:
             "EnergyConsumptionFromRenewableSources",
             "ConsumptionOfPurchasedOrAcquiredElectricityHeatSteamAndCoolingFromRenewableSources",
             "ConsumptionOfSelfgeneratedNonfuelRenewableEnergy",
-        ]:
-            assert key in csrd_plugin_parse_results[csrd_report_url].keys()
+        ]
+
+        # TODO: Arelle is very slow when parsing an CSRD report for the first time.
+        # look into caching, or making this faster
+        res = validator.validate_url(f"https://{test_domain}/{carbon_txt_path}")
+
+        csrd_plugin_parse_results = res.document_results["csrd_greenweb"]
+        csrd_report_url = f"https://{test_domain}/{csrd_report_path}"
+
+        for result in csrd_plugin_parse_results:
+            assert result.file == csrd_report_url
+            assert result.short_code in data_point_codes
 
         assert res.result
         assert not res.exceptions
