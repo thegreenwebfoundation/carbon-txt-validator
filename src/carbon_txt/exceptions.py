@@ -1,3 +1,6 @@
+import json
+
+
 class InsecureKeyException(Exception):
     """
     Raised when the default SECRET_KEY is used in a
@@ -22,3 +25,35 @@ class NotParseableTOML(Exception):
     """
 
     pass
+
+
+class NoMatchingDatapointsError(ValueError):
+    """
+    Thrown when a report does not have the expected datapoint.
+
+    This could be because a data point is either
+    1. missing, or
+    2. intentionally omitted because it was deemed immaterial
+    """
+
+    def __init__(self, message: str, datapoint_short_code: str) -> None:
+        super().__init__(message)
+        self.datapoint_short_code = datapoint_short_code
+
+    def __dict__(self):
+        return {
+            "message": self.args[0],  # ValueError stores the message in args
+            "datapoint_short_code": self.datapoint_short_code,
+        }
+
+    def __str__(self) -> str:
+        return f"SerializableObject(datapoint_short_code={self.datapoint_short_code})"
+
+    def to_json(self) -> str:
+        return json.dumps(self.__dict__())
+
+
+class NoLoadableCSRDFile(ValueError):
+    """
+    Thrown when a the link CSRD file can't be loaded by Arelle.
+    """
