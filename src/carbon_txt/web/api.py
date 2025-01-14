@@ -41,7 +41,7 @@ class CarbonTextUrlSubmission(Schema):
 def sanitize_document_results(document_results: dict[str, list]) -> dict[str, list]:
     """
     Sanitize document results by converting NoMatchingDatapointsError
-    exceptions to dictionaries.
+    exceptions to dictionaries, otherwise return each result as is.
 
     Args:
         document_results (dict): The original document results.
@@ -53,10 +53,14 @@ def sanitize_document_results(document_results: dict[str, list]) -> dict[str, li
     for plugin_name, original_output in document_results.items():
         sanitized_output = []
         for item in original_output:
+            # we have to turn this into a dict, otherwise it won't serialise
+            # to JSON cleanly
             if isinstance(item, exceptions.NoMatchingDatapointsError):
                 sanitized_item = item.__dict__()
                 sanitized_item["error"] = "NoMatchingDatapointsError"
                 sanitized_output.append(sanitized_item)
+            else:
+                sanitized_output.append(item)
 
         sanitized_results[plugin_name] = sanitized_output
     return sanitized_results
@@ -129,7 +133,6 @@ def validate_url(
     )
 
     validation_results = validator.validate_url(str(url_string))
-    # breakpoint()
     if carbon_txt_file := validation_results.result:
         if validation_results:
             doc_results = sanitize_document_results(

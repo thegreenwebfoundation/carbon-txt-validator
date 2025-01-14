@@ -89,7 +89,7 @@ class CarbonTxtValidator:
         self, validation_results: schemas.CarbonTxtFile
     ) -> dict[str, list] | dict:
         supporting_documents = validation_results.org.credentials
-        result_list = {}
+        result_list: dict[str, list] = {}
 
         if not supporting_documents:
             return result_list
@@ -140,7 +140,6 @@ class CarbonTxtValidator:
                 result_list = self._append_document_processing(validation_results)
 
             assert len(result_list) == 1
-
             return ValidationResult(
                 result=validation_results,
                 logs=self.event_log,
