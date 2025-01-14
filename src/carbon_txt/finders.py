@@ -87,6 +87,9 @@ class FileFinder:
         except dns.resolver.NoAnswer:
             logger.info("No result from TXT lookup")
             return None
+        except dns.resolver.NXDOMAIN as ex:
+            logger.info(f"No result from TXT lookup: {ex.msg}")
+            return None
 
         return None
 
@@ -200,6 +203,7 @@ class FileFinder:
         # check for DNS TXT record delegation first, and call this function again
         # with the resolved URI, to follow the delegation
         log_safely(f"Trying a DNS delegated lookup for URI: {parsed_uri.netloc}", logs)
+
         if delegated_dns_uri := self._lookup_dns(parsed_uri.netloc):
             log_safely(
                 f"Found new carbon.txt URL via DNS lookup: {delegated_dns_uri}", logs
@@ -212,6 +216,11 @@ class FileFinder:
         try:
             response = httpx.head(parsed_uri.geturl())
         except httpx._exceptions.ConnectError:
+            raise UnreachableCarbonTxtFile(
+                f"Could not connect to {parsed_uri.geturl()}."
+            )
+        except Exception as ex:
+            logger.error(f"Unexpected error fetching {parsed_uri.geturl()}: {ex}")
             raise UnreachableCarbonTxtFile(
                 f"Could not connect to {parsed_uri.geturl()}."
             )
