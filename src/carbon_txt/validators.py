@@ -60,6 +60,9 @@ class CarbonTxtValidator:
         Initialise the validator, registering any required plugins in the
         provided plugin directory `plugins_dir`, and activating any plugins
         """
+
+        logger.debug("plugins_dir", plugins_dir)
+        logger.debug("active_plugins", active_plugins)
         if plugins_dir is not None:
             self.plugins_dir = plugins_dir
             plugins_path = pathlib.Path(plugins_dir).resolve()
@@ -80,33 +83,41 @@ class CarbonTxtValidator:
                 mod = importlib.import_module(plugin)
                 pm.register(mod, plugin)
 
-        import rich
-
-        rich.print(f"\nPLUGINS: {pm.get_plugins()}\n")
+        logger.debug(f"\nPLUGINS: {pm.get_plugins()}\n")
 
     def _append_document_processing(
         self, validation_results: schemas.CarbonTxtFile
-    ) -> dict[str, list]:
+    ) -> dict[str, list] | dict:
         supporting_documents = validation_results.org.credentials
         result_list = {}
 
+        if not supporting_documents:
+            return result_list
+
         for supporting_document in supporting_documents:
-            result_sub_list = pm.hook.process_document(
+            plugin_results_for_document = pm.hook.process_document(
                 document=supporting_document,
                 parsed_carbon_txt_file=validation_results,
                 logs=[],
             )
+            # exit early if we have no results from this plugins to add to our list
+            if not plugin_results_for_document:
+                continue
 
             # we need to append all the logs to the event log so we can show them
             # in the API requests
-            for item in result_sub_list:
+            for item in plugin_results_for_document:
                 if item.get("logs"):
                     hook_logs = item.pop("logs")
                     self.event_log.extend(hook_logs)
                 document_results = item.get("document_results", [])
                 plugin_name = item.get("plugin_name")
 
-        result_list[plugin_name] = document_results
+            if result_list.get(plugin_name):
+                result_list[plugin_name].extend(document_results)
+            else:
+                result_list[plugin_name] = document_results
+
         return result_list
 
     def validate_contents(self, contents: str) -> ValidationResult:
