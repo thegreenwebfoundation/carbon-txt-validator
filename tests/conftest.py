@@ -2,6 +2,11 @@ import pytest
 import pathlib
 
 
+import logging
+
+logger = logging.getLogger(__name__)
+
+
 @pytest.fixture
 def minimal_carbon_txt_org():
     """
@@ -70,3 +75,33 @@ def minimal_carbon_txt_org_with_csrd_file():
             { domain='used-in-tests.carbontxt.org', doctype = 'csrd-report', url = 'https://used-in-tests.carbontxt.org/esrs-e1-efrag-2026-12-31-en.xhtml'}
         ]
     """  # noqa
+
+
+@pytest.fixture()
+def reset_plugin_registry():
+    """
+    Reset the plugin registry to the default state. We need to do this
+    because the plugin framework we have doesn't reset on each test, and
+    if we set up a plugin in one test, it can still be active in the next.
+    """
+    from carbon_txt.plugins import pm
+
+    modules = pm.get_plugins()
+    logger.debug(f"\n current modules: {modules}")
+    for mod in modules:
+        logger.debug(f"\n Unregistering plugin {mod}")
+        pm.unregister(mod)
+
+    logger.debug(f"\n updated: {pm.get_plugins()}")
+
+    return pm
+
+
+@pytest.fixture()
+def settings_with_active_csrd_greenweb_plugin(reset_plugin_registry, settings):
+    settings.ACTIVE_CARBON_TXT_PLUGINS = ["carbon_txt.process_csrd_document"]
+
+
+@pytest.fixture()
+def settings_with_plugin_dir_set(reset_plugin_registry, settings):
+    settings.CARBON_TXT_PLUGINS_DIR = "tests/test_plugins"

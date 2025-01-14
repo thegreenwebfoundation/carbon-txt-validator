@@ -7,11 +7,6 @@ import logging
 logger = logging.getLogger(__name__)
 
 
-@pytest.fixture()
-def settings_with_plugin_dir_set(settings):
-    settings.CARBON_TXT_PLUGINS_DIR = "tests/test_plugins"
-
-
 @pytest.mark.parametrize("url_suffix", ["", "/"])
 def test_hitting_validate_endpoint_ok(
     live_server, shorter_carbon_txt_string, url_suffix
