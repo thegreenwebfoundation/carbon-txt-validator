@@ -21,11 +21,6 @@ ninja_api = NinjaAPI(
     description="This is the API for validating carbon.txt files. ",
 )
 
-validator = validators.CarbonTxtValidator(
-    plugins_dir=settings.CARBON_TXT_PLUGINS_DIR,
-    active_plugins=settings.ACTIVE_CARBON_TXT_PLUGINS,
-)
-
 
 class CarbonTextSubmission(Schema):
     """
@@ -41,6 +36,30 @@ class CarbonTextUrlSubmission(Schema):
     """
 
     url: pydantic.HttpUrl
+
+
+def sanitize_document_results(document_results: dict[str, list]) -> dict[str, list]:
+    """
+    Sanitize document results by converting NoMatchingDatapointsError
+    exceptions to dictionaries.
+
+    Args:
+        document_results (dict): The original document results.
+
+    Returns:
+        dict: The sanitized document results.
+    """
+    sanitized_results: dict[str, list] = {}
+    for plugin_name, original_output in document_results.items():
+        sanitized_output = []
+        for item in original_output:
+            if isinstance(item, exceptions.NoMatchingDatapointsError):
+                sanitized_item = item.__dict__()
+                sanitized_item["error"] = "NoMatchingDatapointsError"
+                sanitized_output.append(sanitized_item)
+
+        sanitized_results[plugin_name] = sanitized_output
+    return sanitized_results
 
 
 @ninja_api.post(
@@ -60,19 +79,24 @@ def validate_contents(
     Returns:
         dict: A dictionary containing the success status and either the validated data or errors.
     """
+    validator = validators.CarbonTxtValidator(
+        plugins_dir=settings.CARBON_TXT_PLUGINS_DIR,
+        active_plugins=settings.ACTIVE_CARBON_TXT_PLUGINS,
+    )
 
     validation_results = validator.validate_contents(
         carbon_txt_submission.text_contents
     )
     if carbon_txt_file := validation_results.result:
         if validation_results:
-            result_list = validation_results.document_results
-
+            doc_results = sanitize_document_results(
+                validation_results.document_results or {}
+            )
         return {
             "success": True,
             "data": carbon_txt_file,
             "logs": validation_results.logs,
-            "document_data": result_list,
+            "document_data": doc_results,
         }  # type: ignore
     else:
         return {
@@ -99,15 +123,23 @@ def validate_url(
         dict: A dictionary containing the success status and either the validated data or errors.
     """
     url_string = str(carbon_txt_url_data.url)
+    validator = validators.CarbonTxtValidator(
+        plugins_dir=settings.CARBON_TXT_PLUGINS_DIR,
+        active_plugins=settings.ACTIVE_CARBON_TXT_PLUGINS,
+    )
 
     validation_results = validator.validate_url(str(url_string))
+    # breakpoint()
     if carbon_txt_file := validation_results.result:
         if validation_results:
-            result_list = validation_results.document_results
+            doc_results = sanitize_document_results(
+                validation_results.document_results or {}
+            )
+
         return {
             "success": True,
             "data": carbon_txt_file,
-            "document_data": result_list,
+            "document_data": doc_results,
             "logs": validation_results.logs,
         }  # type: ignore
     else:

@@ -118,3 +118,39 @@ def test_hitting_validate_with_plugins_dir_set(
     plugin_data = parsed_response.get("document_data").get("test_plugin")
     assert plugin_data is not None
     assert plugin_data[0]["test_key"] == "TEST PLUGIN VALUE"
+
+
+def test_hitting_validate_with_plugins_raising_errors(
+    # we need the transactional_db fixture because without it the
+    # live_server from the previous tests is used, and
+    # they do not have a `plugins_dir` active
+    settings_with_active_csrd_greenweb_plugin,
+    transactional_db,
+    live_server,
+):
+    """ """
+    api_url = f"{live_server.url}/api/validate/url"
+    data = {
+        "url": "https://used-in-tests.carbontxt.org/carbon-txt-with-csrd-no-renewables-data.txt"
+    }
+    res = httpx.post(api_url, json=data, follow_redirects=True, timeout=None)
+    assert res.status_code == 200
+
+    parsed_response = res.json()
+    parsed_response
+
+    # do we have the output from the csrd plugin? in the logs?
+    assert res.status_code == 200
+
+    # csrd_greenweb is the plugin we active for this data
+    assert "csrd_greenweb" in parsed_response.get("document_data").keys()
+
+    # do we see the return values of the hook function in document results?
+    plugin_data = parsed_response.get("document_data").get("csrd_greenweb")
+
+    assert plugin_data is not None
+
+    # we should see an error key in every item in the plugin data
+    for item in plugin_data:
+        assert "error" in item.keys()
+        assert item["error"] == "NoMatchingDatapointsError"
