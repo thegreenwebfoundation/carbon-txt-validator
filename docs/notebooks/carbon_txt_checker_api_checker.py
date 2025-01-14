@@ -72,7 +72,7 @@ def __(mo):
 
 @app.cell
 def __(res):
-    res.json()
+    res.content
     return
 
 
@@ -99,6 +99,18 @@ def __(api_server, check_url, httpx, rich):
 def __(text):
     check_url = text.value
     return (check_url,)
+
+
+@app.cell
+def __(res):
+    res
+    return
+
+
+@app.cell
+def __(res):
+    res.status_code
+    return
 
 
 @app.cell
