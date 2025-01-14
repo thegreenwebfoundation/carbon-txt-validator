@@ -30,7 +30,7 @@ def process_document(
     and use Arelle to parse them for selected datapoints
     """
     log_safely(
-        f"{__name__}: Processing supporting document: {document.url} for {document.domain}",
+        f"{plugin_name}: Processing supporting document: {document.url} for {document.domain}",
         logs=logs,
     )
 
