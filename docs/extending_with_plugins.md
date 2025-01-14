@@ -3,7 +3,7 @@
 
 ```{admonition} Warning
 :class: warning
-This content is in flux, and subject to change.
+This content is in flux, and subject to change. It may be moved to our [developer site](https://developers.thegreenwebfoundation.org/)
 ```
 
 ## How to implement plugins for the carbon.txt validator
@@ -82,7 +82,7 @@ Finally we run the `carbon-txt` command line tool, with the `--plugin-dirs` flag
 If we want to check a given domain's carbon.txt file, AND check the linked files ae online, we run our usual command, with the extra flags:
 
 ```
-validate domain used-in-tests.carbontxt.org --plugins-dir my_plugins/
+carbon-txt validate domain used-in-tests.carbontxt.org --plugins-dir my_plugins/
 ```
 
 Our output should look something like the output below, with the extra `Results of processing linked documents in the carbon.txt file` section:
