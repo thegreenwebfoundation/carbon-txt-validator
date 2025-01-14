@@ -97,8 +97,8 @@ def test_hitting_validate_with_plugins_dir_set(
     # we need the transactional_db fixture because without it the
     # live_server from the previous tests is used, and
     # they do not have a `plugins_dir` active
-    transactional_db,
     settings_with_plugin_dir_set,
+    transactional_db,
     live_server,
     shorter_carbon_txt_string,
 ):
