@@ -138,4 +138,4 @@ The Green Web Foundation offers commercial consulting on:
 - disclosing this information in a way that validators can pick up, by implementing carbon.txt files
 - requesting disclosures from suppliers using the carbon.txt convention
 
-For this, the fastest way to get a direct response is to use [Green Web Foundation support form](https://www.thegreenwebfoundation.org/support-form/).
+For this, the fastest way to get a direct response is to use the [Green Web Foundation support form](https://www.thegreenwebfoundation.org/support-form/).
