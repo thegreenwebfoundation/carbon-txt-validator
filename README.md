@@ -58,7 +58,7 @@ Please see the [dedicated documentation site for the validator](https://carbon-t
 > [!TIP]
 > See more detailed [guidance on installation on the dedicated valiator docs site](https://carbon-txt-validator.readthedocs.io/en/latest/installation.html). 
 
-## Using Pip
+## Using `pip`
 
 You can install the latest release of the carbon.txt validator using pip. we assume that the carbon.txt validator is run inside a virtual environment. [Learn more about virtual environments with Python](https://realpython.com/python-virtual-environments-a-primer/).
 
@@ -67,7 +67,7 @@ python -m pip install carbon-txt
 ```
 
 
-## Using UV
+## Using `uv`
 
 If you are not using virtual environments directly, you can use it with
 [uv](https://docs.astral.sh/uv/). This is the recommended way to run the
@@ -101,13 +101,13 @@ Further details are in the [dedicated docs on read the docs for the validator](h
 ## More on the Carbon.txt project
 
 
-### Further Technical documentation
+### Further technical documentation
 
 There are a number of places where we hold technical documentation, beyond the validator here. The best starting point to find what you're looking for is on [https://carbontxt.org/](https://carbontxt.org/).
 
 The [issues sections](https://github.com/thegreenwebfoundation/carbon.txt/issues) of our main github repos is also a great source of help. You might find someone has already asked for help on the same issue and you’ll find an answer. We appreciate those that take the time to create public issues for this reason, it may help someone who encounters something similar after you.
 
-### A place to raise a technical issue with the project
+### Where to raise a technical issue with the project
 
 Technical issues can cover a broad range of things. We take this to mean:
 
@@ -125,7 +125,17 @@ Developing the carbon.txt syntax and specification - https://github.com/thegreen
 If you are unsure of the best repo for your issue, please just make your best guess. We'll move it if we think it necessary.
 
 
-### Ways to collaborate, donate or fund this project
+### Collaborate, donate or fund this project
 
 We are always open for discussions about how people can contribute back to the development and success of this tool through collaboration or financial donations. Please use the [Green Web Foundation support form](https://www.thegreenwebfoundation.org/support-form/) to let us know what you’d like to chat about.
 
+
+### Commercial support
+
+The Green Web Foundation offers commercial consulting on:
+
+- using the carbon.txt validator to parse and process sustainability disclosures online, 
+- disclosing this information in a way that validators can pick up, by implementing carbon.txt files
+- requesting disclosures from suppliers using the carbon.txt convention
+
+For this, the fastest way to get a direct response is to use [Green Web Foundation support form](https://www.thegreenwebfoundation.org/support-form/).
