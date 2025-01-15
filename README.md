@@ -56,7 +56,7 @@ Please see the [dedicated documentation site for the validator](https://carbon-t
 # Installation
 
 > [!TIP]
-> [More metailed guidance on installation is on the dedicated valiator docs site](https://carbon-txt-validator.readthedocs.io/en/latest/installation.html). 
+> See more detailed [guidance on installation on the dedicated valiator docs site](https://carbon-txt-validator.readthedocs.io/en/latest/installation.html). 
 
 ## Using Pip
 
