@@ -2,9 +2,9 @@ import pytest
 import pathlib
 
 
-import logging
+import structlog
 
-logger = logging.getLogger(__name__)
+logger = structlog.get_logger()
 
 
 @pytest.fixture

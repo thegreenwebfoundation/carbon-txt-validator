@@ -6,10 +6,11 @@ import pydantic
 import typing
 
 import logging
+from structlog import get_logger
 
-logger = logging.getLogger(__name__)
-# Do not surface warning messages, as we show them at the end anyway.
-logger.setLevel(logging.ERROR)
+logger = get_logger()
+
+# # Do not surface warning messages, as we show them at the end anyway.
 
 
 def log_safely(log_message: str, logs: typing.Optional[list], level=logging.INFO):

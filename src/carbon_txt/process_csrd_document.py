@@ -4,7 +4,10 @@ from .processors import CSRDProcessor
 import logging
 from typing import Optional
 
-logger = logging.getLogger(__name__)
+
+from structlog import get_logger
+
+logger = get_logger()
 
 
 def log_safely(log_message: str, logs: Optional[list], level=logging.INFO):

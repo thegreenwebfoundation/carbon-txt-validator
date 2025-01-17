@@ -9,6 +9,10 @@ from pydantic import BaseModel
 import typing
 from .exceptions import NoMatchingDatapointsError, NoLoadableCSRDFile
 
+import structlog
+
+logger = structlog.getLogger(__name__)
+
 
 class DataPoint(BaseModel):
     """
@@ -62,11 +66,28 @@ class CSRDProcessor:
 
         options = RuntimeOptions(
             entrypointFile=str(report_url),
+            # TODO it's not clear how to get the output from the logger to only log to
+            # the handler. We ideally want to ONLY log to the handler, but there always seems to be
+            # output logged to stdout, even if we pass in a null handler.
+            # the only option we seem to have is to set the log level
+            logLevel="ERROR",
+            logFile="logToBuffer",
             # we need to keep the file open to fetch data from the xml
             # file later, when we call various method on the object
             # TODO: does file close when this object is garbage collected?
             keepOpen=True,
         )
+
+        # TODO: clean this up once we figure out how to ONLY log to the handler
+        # import logging
+
+        # nuller = logging.NullHandler()
+        # handler = logging.StreamHandler()
+
+        # "plain_console": {
+        #     "()": structlog.stdlib.ProcessorFormatter,
+        #     "processor": structlog.dev.ConsoleRenderer(),
+        # },
 
         with Session() as session:
             session.run(options)

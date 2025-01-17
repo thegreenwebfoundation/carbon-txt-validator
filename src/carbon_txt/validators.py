@@ -1,21 +1,22 @@
-import logging
-from dataclasses import dataclass
 import importlib
-
-
+import logging
 import pathlib
-import httpx
+from dataclasses import dataclass
 from typing import Optional, Union
 
-from . import exceptions, finders, parsers_toml, schemas  # noqa
-from .plugins import pm, module_from_path
+import httpx
 import pydantic
 import pydantic_core
+import structlog
+
+from . import exceptions, finders, parsers_toml, schemas  # noqa
+from .plugins import module_from_path, pm
 
 file_finder = finders.FileFinder()
 parser = parsers_toml.CarbonTxtParser()
 
-logger = logging.getLogger(__name__)
+
+logger = structlog.get_logger()
 
 
 @dataclass
@@ -61,8 +62,12 @@ class CarbonTxtValidator:
         provided plugin directory `plugins_dir`, and activating any plugins
         """
 
-        logger.debug("plugins_dir", plugins_dir)
-        logger.debug("active_plugins", active_plugins)
+        logger.info(
+            f"plugins_dir: {plugins_dir}",
+        )
+        logger.info(
+            f"active_plugins {active_plugins}",
+        )
         if plugins_dir is not None:
             self.plugins_dir = plugins_dir
             plugins_path = pathlib.Path(plugins_dir).resolve()

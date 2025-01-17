@@ -1,14 +1,15 @@
-from ninja import NinjaAPI, Schema
-from django.http import HttpRequest, HttpResponse  # noqa
-from django.conf import settings
-
 import pydantic
+from django.conf import settings
+from django.http import HttpRequest, HttpResponse  # noqa
+from ninja import NinjaAPI, Schema
+from structlog import get_logger
 
-from .. import finders, validators, schemas, exceptions  # noqa
-import logging
+from .. import exceptions, finders, schemas, validators  # noqa
 
 file_finder = finders.FileFinder()
-logger = logging.getLogger(__name__)
+
+
+logger = get_logger()
 
 # Initialize the NinjaAPI with OpenAPI documentation details
 ninja_api = NinjaAPI(
@@ -96,6 +97,8 @@ def validate_contents(
             doc_results = sanitize_document_results(
                 validation_results.document_results or {}
             )
+        # TODO: make sure empty doc_results show as {}, with no keys
+        # https://github.com/thegreenwebfoundation/carbon-txt-validator/issues/59
         return {
             "success": True,
             "data": carbon_txt_file,
@@ -138,7 +141,8 @@ def validate_url(
             doc_results = sanitize_document_results(
                 validation_results.document_results or {}
             )
-
+        # TODO: make sure empty doc_results show as {}, with no keys
+        # https://github.com/thegreenwebfoundation/carbon-txt-validator/issues/59
         return {
             "success": True,
             "data": carbon_txt_file,

@@ -1,4 +1,3 @@
-import logging
 import pathlib
 from pathlib import Path
 from typing import Optional
@@ -11,9 +10,11 @@ from .exceptions import UnreachableCarbonTxtFile
 
 from . import parsers_toml
 
-logger = logging.getLogger(__name__)
+from structlog import get_logger
 
-logger.setLevel(logging.DEBUG)
+import logging
+
+logger = get_logger()
 
 
 parser = parsers_toml.CarbonTxtParser()
@@ -89,6 +90,9 @@ class FileFinder:
             return None
         except dns.resolver.NXDOMAIN as ex:
             logger.info(f"No result from TXT lookup: {ex.msg}")
+            return None
+        except Exception as ex:
+            logger.exception(f"New exception: {ex}")
             return None
 
         return None
@@ -219,8 +223,9 @@ class FileFinder:
             raise UnreachableCarbonTxtFile(
                 f"Could not connect to {parsed_uri.geturl()}."
             )
+
         except Exception as ex:
-            logger.error(f"Unexpected error fetching {parsed_uri.geturl()}: {ex}")
+            logger.exception(f"Unexpected error fetching {parsed_uri.geturl()}: {ex}")
             raise UnreachableCarbonTxtFile(
                 f"Could not connect to {parsed_uri.geturl()}."
             )
