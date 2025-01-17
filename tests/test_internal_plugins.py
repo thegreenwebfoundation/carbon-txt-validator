@@ -1,8 +1,10 @@
 # import pytest
 from carbon_txt import validators  # type: ignore
-import logging
 
-logger = logging.getLogger(__name__)
+
+from structlog import get_logger
+
+logger = get_logger()
 
 
 class TestCarbonTxtValidatorWithCSRDPlugin:

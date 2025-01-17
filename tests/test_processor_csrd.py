@@ -1,17 +1,16 @@
 import pytest
-import logging
 import pathlib
 from carbon_txt import processors  # type: ignore
 
-from rich.logging import RichHandler
 
 from arelle import (  # type: ignore
     ModelXbrl,
 )
 
-logger = logging.getLogger(__name__)
-logger.addHandler(RichHandler())
-# logger.setLevel(logging.INFO)
+
+from structlog import get_logger
+
+logger = get_logger()
 
 
 @pytest.fixture

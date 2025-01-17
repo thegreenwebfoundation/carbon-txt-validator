@@ -1,5 +1,4 @@
 import json
-import logging
 import os
 import subprocess
 import sys
@@ -14,7 +13,9 @@ from django.core.management import execute_from_command_line
 
 from . import exceptions, schemas, validators
 
-logger = logging.getLogger(__name__)
+import structlog
+
+logger = structlog.get_logger()
 
 app = typer.Typer(no_args_is_help=True)
 validate_app = typer.Typer()

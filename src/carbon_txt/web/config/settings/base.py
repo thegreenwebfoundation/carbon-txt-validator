@@ -10,17 +10,88 @@ For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
 
-import logging
 import os
 import pathlib
 
 import environ
 import sentry_sdk
+import structlog
 
 from carbon_txt.exceptions import InsecureKeyException
 from carbon_txt.plugins import DEFAULT_PLUGINS as DEFAULT_CARBON_TXT_PLUGINS
 
-logger = logging.getLogger(__name__)
+
+LOGGING = {
+    "version": 1,
+    "disable_existing_loggers": False,
+    "formatters": {
+        "json_formatter": {
+            "()": structlog.stdlib.ProcessorFormatter,
+            "processor": structlog.processors.JSONRenderer(),
+        },
+        "plain_console": {
+            "()": structlog.stdlib.ProcessorFormatter,
+            "processor": structlog.dev.ConsoleRenderer(),
+        },
+        "key_value": {
+            "()": structlog.stdlib.ProcessorFormatter,
+            "processor": structlog.processors.KeyValueRenderer(
+                key_order=["timestamp", "level", "event", "logger"]
+            ),
+        },
+    },
+    "handlers": {
+        "console": {
+            "class": "logging.StreamHandler",
+            "formatter": "plain_console",
+            # "formatter": "json_formatter",
+        },
+        "nullhandler": {
+            "class": "logging.NullHandler",
+        },
+    },
+    "loggers": {
+        "django_structlog": {
+            "handlers": ["console"],
+            "level": "INFO",
+        },
+        "root": {
+            "handlers": ["console"],
+            "level": "INFO",
+            "propagate": True,
+        },
+        "httpx": {
+            "handlers": ["console"],
+            "level": "WARNING",
+        },
+        "httpcore": {
+            "handlers": ["console"],
+            "level": "INFO",
+        },
+        "carbon_txt.processors": {
+            "level": "DEBUG",
+        },
+    },
+}
+
+structlog.configure(
+    processors=[
+        structlog.contextvars.merge_contextvars,
+        structlog.stdlib.filter_by_level,
+        structlog.processors.TimeStamper(fmt="iso"),
+        structlog.stdlib.add_logger_name,
+        structlog.stdlib.add_log_level,
+        structlog.stdlib.PositionalArgumentsFormatter(),
+        structlog.processors.StackInfoRenderer(),
+        structlog.processors.format_exc_info,
+        structlog.processors.UnicodeDecoder(),
+        structlog.stdlib.ProcessorFormatter.wrap_for_formatter,
+    ],
+    logger_factory=structlog.stdlib.LoggerFactory(),
+    cache_logger_on_first_use=True,
+)
+
+logger = structlog.get_logger()
 
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -83,6 +154,7 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "corsheaders",
+    "django_structlog",
 ]
 
 MIDDLEWARE = [
@@ -95,6 +167,7 @@ MIDDLEWARE = [
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "carbon_txt.web.middleware.AddTrailingSlashMiddleware",
+    "django_structlog.middlewares.RequestMiddleware",
 ]
 
 ROOT_URLCONF = "config.urls"

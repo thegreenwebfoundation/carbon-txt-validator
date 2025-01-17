@@ -3,7 +3,10 @@ from carbon_txt.hookspecs import hookimpl  # type: ignore
 import logging
 from typing import Optional
 
-logger = logging.getLogger(__name__)
+from structlog import get_logger
+
+logger = get_logger()
+
 
 plugin_name = "test_plugin"
 

@@ -2,9 +2,11 @@ from pathlib import Path
 
 import httpx
 import pytest
-import logging
 
-logger = logging.getLogger(__name__)
+
+from structlog import get_logger
+
+logger = get_logger()
 
 
 @pytest.mark.parametrize("url_suffix", ["", "/"])
