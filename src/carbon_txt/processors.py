@@ -119,11 +119,14 @@ class CSRDProcessor:
         datapoints = []
         try:
             res = self.xbrls[0].factsByLocalName.get(datapoint_code)
-
+            datapoint_readable_label = self.esrs_datapoints.get(
+                f"esrs:{datapoint_code}"
+            )
             if not res:
                 raise NoMatchingDatapointsError(
                     f"Could not find datapoint with code {datapoint_code}, for report {self.report_url}",
                     datapoint_short_code=datapoint_code,
+                    datapoint_readable_label=datapoint_readable_label,
                 )
 
             for item in res:
@@ -159,6 +162,7 @@ class CSRDProcessor:
             raise NoMatchingDatapointsError(
                 f"Could not find datapoint with code {datapoint_code}",
                 datapoint_short_code=datapoint_code,
+                datapoint_readable_label=datapoint_readable_label,
             )
 
         return datapoints
