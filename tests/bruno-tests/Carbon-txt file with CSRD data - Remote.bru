@@ -1,0 +1,17 @@
+meta {
+  name: Carbon-txt file with CSRD data - Remote
+  type: http
+  seq: 3
+}
+
+post {
+  url: https://carbon-txt-api.greenweb.org/api/validate/url/
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "url": "https://used-in-tests.carbontxt.org/carbon-txt-with-csrd-and-renewables.txt"
+  }
+}

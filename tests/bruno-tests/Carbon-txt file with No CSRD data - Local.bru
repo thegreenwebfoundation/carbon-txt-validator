@@ -1,0 +1,17 @@
+meta {
+  name: Carbon-txt file with No CSRD data - Local
+  type: http
+  seq: 4
+}
+
+post {
+  url: http://localhost:9000/api/validate/url/
+  body: json
+  auth: none
+}
+
+body:json {
+  {
+    "url": "https://used-in-tests.carbontxt.org/carbon-txt-with-csrd-no-renewables-data.txt"
+  }
+}
