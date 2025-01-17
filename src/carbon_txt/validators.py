@@ -86,7 +86,12 @@ class CarbonTxtValidator:
             self.active_plugins = active_plugins
             for plugin in active_plugins:
                 mod = importlib.import_module(plugin)
-                pm.register(mod, plugin)
+                try:
+                    pm.register(mod)
+                except ValueError:
+                    # Plugin already registered, do nothing
+                    logger.warning(f"Plugin already registered: {mod}")
+                    pass
 
         logger.debug(f"\nPLUGINS: {pm.get_plugins()}\n")
 
