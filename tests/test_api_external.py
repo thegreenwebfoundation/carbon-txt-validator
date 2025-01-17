@@ -166,3 +166,21 @@ def test_hitting_validate_with_plugins_raising_errors(
         == "PercentageOfRenewableSourcesInTotalEnergyConsumption"
         for item in plugin_data
     )
+
+
+def test_hitting_validate_with_zero_plugins_set(
+    transactional_db,
+    live_server,
+    shorter_carbon_txt_string,
+):
+    """
+    Even when no plugins are set, we should still send an empty
+    dictionary / object over the API.
+    """
+    api_url = f"{live_server.url}/api/validate/file"
+    data = {"text_contents": shorter_carbon_txt_string}
+    res = httpx.post(api_url, json=data, follow_redirects=True, timeout=None)
+    assert res.status_code == 200
+    parsed_response = res.json()
+    assert "document_data" in parsed_response.keys()
+    assert parsed_response["document_data"] == {}

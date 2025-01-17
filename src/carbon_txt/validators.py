@@ -149,7 +149,6 @@ class CarbonTxtValidator:
             if validation_results:
                 result_list = self._append_document_processing(validation_results)
 
-            assert len(result_list) == 1
             return ValidationResult(
                 result=validation_results,
                 logs=self.event_log,
