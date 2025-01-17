@@ -67,3 +67,16 @@ By default, running this will also generate a test coverage report, that can be 
 ### Seeing and building documentation
 
 Similarly you can build docs using `just docs` to generate the docs once, and just `docs-watch` to run a server that live updates.
+
+
+### Testing out the API with Bruno an Graphical API testing tool
+
+If you want to test responses from the API, the automated tests exercise most of, if not all of the API endpoints, but if you prefer a GUI based API tester, We have a set of tests for use with [Bruno - an open source Postman-like API testing tool](https://www.usebruno.com/).
+
+The API tests are `tests/bruno-tests`. From `File > Open Collection:` then choose the `bruno-tests` directory. You should see a list of tests like so:
+
+![screenshot of Bruno's GUI testing an API payload](img/bruno-1-see-test-list.png)
+
+You can then open a test and trigger the API test with `cmd + Enter`
+
+![screenshot of Bruno's GUI testing an API payload](img/bruno-2-test-api-endpoint.png)
