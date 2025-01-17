@@ -5,7 +5,7 @@ from typing import Optional
 
 from structlog import get_logger
 
-logger = get_logger()
+logger = get_logger("test_plugin")
 
 
 plugin_name = "test_plugin"
