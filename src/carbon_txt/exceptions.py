@@ -1,6 +1,3 @@
-import json
-
-
 class InsecureKeyException(Exception):
     """
     Raised when the default SECRET_KEY is used in a
@@ -36,21 +33,22 @@ class NoMatchingDatapointsError(ValueError):
     2. intentionally omitted because it was deemed immaterial
     """
 
-    def __init__(self, message: str, datapoint_short_code: str) -> None:
+    def __init__(
+        self,
+        message: str,
+        datapoint_short_code: str,
+        datapoint_readable_label: str,
+    ) -> None:
         super().__init__(message)
         self.datapoint_short_code = datapoint_short_code
+        self.datapoint_readable_label = datapoint_readable_label
 
     def __dict__(self):
         return {
             "message": self.args[0],  # ValueError stores the message in args
             "datapoint_short_code": self.datapoint_short_code,
+            "datapoint_readable_label": self.datapoint_readable_label,
         }
-
-    def __str__(self) -> str:
-        return f"SerializableObject(datapoint_short_code={self.datapoint_short_code})"
-
-    def to_json(self) -> str:
-        return json.dumps(self.__dict__())
 
 
 class NoLoadableCSRDFile(ValueError):

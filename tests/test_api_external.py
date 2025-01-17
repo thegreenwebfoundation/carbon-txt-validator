@@ -155,4 +155,14 @@ def test_hitting_validate_with_plugins_raising_errors(
     # we should see an error key in every item in the plugin data
     for item in plugin_data:
         assert "error" in item.keys()
+        assert "datapoint_short_code" in item.keys()
+        assert "datapoint_readable_label" in item.keys()
         assert item["error"] == "NoMatchingDatapointsError"
+
+    # check that we see the correct datapoint short code and human friendly value
+    # in at least one of the error messages
+    assert any(
+        item.get("datapoint_short_code")
+        == "PercentageOfRenewableSourcesInTotalEnergyConsumption"
+        for item in plugin_data
+    )
