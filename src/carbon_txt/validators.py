@@ -99,10 +99,10 @@ class CarbonTxtValidator:
         self, validation_results: schemas.CarbonTxtFile
     ) -> dict[str, list] | dict:
         supporting_documents = validation_results.org.credentials
-        result_list: dict[str, list] = {}
+        document_processing_results: dict[str, list] = {}
 
         if not supporting_documents:
-            return result_list
+            return document_processing_results
 
         for supporting_document in supporting_documents:
             plugin_results_for_document = pm.hook.process_document(
@@ -123,12 +123,19 @@ class CarbonTxtValidator:
                 document_results = item.get("document_results", [])
                 plugin_name = item.get("plugin_name")
 
-            if result_list.get(plugin_name):
-                result_list[plugin_name].extend(document_results)
-            else:
-                result_list[plugin_name] = document_results
+                # we can have multiple results from a single plugin, so we
+                # need to build out our dictionary with all the results coming
+                # back, adding the new list, or appending to the existing
+                # document_results already created
+                if plugin_name:
+                    if document_processing_results.get(plugin_name):
+                        document_processing_results[plugin_name].extend(
+                            document_results
+                        )
+                    else:
+                        document_processing_results[plugin_name] = document_results
 
-        return result_list
+        return document_processing_results
 
     def validate_contents(self, contents: str) -> ValidationResult:
         """
@@ -147,13 +154,15 @@ class CarbonTxtValidator:
             )
 
             if validation_results:
-                result_list = self._append_document_processing(validation_results)
+                document_processing_results = self._append_document_processing(
+                    validation_results
+                )
 
             return ValidationResult(
                 result=validation_results,
                 logs=self.event_log,
                 exceptions=errors,
-                document_results=result_list or {},
+                document_results=document_processing_results or {},
             )
         except pydantic.ValidationError as ex:
             message = f"Validation error: {ex}"
@@ -193,13 +202,15 @@ class CarbonTxtValidator:
             )
 
             if validation_results:
-                result_list = self._append_document_processing(validation_results)
+                document_processing_results = self._append_document_processing(
+                    validation_results
+                )
 
             return ValidationResult(
                 result=validation_results,
                 logs=self.event_log,
                 exceptions=errors,
-                document_results=result_list or {},
+                document_results=document_processing_results or {},
             )
 
         # the file path is local, but we can't access it
@@ -282,13 +293,15 @@ class CarbonTxtValidator:
             logger.info("Validation results: %s", validation_results)
 
             if validation_results:
-                result_list = self._append_document_processing(validation_results)
+                document_processing_results = self._append_document_processing(
+                    validation_results
+                )
 
             return ValidationResult(
                 result=validation_results,
                 logs=self.event_log,
                 exceptions=errors,
-                document_results=result_list or {},
+                document_results=document_processing_results or {},
             )
         except Exception as ex:
             message = f"An unexpected error occurred: {ex}"
