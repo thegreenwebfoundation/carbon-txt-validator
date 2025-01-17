@@ -44,32 +44,29 @@ LOGGING = {
         "console": {
             "class": "logging.StreamHandler",
             "formatter": "plain_console",
-            # "formatter": "json_formatter",
         },
         "nullhandler": {
             "class": "logging.NullHandler",
         },
     },
     "loggers": {
-        "django_structlog": {
-            "handlers": ["console"],
-            "level": "INFO",
-        },
+        # set our default logger
         "root": {
             "handlers": ["console"],
             "level": "INFO",
             "propagate": True,
         },
+        "django_structlog": {
+            "level": "INFO",
+        },
         "httpx": {
-            "handlers": ["console"],
             "level": "WARNING",
         },
         "httpcore": {
-            "handlers": ["console"],
             "level": "INFO",
         },
-        "carbon_txt.processors": {
-            "level": "DEBUG",
+        "carbon_txt": {
+            "level": "INFO",
         },
     },
 }
