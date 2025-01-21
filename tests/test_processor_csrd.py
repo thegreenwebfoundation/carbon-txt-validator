@@ -1,14 +1,12 @@
-import pytest
 import pathlib
-from carbon_txt import processors  # type: ignore
 
-
+import pytest
 from arelle import (  # type: ignore
     ModelXbrl,
 )
-
-
 from structlog import get_logger
+
+from carbon_txt import processors  # type: ignore
 
 logger = get_logger()
 

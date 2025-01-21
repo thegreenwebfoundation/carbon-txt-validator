@@ -71,13 +71,13 @@ Should return output, that (once formatted) similar to the JSON below:
   "success": true,
   "data": {
     "upstream": {
-      "providers": []
+      "services": []
     },
     "org": {
-      "credentials": [
+      "disclosures": [
         {
           "domain": "used-in-tests.carbontxt.org",
-          "doctype": "csrd-report",
+          "doc_type": "csrd-report",
           "url": "https://used-in-tests.carbontxt.org/esrs-e1-efrag-2026-12-31-en.xhtml"
         }
       ]
@@ -128,13 +128,13 @@ Our request now returns extra output in the `document_data` part of the object. 
   "success": true,
   "data": {
     "upstream": {
-      "providers": []
+      "services": []
     },
     "org": {
-      "credentials": [
+      "disclosures": [
         {
           "domain": "used-in-tests.carbontxt.org",
-          "doctype": "csrd-report",
+          "doc_type": "csrd-report",
           "url": "https://used-in-tests.carbontxt.org/esrs-e1-efrag-2026-12-31-en.xhtml"
         }
       ]
@@ -175,7 +175,7 @@ Our request now returns extra output in the `document_data` part of the object. 
     "Carbon.txt file parsed as valid TOML.",
     "Parsed TOML was recognised as valid Carbon.txt file.\n",
     "csrd_greenweb: Processing supporting document: https://used-in-tests.carbontxt.org/esrs-e1-efrag-2026-12-31-en.xhtml for used-in-tests.carbontxt.org",
-    "carbon_txt.process_csrd_document: CSRD Report found. Processing report with Arelle: domain='used-in-tests.carbontxt.org' doctype='csrd-report' url='https://used-in-tests.carbontxt.org/esrs-e1-efrag-2026-12-31-en.xhtml'"
+    "carbon_txt.process_csrd_document: CSRD Report found. Processing report with Arelle: domain='used-in-tests.carbontxt.org' doc_type='csrd-report' url='https://used-in-tests.carbontxt.org/esrs-e1-efrag-2026-12-31-en.xhtml'"
   ]
 }
 ```

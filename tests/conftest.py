@@ -15,10 +15,10 @@ def minimal_carbon_txt_org():
     """
     return """
         [upstream]
-        providers = []
+        services = []
         [org]
-        credentials = [
-            { domain='used-in-tests.carbontxt.org', doctype = 'sustainability-page', url = 'https://used-in-tests.carbontxt.org/our-climate-record'}
+        disclosures = [
+            { domain='used-in-tests.carbontxt.org', doc_type = 'sustainability-page', url = 'https://used-in-tests.carbontxt.org/our-climate-record'}
         ]
     """  # noqa
 
@@ -32,13 +32,13 @@ def shorter_carbon_txt_string():
 
     short_string = """
         [upstream]
-        providers = [
-        'sys-ten.com',
-        'cdn.com',
+        services = [
+            {domain='sys-ten.com', service_type=['cloud']},
+            {domain='cdn.com', service_type=['cdn']},
         ]
         [org]
-        credentials = [
-            { domain='www.hillbob.de', doctype = 'sustainability-page', url = 'https://www.hillbob.de/klimaneutral'}
+        disclosures = [
+            { domain='www.hillbob.de', doc_type = 'sustainability-page', url = 'https://www.hillbob.de/klimaneutral'}
         ]
     """  # noqa
     return short_string
@@ -69,10 +69,10 @@ def minimal_carbon_txt_org_with_csrd_file():
     """
     return """
         [upstream]
-        providers = []
+        services = []
         [org]
-        credentials = [
-            { domain='used-in-tests.carbontxt.org', doctype = 'csrd-report', url = 'https://used-in-tests.carbontxt.org/esrs-e1-efrag-2026-12-31-en.xhtml'}
+        disclosures = [
+            { domain='used-in-tests.carbontxt.org', doc_type = 'csrd-report', url = 'https://used-in-tests.carbontxt.org/esrs-e1-efrag-2026-12-31-en.xhtml'}
         ]
     """  # noqa
 

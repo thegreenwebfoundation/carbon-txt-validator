@@ -1,5 +1,5 @@
 from .hookspecs import hookimpl
-from .schemas import CarbonTxtFile, Credential
+from .schemas import CarbonTxtFile, Disclosure
 from .processors import CSRDProcessor
 import logging
 from typing import Optional
@@ -24,7 +24,7 @@ plugin_name = "csrd_greenweb"
 
 @hookimpl
 def process_document(
-    document: Credential,
+    document: Disclosure,
     parsed_carbon_txt_file: Optional[CarbonTxtFile],
     logs: Optional[list],
 ):
@@ -37,7 +37,7 @@ def process_document(
         logs=logs,
     )
 
-    if document.doctype == "csrd-report":
+    if document.doc_type == "csrd-report":
         log_safely(
             f"{__name__}: CSRD Report found. Processing report with Arelle: {document}",
             logs=logs,
@@ -65,7 +65,7 @@ def process_document(
 
     else:
         log_safely(
-            f"{__name__}: Document type {document.doctype} seen. Doing nothing",
+            f"{__name__}: Document type {document.doc_type} seen. Doing nothing",
             logs=logs,
         )
 

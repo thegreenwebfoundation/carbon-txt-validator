@@ -98,7 +98,7 @@ class CarbonTxtValidator:
     def _append_document_processing(
         self, validation_results: schemas.CarbonTxtFile
     ) -> dict[str, list] | dict:
-        supporting_documents = validation_results.org.credentials
+        supporting_documents = validation_results.org.disclosures
         document_processing_results: dict[str, list] = {}
 
         if not supporting_documents:

@@ -63,7 +63,7 @@ def test_hitting_validate_url_endpoint_with_via_delegation(live_server):
     res = httpx.post(api_url, json=data, follow_redirects=True, timeout=None)
 
     assert res.status_code == 200
-    actual_provider_domain = res.json()["data"]["org"]["credentials"][0]["domain"]
+    actual_provider_domain = res.json()["data"]["org"]["disclosures"][0]["domain"]
     assert actual_provider_domain == "managed-service.carbontxt.org"
 
 
@@ -81,7 +81,7 @@ def test_hitting_validate_url_endpoint_with_txt_delegation(live_server):
     # https://used-in-tests.carbontxt.org/carbon.txt
 
     # TODO: Should we serve a different error here, like a 40x?
-    # actual_provider_domain = res.json()["data"]["org"]["credentials"][0]["domain"]
+    # actual_provider_domain = res.json()["data"]["org"]["disclosures"][0]["domain"]
     # assert actual_provider_domain == "managed-service.carbontxt.org"
 
 

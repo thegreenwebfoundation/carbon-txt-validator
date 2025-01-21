@@ -11,7 +11,7 @@ class Service(BaseModel):
     Green Web Platform
     """
 
-    domain: str
+    domain: Optional[str]
     name: Optional[str] = None
     # TODO: python prefers snake_case.
     # javascript prefers camelCase
@@ -45,7 +45,7 @@ class Organisation(BaseModel):
     if it is exclusively relying on services from upstream providers for its green claims.
     """
 
-    credentials: List[Disclosure] = Field(..., min_length=1)
+    disclosures: List[Disclosure] = Field(..., min_length=1)
 
 
 class Upstream(BaseModel):
