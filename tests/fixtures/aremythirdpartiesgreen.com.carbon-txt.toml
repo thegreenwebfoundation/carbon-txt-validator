@@ -1,5 +1,5 @@
 [upstream]
-providers = [
+services = [
     # These providers include my hosting (Netlify - they use AWS/GCP under the hood),
     # as well as all the third-party services I use on this site.
     # I feel it makes sense to keep these all together.
@@ -13,9 +13,9 @@ providers = [
 ]
 
 [org]
-credentials = [
+disclosures = [
     # These are evidence of things I do to account for the carbon emissions of this website.
-    { domain = "fershad.com", doctype = "webpage", url = "https://fershad.com/for-good/" },
+    { domain = "fershad.com", doc_type = "webpage", url = "https://fershad.com/for-good/" },
 ]
 
 # What would I like to see returned when validating this?

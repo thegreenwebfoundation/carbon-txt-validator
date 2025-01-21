@@ -12,10 +12,10 @@ class TestParseCarbonTxt:
         parsed = parser.parse_toml(minimal_carbon_txt_org, logs=[])
         assert "upstream" in parsed
         assert "org" in parsed
-        assert "providers" in parsed["upstream"]
-        assert "credentials" in parsed["org"]
-        assert len(parsed["upstream"]["providers"]) == 0
-        assert len(parsed["org"]["credentials"]) == 1
+        assert "services" in parsed["upstream"]
+        assert "disclosures" in parsed["org"]
+        assert len(parsed["upstream"]["services"]) == 0
+        assert len(parsed["org"]["disclosures"]) == 1
 
     def test_parse_toml_short(self, shorter_carbon_txt_string):
         """
@@ -25,10 +25,10 @@ class TestParseCarbonTxt:
         assert parsed
         assert "upstream" in parsed
         assert "org" in parsed
-        assert "providers" in parsed["upstream"]
-        assert "credentials" in parsed["org"]
-        assert len(parsed["upstream"]["providers"]) == 2
-        assert len(parsed["org"]["credentials"]) == 1
+        assert "services" in parsed["upstream"]
+        assert "disclosures" in parsed["org"]
+        assert len(parsed["upstream"]["services"]) == 2
+        assert len(parsed["org"]["disclosures"]) == 1
 
     def test_parse_toml_minimal(self, minimal_carbon_txt_org):
         """
@@ -38,16 +38,16 @@ class TestParseCarbonTxt:
         assert parsed
         assert "upstream" in parsed
         assert "org" in parsed
-        assert "providers" in parsed["upstream"]
-        assert "credentials" in parsed["org"]
-        assert len(parsed["upstream"]["providers"]) == 0
-        assert len(parsed["org"]["credentials"]) == 1
+        assert "services" in parsed["upstream"]
+        assert "disclosures" in parsed["org"]
+        assert len(parsed["upstream"]["services"]) == 0
+        assert len(parsed["org"]["disclosures"]) == 1
         assert (
-            parsed["org"]["credentials"][0]["domain"] == "used-in-tests.carbontxt.org"
+            parsed["org"]["disclosures"][0]["domain"] == "used-in-tests.carbontxt.org"
         )
-        assert parsed["org"]["credentials"][0]["doctype"] == "sustainability-page"
+        assert parsed["org"]["disclosures"][0]["doc_type"] == "sustainability-page"
         assert (
-            parsed["org"]["credentials"][0]["url"]
+            parsed["org"]["disclosures"][0]["url"]
             == "https://used-in-tests.carbontxt.org/our-climate-record"
         )
 

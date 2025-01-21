@@ -130,7 +130,7 @@ from carbon_txt import hookimpl
 @hookimpl
 def process_document(document):
     # assume do_some_work is a function defined elsewhere
-    if document.doctype == "csrd-report":
+    if document.doc_type == "csrd-report":
         results = do_some_work(document)
         return results
 

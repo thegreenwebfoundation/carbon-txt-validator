@@ -5,7 +5,7 @@ from pydantic import ValidationError
 
 
 class TestOrganisation:
-    def test_organisation_required_credentials(self):
+    def test_organisation_required_disclosures(self):
         """ """
         with pytest.raises(ValidationError):
-            Organisation(credentials=[])
+            Organisation(disclosures=[])

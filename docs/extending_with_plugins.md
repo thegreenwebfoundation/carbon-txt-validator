@@ -99,7 +99,8 @@ Parsed TOML was recognised as valid Carbon.txt file.
 
 -------
 
-CarbonTxtFile(upstream=Upstream(providers=[]), org=Organisation(credentials=[Credential(domain='used-in-tests.carbontxt.org', doctype='sustainability-page', url='https://used-in-tests.carbontxt.org/our-climate-record')]))
+
+CarbonTxtFile(upstream=Upstream(providers=[]), org=Organisation(disclosures=[Disclosure(domain='used-in-tests.carbontxt.org', doc_type='sustainability-page', url='https://used-in-tests.carbontxt.org/our-climate-record')]))
 -------
 
 Results of processing linked documents in the carbon.txt file:
