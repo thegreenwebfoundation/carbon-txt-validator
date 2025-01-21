@@ -3,26 +3,31 @@ from typing import Literal, Optional, List
 from pydantic import BaseModel, Field
 
 
-class Provider(BaseModel):
+class Service(BaseModel):
     """
-    Providers in this context are upstream providers of hosted services.
+    A service in this context is a hosted service, offered by a provider
+    of hosted services.
     The domain is used as key for looking up a corresponding provider in the
     Green Web Platform
     """
 
     domain: str
     name: Optional[str] = None
-    services: Optional[List[str]] = None
+    # TODO: python prefers snake_case.
+    # javascript prefers camelCase
+    # but kebab-case is arguable more common in URLS
+    # how do we support this?
+    service_type: Optional[List[str]] = None
 
 
-class Credential(BaseModel):
+class Disclosure(BaseModel):
     """
-    Credentials are essentially supporting documentation for a claim to be running on
-    green energy.
+    Disclosures are essentially supporting documentation shared by an organisation than can
+    be to be used to substantiate a claim like running on green energy, and so on.
     """
 
     domain: Optional[str] = None
-    doctype: Literal[
+    doc_type: Literal[
         "web-page",
         "annual-report",
         "sustainability-page",
@@ -36,23 +41,23 @@ class Credential(BaseModel):
 class Organisation(BaseModel):
     """
     An Organisation is the entity making the claim to running its infrastructure
-    on green energy. In the very least it should have some credentials point to, even
-    if it is exclusively relying on upstream providers for its green claims.
+    on green energy. In the very least it should have some disclosures point to, even
+    if it is exclusively relying on services from upstream providers for its green claims.
     """
 
-    credentials: List[Credential] = Field(..., min_length=1)
+    credentials: List[Disclosure] = Field(..., min_length=1)
 
 
 class Upstream(BaseModel):
     """
-    Upstream refers to one or more providers of hosted services that the Organisation
+    Upstream refers to one or more hosted services that the Organisation
     is relying on to operate a digital service, like running a website, or application.
     """
 
     # organisations that don't use third party providers could plausibly have an
     # empty upstream list. We also either accept providers as a single string representing
     # a domain, or a dictionary containing the fields defined in the Provider model
-    providers: Optional[List[Provider | str]] = None
+    services: Optional[List[Service | str]] = None
 
 
 class CarbonTxtFile(BaseModel):
