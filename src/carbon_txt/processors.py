@@ -39,6 +39,11 @@ class CSRDProcessor:
     report_url: str
     xbrls: list[ModelXbrl.ModelXbrl]
 
+    # TODO: we now have found a handy mapping file that maps the datapoints 'short_code' style datapoints to
+    # more human readable labels, as well as listing the expected type (i.e. intger, percentage, energy, etc), as
+    # well as things like Number: E1; Paragraph: 37; Section: E1-5;
+    # the spreadsheet is in docs/csrd/
+
     esrs_datapoints: dict[str, str] = {
         "esrs:PercentageOfRenewableSourcesInTotalEnergyConsumption": "E1-5 AR 34 Percentage of renewable sources in total energy consumption",
         "esrs:PercentageOfEnergyConsumptionFromNuclearSourcesInTotalEnergyConsumption": "E1-5 AR 34 Percentage of nuclear in total energy consumption",
