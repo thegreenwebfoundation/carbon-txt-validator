@@ -5,14 +5,14 @@ but it should at least contain the root `toctree` directive. -->
 # Carbon.txt Validator documentation
 
 ```{toctree}
-:maxdepth: 2
+:maxdepth: 3
 usage
 installation
 architecture
 deployment
-extending_with_plugins
-plugin_hooks
 plugins
+plugin_hooks
 contributing
+extending_with_plugins
 runbook
 ```

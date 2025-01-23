@@ -1,6 +1,8 @@
-# Bundled Plugins with the Carbon.txt Validator
+# Plugins
 
-The Carbon.txt Validator is designed to have its functionality [extended using its plugin system](extending_with_plugins).
+## Bundled Plugins with the Carbon.txt Validator
+
+The Carbon.txt Validator is designed to have its functionality [extended using its plugin system](#extending-the-carbontxt-validator-with-plugins).
 
 In fact, some of the core functionality is implemented as plugins.
 
@@ -8,7 +10,9 @@ In fact, some of the core functionality is implemented as plugins.
 
 ### CSRD Plugin
 
-The CSRD plugin for the carbon.txt validator is one of the default plugins bundled in with the validator. The [source code for the plugin](https://github.com/thegreenwebfoundation/carbon-txt-validator/blob/main/src/carbon_txt/process_csrd_document.py) as is [the CSRD processor it uses to parse reports](https://github.com/thegreenwebfoundation/carbon-txt-validator/blob/main/src/carbon_txt/processors.py#L30). Under the hood, it uses [Arelle, a report parsing tool certified by the XBRL Foundation](https://arelle.readthedocs.io)
+The CSRD plugin for the carbon.txt validator is one of the default plugins bundled in with the validator. The [source code for the plugin](https://github.com/thegreenwebfoundation/carbon-txt-validator/blob/main/src/carbon_txt/process_csrd_document.py) as is [the CSRD processor it uses to parse reports](https://github.com/thegreenwebfoundation/carbon-txt-validator/blob/main/src/carbon_txt/processors.py#L30). Under the hood, it uses [Arelle, a report parsing tool certified by the XBRL Foundation](https://arelle.readthedocs.io).
+
+```{admonition} Info
 
 #### What is the CSRD, and why is it relevant?
 
@@ -18,10 +22,12 @@ These reports are published in a standardised format, and in a structured langua
 
 This page shows how to use the validator to query these reports for specific kinds of data.
 
+---
+```
 
 ## Default usage and activating plugins with the carbon.txt validator
 
-#### Default usage
+### Default usage
 
 By default, the carbon.txt validator does not run with any plugins activated.
 
@@ -96,8 +102,10 @@ Should return output, that (once formatted) similar to the JSON below:
 }
 ```
 
+----
 
-#### Extending Functionality with core plugins
+
+### Usage with core plugins - extending functionality with the Greenweb CSRD plugin
 
 ```{admonition} Info
 :class: info
@@ -108,9 +116,9 @@ In a real deployment, this is much more likely to be set in config, or in a '.do
 
 ```
 
-The validator is extendable though, so lets activate a plugin, and see what is now returned when we make the same request.
+The validator is extendable though, so let's activate a plugin, and see what is now returned when we make the same request.
 
-With the new plugin activated, we can now *hook into* the lifecycle of serving the API request with our plugin. There is a specific hook, detailed out in our [hooks list](./plugin_hooks.md), `process_document`, that is fired whenever a link to a document.
+With the new plugin activated, we can now *hook into* the lifecycle of serving the API request with our plugin. There is a specific hook, detailed out in our [hooks list](#plugin-hooks-used-by-the-carbontxt-validator), `process_document`, that is fired whenever a link to a document.
 
 Our new plugin uses this hook to read the linked CSRD report, and add the results of parsing it to the output.
 

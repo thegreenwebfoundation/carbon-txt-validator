@@ -75,7 +75,7 @@ Create a directory, `my_plugins`, in the same directory in a project directory w
 
 We then move the file to `my_plugins/check_file_online.py`.
 
-#### Run the `carbon-txt` command line tool with the `--plugin-dirs` flag
+### Run the `carbon-txt` command line tool with the `--plugin-dirs` flag
 
 Finally we run the `carbon-txt` command line tool, with the `--plugin-dirs` flag, and the path to `my_plugins` the directory containing our new plugin.
 

@@ -1,13 +1,10 @@
 # Deployment
 
-The carbon.txt validator works as a command line tool, but also offers largely
-the same features over an RESTful HTTP API, using
-[Django Ninja](https://django-ninja.dev/). Read on to learn about deploying the
-validator as a service.
+The carbon.txt validator works as a command line tool, but also offers largely the same features over an REST-ful HTTP API, using [Django Ninja](https://django-ninja.dev/). Read on to learn about deploying the validator as a service.
 
 ## Deploying the validator
 
-For convenience, carbon.txt validator has a convenience `serve` command, that
+For convenience, the carbon.txt validator has a `serve` command that
 spins up the default bundled Django server. This is fine for development, but
 for production, we also bundle in Granian, a more performant server.
 
@@ -56,13 +53,9 @@ CORS_ALLOW_ALL_ORIGINS = True
 
 ### Custom Django Settings
 
-You can customize the Django settings used by the carbon.txt validator by using
-the `--django-settings` flag in the CLI. This allows you to specify a custom
-settings module.
+You can customize the Django settings used by the carbon.txt validator by using the `--django-settings` flag in the CLI. This allows you to specify a custom settings module.
 
-For example, if you are in `/tmp` and have a custom settings file located at
-`/tmp/local_settings.py`, you can run the validator with your custom settings
-like this:
+For example, if you are in `/tmp` and have a custom settings file located at `/tmp/local_settings.py`, you can run the validator with your custom settings like this:
 
 ```shell
 # run the validator with custom Django settings
@@ -71,7 +64,7 @@ carbon-txt serve --django-settings local_settings
 
 #### Using config file in a folder
 
-You are importing a python module, so mae sure that the settings module path is
+When you are using a separate settings file, you are importing a python module. So if you are importing from a settings file inside a nested folder structure, make sure that the settings module path is
 a dot-separated Python import path:
 
 ```shell
@@ -137,3 +130,11 @@ SENTRY_DSN="https://LONG_ALPHANUMERIC_STRING.ingest.de.sentry.io/NUMERIC_ID"
 SENTRY_TRACE_SAMPLE_RATE="1.0"
 SENTRY_PROFILE_SAMPLE_RATE="1.0"
 ```
+
+### Keeping secrets out of source control
+
+The carbon.txt validator when run as a server, supports the use of `.env` (dotenv) files.
+
+Which allows you to keep secrets in a separate file, without needing to make changes to the project codebase, or explicitly set them on the command line.
+
+To see default values that can be override, see the `base.py` file, in `src/web/config/settings/base.py`.

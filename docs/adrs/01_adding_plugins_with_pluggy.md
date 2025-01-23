@@ -1,8 +1,10 @@
-# Adding functionality via a plugin system for the carbon.txt validator
+
+
+# ADR 1: Adding functionality via a plugin system for the carbon.txt validator
 
 ## Status
 
-Proposed
+Accepted
 
 ## Context
 

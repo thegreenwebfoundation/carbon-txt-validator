@@ -71,9 +71,11 @@ Run `just test-watch` to run pytest every time files are updated.
 
 By default, running this will also generate a test coverage report, that can be picked up by your editor to display code that still needs test coverage ([see an example for VS code](https://github.com/ryanluker/vscode-coverage-gutters))
 
-### Testing out the API with Bruno an Graphical API testing tool
+### Testing out the API with Bruno, a graphical API testing tool
 
-If you want to test responses from the API, the automated tests exercise most of, if not all of the API endpoints, but if you prefer a GUI based API tester, We have a set of tests for use with [Bruno - an open source Postman-like API testing tool](https://www.usebruno.com/).
+If you want to test responses from the API, the automated tests written in Python in this project exercise most of, if not all of the API endpoints.
+
+If you prefer a GUI based API tester though, we have a set of tests for use with [Bruno - an open source Postman-like API testing tool](https://www.usebruno.com/).
 
 The API tests are `tests/bruno-tests`. From `File > Open Collection:` then choose the `bruno-tests` directory. You should see a list of tests like so:
 

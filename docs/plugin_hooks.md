@@ -1,4 +1,4 @@
-## Plugin Hooks Used by the Carbon.txt Validator
+## Plugin Hooks
 
 The Carbon.txt validator exposes a set of "hooks" for extending functionality via a plugin interface.
 
