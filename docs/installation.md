@@ -2,9 +2,13 @@
 
 The carbon-txt validator project uses the Pyproject format to track software library dependencies, so should work with most python tools for managing dependencies, like `pip`.
 
-## The supported approach - using uv and just
+## The supported approach - using `uv` and `just`
 
-With that in mind, the supported, 'golden path' approach is to use the `uv` tool for managing packages, and `just` for automating common tasks.
+With that in mind, the supported, 'golden path' approach is to use the `uv` tool from Astral for managing dependencies, and `just` for automating common tasks.
+
+We recommend and support `uv`, because it helps address many of the common issues managing different versions of Python, both in developmnent and in production, and is actively supported by people working on it full time.
+
+We recommend `just`, as it offers a maintainable way to document and automate common tasks during development, and is both well documented, and actively maintained.
 
 ### Installing just and installing uv
 
@@ -14,13 +18,16 @@ You can install uv with a single one-line command on most systems:
 curl -LsSf https://astral.sh/uv/install.sh | sh
 ```
 
+There are other supported ways to install `uv` documented on Astral's installtion page for the project.
+
+
 You can also install `just` with a similar one-liner.
 
 ```shell
 curl --proto '=https' --tlsv1.2 -sSf https://just.systems/install.sh | bash -s -- --to DEST
 ```
 
-However, depending on your system there may be an option that integrates better with your setup - [please see the installation docs for more](https://github.com/casey/just?tab=readme-ov-file#installation).
+However, depending on your system, there may be an option that integrates `just` better with your setup - [please see the installation docs for more](https://github.com/casey/just?tab=readme-ov-file#installation).
 
 ### Developing with just
 
@@ -56,18 +63,13 @@ This will also default to running each taks with any environment variables defin
 just --dotenv-path ./path/to/custom.env YOUR_CHOSEN_TASK
 ```
 
-### Running tests
+# Running tests
 
 Run `just test` for a one off invocation of pytest.
 
 Run `just test-watch` to run pytest every time files are updated.
 
 By default, running this will also generate a test coverage report, that can be picked up by your editor to display code that still needs test coverage ([see an example for VS code](https://github.com/ryanluker/vscode-coverage-gutters))
-
-### Seeing and building documentation
-
-Similarly you can build docs using `just docs` to generate the docs once, and just `docs-watch` to run a server that live updates.
-
 
 ### Testing out the API with Bruno an Graphical API testing tool
 

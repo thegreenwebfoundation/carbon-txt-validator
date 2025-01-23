@@ -3,8 +3,6 @@
 ```{admonition} Warning
 :class: warning
 This is content is primarily aimed at an internal audience of staff at the Green Web Foundation operating the carbon.txt API service.
-
-
 ```
 
 
@@ -158,7 +156,7 @@ WantedBy=multi-user.target
 
 ## Operating the front end
 
-See the README on the [carbon-text-site github repository](https://github.com/thegreenwebfoundation/carbon-txt-site), for instructions on developing, operating and deploying the front end that consumes the API offered by the carbon-txt validator.
+See the README on the [carbon-text-site github repository](https://github.com/thegreenwebfoundation/carbon-txt-site), for instructions on developing, operating and deploying the front end that consumes the API offered by the carbon.txt validator.
 
 
 ## Seeing Logs

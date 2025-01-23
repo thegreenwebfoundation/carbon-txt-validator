@@ -6,6 +6,7 @@ but it should at least contain the root `toctree` directive. -->
 
 ```{toctree}
 :maxdepth: 2
+usage
 installation
 architecture
 deployment

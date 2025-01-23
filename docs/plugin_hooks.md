@@ -1,11 +1,11 @@
-# Plugin Hooks Used by the Carbon.txt Validator
+## Plugin Hooks Used by the Carbon.txt Validator
 
 The Carbon.txt validator exposes a set of "hooks" for extending functionality via a plugin interface.
 
 These hooks are listed below:
 
 
-## `process_document`
+### `process_document`
 
 Called once for each `Credential` document linked in a successfully parsed carbon.txt file.
 
