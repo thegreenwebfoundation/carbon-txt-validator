@@ -21,75 +21,11 @@ from carbon_txt.exceptions import InsecureKeyException
 from carbon_txt.plugins import DEFAULT_PLUGINS as DEFAULT_CARBON_TXT_PLUGINS
 
 
-LOGGING = {
-    "version": 1,
-    "disable_existing_loggers": False,
-    "formatters": {
-        "json_formatter": {
-            "()": structlog.stdlib.ProcessorFormatter,
-            "processor": structlog.processors.JSONRenderer(),
-        },
-        "plain_console": {
-            "()": structlog.stdlib.ProcessorFormatter,
-            "processor": structlog.dev.ConsoleRenderer(),
-        },
-        "key_value": {
-            "()": structlog.stdlib.ProcessorFormatter,
-            "processor": structlog.processors.KeyValueRenderer(
-                key_order=["timestamp", "level", "event", "logger"]
-            ),
-        },
-    },
-    "handlers": {
-        "console": {
-            "class": "logging.StreamHandler",
-            "formatter": "plain_console",
-        },
-        "nullhandler": {
-            "class": "logging.NullHandler",
-        },
-    },
-    "loggers": {
-        # set our default logger
-        "root": {
-            "handlers": ["console"],
-            "level": "INFO",
-            "propagate": True,
-        },
-        "django_structlog": {
-            "level": "INFO",
-        },
-        "httpx": {
-            "level": "WARNING",
-        },
-        "httpcore": {
-            "level": "INFO",
-        },
-        "carbon_txt": {
-            "level": "INFO",
-        },
-    },
-}
-
-structlog.configure(
-    processors=[
-        structlog.contextvars.merge_contextvars,
-        structlog.stdlib.filter_by_level,
-        structlog.processors.TimeStamper(fmt="iso"),
-        structlog.stdlib.add_logger_name,
-        structlog.stdlib.add_log_level,
-        structlog.stdlib.PositionalArgumentsFormatter(),
-        structlog.processors.StackInfoRenderer(),
-        structlog.processors.format_exc_info,
-        structlog.processors.UnicodeDecoder(),
-        structlog.stdlib.ProcessorFormatter.wrap_for_formatter,
-    ],
-    logger_factory=structlog.stdlib.LoggerFactory(),
-    cache_logger_on_first_use=True,
-)
+# looking for the LOGGING config? See carbon_txt.log_config, for the
+# logging configuration that is used by the rest of the application
+from carbon_txt.log_config import LOGGING  # noqa
 
 logger = structlog.get_logger()
-
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = pathlib.Path(__file__).resolve().parent.parent.parent
