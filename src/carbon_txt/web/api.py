@@ -2,14 +2,14 @@ import pydantic
 from django.conf import settings
 from django.http import HttpRequest, HttpResponse  # noqa
 from ninja import NinjaAPI, Schema
-from structlog import get_logger
+import structlog
 
 from .. import exceptions, finders, schemas, validators  # noqa
 
 file_finder = finders.FileFinder()
 
 
-logger = get_logger()
+logger = structlog.get_logger()
 
 # Initialize the NinjaAPI with OpenAPI documentation details
 ninja_api = NinjaAPI(

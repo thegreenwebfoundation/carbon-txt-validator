@@ -15,7 +15,6 @@ from .plugins import module_from_path, pm
 file_finder = finders.FileFinder()
 parser = parsers_toml.CarbonTxtParser()
 
-
 logger = structlog.get_logger()
 
 
@@ -62,12 +61,17 @@ class CarbonTxtValidator:
         provided plugin directory `plugins_dir`, and activating any plugins
         """
 
-        logger.info(
+        logger.debug(
             f"plugins_dir: {plugins_dir}",
         )
-        logger.info(
+        logger.debug(
             f"active_plugins {active_plugins}",
         )
+
+        # breakpoint()
+
+        # make sure the plugins list is empty before we start
+
         if plugins_dir is not None:
             self.plugins_dir = plugins_dir
             plugins_path = pathlib.Path(plugins_dir).resolve()
@@ -93,7 +97,7 @@ class CarbonTxtValidator:
                     logger.warning(f"Plugin already registered: {mod}")
                     pass
 
-        logger.debug(f"\nPLUGINS: {pm.get_plugins()}\n")
+        logger.debug(f"PLUGINS: {pm.get_plugins()}\n")
 
     def _append_document_processing(
         self, validation_results: schemas.CarbonTxtFile
@@ -136,6 +140,12 @@ class CarbonTxtValidator:
                         document_processing_results[plugin_name] = document_results
 
         return document_processing_results
+
+    def list_plugins(self) -> list:
+        """
+        Return a list of all registered plugins
+        """
+        return [*pm.get_plugins()]
 
     def validate_contents(self, contents: str) -> ValidationResult:
         """

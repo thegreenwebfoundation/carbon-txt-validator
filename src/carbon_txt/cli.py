@@ -1,21 +1,22 @@
 import json
+
 import os
 import subprocess
 import sys
-from typing import Optional, Sequence
+from typing import Optional
 
 import django
 import environ
 import pydantic_core
 import rich
+import structlog
 import typer
 from django.core.management import execute_from_command_line
 
-from . import exceptions, schemas, validators
-
-import structlog
+from . import exceptions, log_config, schemas, validators  # noqa
 
 logger = structlog.get_logger()
+logger.info("Hello, World from CLI")
 
 app = typer.Typer(no_args_is_help=True)
 validate_app = typer.Typer()
@@ -30,8 +31,12 @@ err_console = rich.console.Console(stderr=True)
 
 
 def create_validator(
-    plugins_dir: Optional[str], active_plugins: Optional[Sequence[str]]
+    plugins_dir: Optional[str], active_plugins: Optional[list[str]]
 ) -> validators.CarbonTxtValidator:
+    """
+    Return a CarbonTxtValidator instance with the given `plugins_dir` and `active_plugins` values set
+    from environment variables if not provided via the function arguments.
+    """
     # we can't rely on values in the django settings module being set at this point.
     # We might also want to run multiple plugins. So, we need to parse a string
     # like "my_plugin,my_other_plugin" into a list two strings
@@ -44,7 +49,7 @@ def create_validator(
         active_plugins = env("ACTIVE_CARBON_TXT_PLUGINS")
 
     if not plugins_dir:
-        env("CARBON_TXT_PLUGINS_DIR")
+        plugins_dir = env("CARBON_TXT_PLUGINS_DIR")
 
     validator = validators.CarbonTxtValidator(
         plugins_dir=plugins_dir, active_plugins=active_plugins
@@ -54,7 +59,7 @@ def create_validator(
 
 def _log_validation_results(success=True):
     if success:
-        rich.print("✅ Carbon.txt file syntax is valid! \n")
+        rich.print("\n✅ Carbon.txt file syntax is valid! \n")
     else:
         rich.print("❌ Sad times. Carbon.txt file syntax is invalid. \n")
 
@@ -125,12 +130,20 @@ def validate_file(
             _log_validated_carbon_txt_object(carbon_txt_file)
             if validation_results.document_results:
                 _log_processed_documents(validation_results.document_results)
+            # from logging_tree import printout
+
+            # printout()
+            # breakpoint()
             raise typer.Exit(code=0)
 
         for log in validation_results.logs:
             rich.print(log)
         _log_validation_results(success=False)
         _log_validated_carbon_txt_object(validation_results.exceptions)
+        # breakpoint()
+        # from logging_tree import printout
+
+        # printout()
         raise typer.Exit(code=1)
 
 
@@ -238,6 +251,32 @@ def serve(
             )
         )
         raise typer.Exit(code=1)
+
+
+@app.command()
+def plugins(
+    plugins_dir: str = typer.Option(
+        None, "--plugins-dir", help="path to optional plugin directory"
+    ),
+):
+    """List active plugins"""
+    validator = create_validator(plugins_dir=plugins_dir, active_plugins=None)
+    plugins = validator.list_plugins()
+
+    if not plugins:
+        err_console.print("No plugins are active.\n")
+        err_console.print("See the docs to learn to activate plugins:\n")
+        err_console.print(
+            "https://carbon-txt-validator.readthedocs.io/en/latest/plugins.html"
+        )
+        raise typer.Exit(code=0)
+
+    err_console.print("Active plugins: \n")
+
+    for plugin in plugins:
+        err_console.print(f" - {plugin.plugin_name}")
+
+    raise typer.Exit(code=0)
 
 
 if __name__ == "__main__":
