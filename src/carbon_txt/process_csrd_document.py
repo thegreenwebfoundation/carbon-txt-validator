@@ -1,6 +1,6 @@
 from .hookspecs import hookimpl
-from .schemas import CarbonTxtFile, Disclosure
-from .processors import CSRDProcessor
+from .schemas import Disclosure
+from .processors import GreenwebCSRDProcessor
 import logging
 from typing import Optional
 
@@ -25,11 +25,10 @@ plugin_name = "csrd_greenweb"
 @hookimpl
 def process_document(
     document: Disclosure,
-    parsed_carbon_txt_file: Optional[CarbonTxtFile],
     logs: Optional[list],
 ):
     """
-    Listen for documents linked in the carbon.txt file that are ixbrl CSRD reports,
+    Listen for documents linked in the carbon.txt file that are iXBRL CSRD reports,
     and use Arelle to parse them for selected datapoints
     """
     log_safely(
@@ -44,12 +43,9 @@ def process_document(
         )
 
         try:
-            processor = CSRDProcessor(document.url)
+            processor = GreenwebCSRDProcessor(report_url=document.url)
 
-            chosen_datapoints = [
-                value.replace("esrs:", "")
-                for value in CSRDProcessor.esrs_datapoints.keys()
-            ]
+            chosen_datapoints = processor.local_datapoint_codes
 
             results = processor.get_esrs_datapoint_values(chosen_datapoints)
 

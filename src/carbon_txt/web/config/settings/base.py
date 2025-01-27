@@ -18,12 +18,11 @@ import sentry_sdk
 import structlog
 
 from carbon_txt.exceptions import InsecureKeyException
-from carbon_txt.plugins import DEFAULT_PLUGINS as DEFAULT_CARBON_TXT_PLUGINS
-
 
 # looking for the LOGGING config? See carbon_txt.log_config, for the
 # logging configuration that is used by the rest of the application
 from carbon_txt.log_config import LOGGING  # noqa
+from carbon_txt.plugins import DEFAULT_PLUGINS as DEFAULT_CARBON_TXT_PLUGINS
 
 logger = structlog.get_logger()
 
@@ -49,10 +48,13 @@ dotenv_file = pathlib.Path(env("ENV_PATH")).absolute()
 if dotenv_file.exists():
     env.read_env(env("ENV_PATH"))
 
-settings_module = os.getenv("DJANGO_SETTINGS_MODULE")
+settings_module = os.getenv("DJANGO_SETTINGS_MODULE", "")
+
+
+in_production = "settings.production" in settings_module
 
 # if we are in a production environment, we need to ensure that the SECRET_KEY is set
-if env("SECRET_KEY") == DEFAULT_SECRET_KEY and "settings.production" in settings_module:
+if env("SECRET_KEY") == DEFAULT_SECRET_KEY and in_production:
     raise InsecureKeyException(
         "You are using the default SECRET_KEY value in a production environment. "
         "Please set a proper SECRET_KEY, via the SECRET_KEY environment variable."
@@ -74,7 +76,7 @@ SECRET_KEY = env("SECRET_KEY")
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env("DEBUG")
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS: list[str] = []
 
 
 # Application definition
