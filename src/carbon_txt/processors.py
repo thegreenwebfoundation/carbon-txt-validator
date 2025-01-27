@@ -16,9 +16,10 @@ logger = structlog.getLogger(__name__)
 
 class DataPoint(BaseModel):
     """
-    Datapoints are the values that are extracted from the CSRD report, that
-    broadly correspond to "supporting evidence" used when registering providers
-    with the Green Web Foundation, and credentials in the carbon txt schema.
+    Datapoints are the values that are extracted from a given CSRD report that
+    is linked to in a carbon.txt file.
+    A single report or document can contain multiple datapoints, each with a unique code
+    that corresponds to a specific value in the ESRS taxonomy.
     """
 
     name: str
@@ -31,40 +32,32 @@ class DataPoint(BaseModel):
     end_date: datetime.date
 
 
-class CSRDProcessor:
+class ArelleProcessor:
     """
     A processor for reading and parsing CSRD report documents.
+
+    This is a wrapper around the Arelle Library to provide a simpler interface exposing
+    only the functionality we need.
+
+    It can be used directly to parse a report, and service queries for specific datapoints,
+    but it's designed to be wrapped by other objects that might consume its simplified API as plugins.
+
+    See the GreenwebCSRDProcessor as an exmaple of a class consumign this object's API in a CSRD plugin.
     """
 
     report_url: str
     xbrls: list[ModelXbrl.ModelXbrl]
 
-    # TODO: we now have found a handy mapping file that maps the datapoints 'short_code' style datapoints to
-    # more human readable labels, as well as listing the expected type (i.e. intger, percentage, energy, etc), as
-    # well as things like Number: E1; Paragraph: 37; Section: E1-5;
-    # the spreadsheet is in docs/csrd/
-
-    esrs_datapoints: dict[str, str] = {
-        "esrs:PercentageOfRenewableSourcesInTotalEnergyConsumption": "E1-5 AR 34 Percentage of renewable sources in total energy consumption",
-        "esrs:PercentageOfEnergyConsumptionFromNuclearSourcesInTotalEnergyConsumption": "E1-5 AR 34 Percentage of nuclear in total energy consumption",
-        "esrs:EnergyConsumptionRelatedToOwnOperations": "E1-5 37 Total energy consumption related to own operations",
-        "esrs:EnergyConsumptionFromFossilSources": "E1-5 37 a - Total energy consumption from fossil sources",
-        "esrs:EnergyConsumptionFromNuclearSources": "E1-5 37 b - Total energy consumption from nuclear sources",
-        "esrs:EnergyConsumptionFromRenewableSources": "E1-5 37 c - Total energy consumption from renewable sources",
-        # "esrs:EnergyConsumptionFromRenewableSources": "E1-5 37 c i - Fuel consumption from renewable sources",
-        "esrs:ConsumptionOfPurchasedOrAcquiredElectricityHeatSteamAndCoolingFromRenewableSources": "E1-5 37 c ii Consumption of purchased or acquired electricity, heat, steam, and cooling from renewable sources",
-        "esrs:ConsumptionOfSelfgeneratedNonfuelRenewableEnergy": "E1-5 37 c iii - Consumption of self-generated non-fuel renewable energy",
-    }
-    # these data points are ones we might look for too
-    # "esrs:PercentageOfContractualInstrumentsUsedForSaleAndPurchaseOfUnbundledEnergyAttributeClaimsInRelationToScope2GHGEmissions",
-    # "esrs:PercentageOfContractualInstrumentsUsedForSaleAndPurchaseOfEnergyBundledWithAttributesAboutEnergyGenerationInRelationToScope2GHGEmissions",
-    # "esrs:DisclosureOfEnergyConsumptionAndMixExplanatory",
-    # "esrs:DisclosureOfTypesOfContractualInstrumentsUsedForSaleAndPurchaseOfEnergyBundledWithAttributesAboutEnergyGenerationOrForUnbundledEnergyAttributeClaimsExplanatory",
-    # "esrs:RenewableEnergyProduction",
-
     def __init__(self, report_url: str) -> None:
         """
-        Initialize the Processor loading the report from the given URL.
+        Initialize the Arelle Processor loading the report from the given URL.
+
+        This begin a session with Arelle, providing an object that will accept
+        other objects querying the parsed report for data.
+
+        Args:
+            report_url (str): The URL of the report to process
+
         """
 
         self.report_url = report_url
@@ -83,17 +76,6 @@ class CSRDProcessor:
             keepOpen=True,
         )
 
-        # TODO: clean this up once we figure out how to ONLY log to the handler
-        # import logging
-
-        # nuller = logging.NullHandler()
-        # handler = logging.StreamHandler()
-
-        # "plain_console": {
-        #     "()": structlog.stdlib.ProcessorFormatter,
-        #     "processor": structlog.dev.ConsoleRenderer(),
-        # },
-
         with Session() as session:
             session.run(options)
             self.xbrls = session.get_models()
@@ -103,29 +85,34 @@ class CSRDProcessor:
                 )
             session.close()
 
-    @property
-    def local_datapoint_codes(self) -> list[str]:
-        qualified_names = self.esrs_datapoints.keys()
-
-        return [qname.replace("esrs:", "") for qname in qualified_names]
-
     def parsed_reports(self) -> list[ModelXbrl.ModelXbrl]:
         """
-        Read a CSRD report from a URL, and return the parsed report as an object
+        Return the parsed reports from the Arelle session. for querying.
+
+        Returns:
+            list[ModelXbrl.ModelXbrl]: A list of parsed reports from the Arelle session.
+
         """
         return self.xbrls
 
     def _get_datapoints_for_datapoint_code(
-        self, datapoint_code: str
+        self, datapoint_code: str, esrs_datapoints: dict[str, str]
     ) -> list[DataPoint]:
         """
-        Get the values for a specific datapoint code from the report
+        Get the values for a specific datapoint code from the report.
+
+        Args:
+            datapoint_code (str): The code of the datapoint to retrieve.
+            esrs_datapoints (dict[str, str]): A dictionary of ESRS datapoints to retrieve.
+            We have this dictionary to provide a control over the human readable labels
+            for the datapoint. This allows for overriding labels for specific data
+            points to provide more accessible copy than the defaults in the ESRS taxonomy.
         """
         datapoints = []
         try:
             res = self.xbrls[0].factsByLocalName.get(datapoint_code)
-            datapoint_readable_label = self.esrs_datapoints.get(
-                f"esrs:{datapoint_code}"
+            datapoint_readable_label = esrs_datapoints.get(
+                f"esrs:{datapoint_code}", "No label found"
             )
             if not res:
                 raise NoMatchingDatapointsError(
@@ -172,20 +159,134 @@ class CSRDProcessor:
 
         return datapoints
 
+
+@typing.runtime_checkable
+class CSRDProcessorProtocol(typing.Protocol):
+    """
+    Our protocol for any CSRD processing plugin should conform to.
+
+    We use this and composition using the ArelleProcessor as an
+    alternative to relying on inheritance.
+    """
+
+    esrs_datapoints: dict[str, str]
+
+    def get_esrs_datapoint_values(
+        self, datapoint_codes: list[str]
+    ) -> list[DataPoint | NoMatchingDatapointsError]:
+        raise NotImplementedError
+
+
+class GreenwebCSRDProcessor:
+    """
+    But it is designed to be used for focussing on a subset of disclosed data points.
+
+        Initialize the GreenwebCSRDProcessor.
+
+        Args:
+            report_url (typing.Optional[str]): The URL of the report to process.
+            arelle_processor (typing.Optional[ArelleProcessor]): An instance of ArelleProcessor to use for processing the report.
+
+
+        Set up the processor with an instance of ArelleProcessor.
+
+        Returns:
+            list[DataPoint | NoMatchingDatapointsError]: A list of Datapoint objects or NoMatchingDatapointsError if the datapoint is not found.
+
+        Raises:
+            ValueError: If the ArelleProcessor has not been set up.
+
+    The class to use for querying CSRD reports, and extracting the data points.
+
+    Internally it uses the ArelleProcessor for querying XBRL data in CSRD reports, and
+    looking for information corresponding to the datapoints enumerated in `esrs_datapoints`.
+    """
+
+    report_url: typing.Optional[str] = None
+    arelle_processor: typing.Optional[ArelleProcessor] = None
+    esrs_datapoints: dict[str, str] = {
+        "esrs:PercentageOfRenewableSourcesInTotalEnergyConsumption": "E1-5 AR 34 Percentage of renewable sources in total energy consumption",
+        "esrs:PercentageOfEnergyConsumptionFromNuclearSourcesInTotalEnergyConsumption": "E1-5 AR 34 Percentage of nuclear in total energy consumption",
+        "esrs:EnergyConsumptionRelatedToOwnOperations": "E1-5 37 Total energy consumption related to own operations",
+        "esrs:EnergyConsumptionFromFossilSources": "E1-5 37 a - Total energy consumption from fossil sources",
+        "esrs:EnergyConsumptionFromNuclearSources": "E1-5 37 b - Total energy consumption from nuclear sources",
+        "esrs:EnergyConsumptionFromRenewableSources": "E1-5 37 c - Total energy consumption from renewable sources",
+        # "esrs:EnergyConsumptionFromRenewableSources": "E1-5 37 c i - Fuel consumption from renewable sources",
+        "esrs:ConsumptionOfPurchasedOrAcquiredElectricityHeatSteamAndCoolingFromRenewableSources": "E1-5 37 c ii Consumption of purchased or acquired electricity, heat, steam, and cooling from renewable sources",
+        "esrs:ConsumptionOfSelfgeneratedNonfuelRenewableEnergy": "E1-5 37 c iii - Consumption of self-generated non-fuel renewable energy",
+    }
+    # TODO:
+    # these data points are ones we might look for too
+    # "esrs:PercentageOfContractualInstrumentsUsedForSaleAndPurchaseOfUnbundledEnergyAttributeClaimsInRelationToScope2GHGEmissions",
+    # "esrs:PercentageOfContractualInstrumentsUsedForSaleAndPurchaseOfEnergyBundledWithAttributesAboutEnergyGenerationInRelationToScope2GHGEmissions",
+    # "esrs:DisclosureOfEnergyConsumptionAndMixExplanatory",
+    # "esrs:DisclosureOfTypesOfContractualInstrumentsUsedForSaleAndPurchaseOfEnergyBundledWithAttributesAboutEnergyGenerationOrForUnbundledEnergyAttributeClaimsExplanatory",
+    # "esrs:RenewableEnergyProduction",
+
+    def __init__(
+        self,
+        report_url: typing.Optional[str] = None,
+        arelle_processor: typing.Optional[ArelleProcessor] = None,
+    ) -> None:
+        """
+        Instantiate the GreenwebCSRDProcessor.
+        Accepts either
+
+        1. a report url, in which case it instantiates an ArelleProcessor instance to process the report at the given url,
+        2. or an ArelleProcessor instance, which has already consumed and parsed a reportm and is ready to service queries.
+
+        """
+        if arelle_processor is not None:
+            self.arelle_processor = arelle_processor
+            return
+
+        if not arelle_processor and report_url:
+            processor = ArelleProcessor(report_url)
+            self.arelle_processor = processor
+
+    def setup(self, arelle_processor: ArelleProcessor) -> None:
+        """
+        Set up the GreenwebCSRDProcessor with an instance of ArelleProcessor.
+        Used when the GreenwebCSRDProcessor is initialized wihtout a ArellProcessor instance
+        or report url passed in.
+        """
+        self.arelle_processor = arelle_processor
+
+    @property
+    def local_datapoint_codes(self) -> list[str]:
+        """
+        Return the list of datapoint codes that are available in the ESRS taxonomy,
+        without the `esrs:` prefix.
+        """
+        qualified_names = self.esrs_datapoints.keys()
+
+        return [name.replace("esrs:", "") for name in qualified_names]
+
     def get_esrs_datapoint_values(
         self, datapoint_codes: typing.List[str]
     ) -> list[DataPoint | NoMatchingDatapointsError]:
         """
-        Accept a list of datapoint codes, and return the values for those datapoints as dict
-        containing list of DataPoint objects, keyed by the datapoint code, or a list containing
-        the error if the datapoint is not found.
+        Accept a list of datapoint codes, and return either:
+        - a list of Datapoints or
+        - a list containing the error if the datapoint is not found.
         """
+
+        if self.arelle_processor is None:
+            raise ValueError(
+                "The ArelleProcessor has not been set up. Please call setup() first."
+            )
+
         document_results: list[DataPoint | NoMatchingDatapointsError] = []
         for datapoint_code in datapoint_codes:
             try:
-                datapoints = self._get_datapoints_for_datapoint_code(datapoint_code)
+                datapoints = self.arelle_processor._get_datapoints_for_datapoint_code(
+                    datapoint_code=datapoint_code, esrs_datapoints=self.esrs_datapoints
+                )
                 document_results.extend(datapoints)
             except NoMatchingDatapointsError as ex:
                 document_results.extend([ex])
 
         return document_results
+
+
+assert isinstance(GreenwebCSRDProcessor(), CSRDProcessorProtocol)

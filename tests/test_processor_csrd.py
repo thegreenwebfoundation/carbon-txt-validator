@@ -36,8 +36,8 @@ class TestCSRDProcessorValidate:  # noqa
         Test that we can fetch a remote CSRD report, and that it is not empty.
         """
 
-        processor = processors.CSRDProcessor(local_esrs_1_csrd_file)
-        res = processor.parsed_reports()
+        arelle_wrapper = processors.ArelleProcessor(local_esrs_1_csrd_file)
+        res = arelle_wrapper.parsed_reports()
 
         assert res
         assert isinstance(res[0], ModelXbrl.ModelXbrl)
@@ -48,8 +48,12 @@ class TestCSRDProcessorValidate:  # noqa
         Test that we can parse a remote CSRD report, and pull out values for specific datapoints.
         """
         short_code = "PercentageOfRenewableSourcesInTotalEnergyConsumption"
-        processor = processors.CSRDProcessor(local_esrs_1_csrd_file)
-        res = processor.get_esrs_datapoint_values([short_code])
+
+        csrd_processor = processors.GreenwebCSRDProcessor(
+            report_url=local_esrs_1_csrd_file
+        )
+
+        res = csrd_processor.get_esrs_datapoint_values([short_code])
 
         assert len(res) is not None
         for datapoint in res:
@@ -66,11 +70,12 @@ class TestCSRDProcessorValidate:  # noqa
         Test that we get a graceful failure when we try to pull datapoints
         from a report without the values
         """
-
-        processor = processors.CSRDProcessor(local_esrs_2_csrd_file)
+        csrd_processor = processors.GreenwebCSRDProcessor(
+            report_url=local_esrs_1_csrd_file,
+        )
         datapoint_code = "PercentageOfRenewableSourcesInTotalEnergyConsumption"
 
-        res = processor.get_esrs_datapoint_values([datapoint_code])
+        res = csrd_processor.get_esrs_datapoint_values([datapoint_code])
         for item in res:
             assert isinstance(item, processors.NoMatchingDatapointsError)
 
@@ -81,7 +86,7 @@ class TestCSRDProcessorValidate:  # noqa
         """
 
         with pytest.raises(processors.NoLoadableCSRDFile):
-            processors.CSRDProcessor("https://www.example.com/no-csrd-report")
+            processors.ArelleProcessor("https://www.example.com/no-csrd-report")
 
     def test_basic_validation_of_multiple_values_in_CSRD_report(
         self, local_esrs_1_csrd_file
@@ -90,13 +95,18 @@ class TestCSRDProcessorValidate:  # noqa
         Test that we can parse a remote CSRD report, and pull out values for specific datapoints.
         """
 
-        processor = processors.CSRDProcessor(local_esrs_1_csrd_file)
+        csrd_processor = processors.GreenwebCSRDProcessor(
+            report_url=local_esrs_1_csrd_file
+        )
+
         short_codes = [
             "PercentageOfRenewableSourcesInTotalEnergyConsumption",
             "ConsumptionOfPurchasedOrAcquiredElectricityHeatSteamAndCoolingFromRenewableSources",
         ]
 
-        res = processor.get_esrs_datapoint_values(processor.local_datapoint_codes)
+        res = csrd_processor.get_esrs_datapoint_values(
+            csrd_processor.local_datapoint_codes
+        )
 
         assert len(res) is not None
 
@@ -126,7 +136,7 @@ class TestCSRDProcessorValidate:  # noqa
 @pytest.mark.skip(
     "Skipped in CI, as we only use it to check local EFRAG example reports in bulk"
 )  # type: ignore
-class TestCSRDProcessorEFRAGValidateAll:
+class TestGreenwebCSRDProcessorEFRAGValidateAll:
     """ """
 
     def test_all_efrag_docs(self):
@@ -138,7 +148,7 @@ class TestCSRDProcessorEFRAGValidateAll:
 
         for file in xhtml_files:
             try:
-                processor = processors.CSRDProcessor(str(file))
+                processor = processors.GreenwebCSRDProcessor(report_url=str(file))
                 res = processor.get_esrs_datapoint_values(
                     ["PercentageOfRenewableSourcesInTotalEnergyConsumption"]
                 )
