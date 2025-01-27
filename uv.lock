@@ -110,7 +110,7 @@ wheels = [
 
 [[package]]
 name = "carbon-txt"
-version = "0.0.11"
+version = "0.0.13"
 source = { editable = "." }
 dependencies = [
     { name = "arelle-release" },
