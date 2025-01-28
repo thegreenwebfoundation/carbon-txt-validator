@@ -179,27 +179,11 @@ class CSRDProcessorProtocol(typing.Protocol):
 
 class GreenwebCSRDProcessor:
     """
-    But it is designed to be used for focussing on a subset of disclosed data points.
-
-        Initialize the GreenwebCSRDProcessor.
-
-        Args:
-            report_url (typing.Optional[str]): The URL of the report to process.
-            arelle_processor (typing.Optional[ArelleProcessor]): An instance of ArelleProcessor to use for processing the report.
-
-
-        Set up the processor with an instance of ArelleProcessor.
-
-        Returns:
-            list[DataPoint | NoMatchingDatapointsError]: A list of Datapoint objects or NoMatchingDatapointsError if the datapoint is not found.
-
-        Raises:
-            ValueError: If the ArelleProcessor has not been set up.
 
     The class to use for querying CSRD reports, and extracting the data points.
 
-    Internally it uses the ArelleProcessor for querying XBRL data in CSRD reports, and
-    looking for information corresponding to the datapoints enumerated in `esrs_datapoints`.
+    Internally it uses the ArelleProcessor for querying XBRL data in CSRD reports, and the desired
+    kinds of data to look for (i.e. the datapoints in the ESRS we care about), are enumerated in `esrs_datapoints`.
     """
 
     report_url: typing.Optional[str] = None
@@ -215,13 +199,6 @@ class GreenwebCSRDProcessor:
         "esrs:ConsumptionOfPurchasedOrAcquiredElectricityHeatSteamAndCoolingFromRenewableSources": "E1-5 37 c ii Consumption of purchased or acquired electricity, heat, steam, and cooling from renewable sources",
         "esrs:ConsumptionOfSelfgeneratedNonfuelRenewableEnergy": "E1-5 37 c iii - Consumption of self-generated non-fuel renewable energy",
     }
-    # TODO:
-    # these data points are ones we might look for too
-    # "esrs:PercentageOfContractualInstrumentsUsedForSaleAndPurchaseOfUnbundledEnergyAttributeClaimsInRelationToScope2GHGEmissions",
-    # "esrs:PercentageOfContractualInstrumentsUsedForSaleAndPurchaseOfEnergyBundledWithAttributesAboutEnergyGenerationInRelationToScope2GHGEmissions",
-    # "esrs:DisclosureOfEnergyConsumptionAndMixExplanatory",
-    # "esrs:DisclosureOfTypesOfContractualInstrumentsUsedForSaleAndPurchaseOfEnergyBundledWithAttributesAboutEnergyGenerationOrForUnbundledEnergyAttributeClaimsExplanatory",
-    # "esrs:RenewableEnergyProduction",
 
     def __init__(
         self,
