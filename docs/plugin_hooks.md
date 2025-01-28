@@ -4,10 +4,9 @@ The Carbon.txt validator exposes a set of "hooks" for extending functionality vi
 
 These hooks are listed below:
 
-
 ### `process_document`
 
-Called once for each `Credential` document linked in a successfully parsed carbon.txt file.
+Called once for each `Disclosure` document linked in a successfully parsed carbon.txt file.
 
 Accepts three arguments - the document itself `document`, the parsed carbon.txt file the document came from `parsed_carbon_txt_file`, and a list of logging statements `logs`, to append log messages to if you want these to show up in the output of API requests and command line invocations.
 

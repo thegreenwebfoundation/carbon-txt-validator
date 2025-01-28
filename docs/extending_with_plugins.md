@@ -1,6 +1,5 @@
 # Extending the Carbon.txt Validator with plugins
 
-
 ```{admonition} Warning
 :class: warning
 This content is in flux, and subject to change. It may be moved to our [developer site](https://developers.thegreenwebfoundation.org/)
@@ -27,17 +26,15 @@ One way to do this would be to build a plugin specifically to check that files l
 
 To do this, we need to choose the right "hook" to implement, and we need to decide how we'll make that HTTP request to it.
 
-We know that every `Organisation` using a carbon.txt file making green claims needs to back them up with supporting evidence in the form of `Credentials`, and each `Credential` contains a hyperlink to a file online, at a given `url`.
+We know that every `Organisation` using a carbon.txt file making green claims needs to back them up with supporting evidence in the form of `Disclosures`, and each `Disclosure` contains a hyperlink to a file online, at a given `url`.
 
 So, every time we see an `url`, we need to send an HTTP request to see if the file is still reachable. The carbon.txt validator bundles the [httpx](https://www.python-httpx.org/) HTTP client library, so we can use that to send the appropriate request.
 
+### Create a new python file implementing the appropriate hook
 
-### Create a new python file implementing the appropriate hook.
-
-Checking the plugin hook list online, we see a `process_document` hook we can uses, that fires for every single `Credential` document linked in a carbon.txt file. So, we use that `hook` to implement.
+Checking the plugin hook list online, we see a `process_document` hook we can uses, that fires for every single `Disclosure` document linked in a carbon.txt file. So, we use that `hook` to implement.
 
 In a new python file we would implement a method _with the same name as our desired hook_, and with the `@hookimpl` decorator applied to the method. This is how our plugin system knows to run it.
-
 
 ```python
 # saved to ./my_plugins/check_file_online.py
@@ -129,7 +126,6 @@ Results of processing linked documents in the carbon.txt file:
 
 ----
 
-
 ## Publishing external, public plugins for others to use
 
 Internal plugins are useful for when you want to extend the validator to meet needs that only you have.
@@ -146,7 +142,6 @@ We'll cover the `pyproject.toml` file first to explain what goes in it, and then
 ### Creating our `pyproject.toml` file
 
 This file does not need to be very large, and we'll cover each of the three sections below after presenting the full file:
-
 
 ```toml
 [project]
@@ -247,11 +242,9 @@ tree ./carbon-txt-check-online/
 
 You replace the contents of the `pyproject.toml` with the one we ran through together, and you put the python code containing the hooks you are using in `src/carbon_txt_check_online/__init__.py`. The `uv.lock` file is created when you first run a command inside the project, to execute code, and lists all the downloaded dependencies.
 
-
 ```{admonition} Info
 We're using `carbon-txt-check-online` for this example, but please bear in mind you'll need a different name (that one's taken for creating a demo plugin for these docs!).
 ```
-
 
 ### Running code in the external plugin
 
