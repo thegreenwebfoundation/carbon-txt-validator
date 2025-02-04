@@ -12,7 +12,7 @@ architecture
 deployment
 plugins
 plugin_hooks
+using_plugins
 contributing
-extending_with_plugins
 runbook
 ```
