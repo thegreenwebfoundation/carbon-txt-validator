@@ -1,0 +1,23 @@
+# This is an sample file to catch the bug listed in issue 8,
+# when started listing services as strings, not lists of strings.
+# we cover both cases, because there are
+# https://github.com/thegreenwebfoundation/carbon-txt-site/issues/8
+[org]
+disclosures = [
+	{ doc_type = "web-page", url = "https://mycompany.com/sustainability", domain = "mycompany.com" },
+	{ doc_type = "annual-report", url = "https://mycompany.com/carbon-emissions-2022.pdf", domain = "mycompany.com" },
+]
+
+[upstream]
+services = [
+	{ domain = "cloud.google.com", service_type = "shared-hosting" },
+	{ domain = "aws.amazon.com", service_type = "cdn" },
+
+	# we should also support lists of strings like so, when a single
+	# provider offers multiple services.
+	# i.e., somethign like
+	# { domain = "some-other.provider.com", service_type = [
+	# 	"managed-database",
+	# 	"virtual-private-servers",
+	# ] },
+]
