@@ -1,5 +1,6 @@
 from carbon_txt import validators  # type: ignore
 import pytest
+import pathlib
 
 
 class TestCarbonTxtValidator:
@@ -62,4 +63,22 @@ class TestCarbonTxtValidator:
 
         assert res.result
         assert not res.document_results
+        assert not res.exceptions
+
+    def test_validate_file_output_from_svelte_validator(self):
+        """
+        This should show a failure safely, as the URL is not reachable
+        """
+        validator = validators.CarbonTxtValidator()
+
+        # this is the expected output from the svelte carbon.txt builder
+        svelte_output = pathlib.Path(
+            "tests/fixtures/regression.strings-or-lists.carbon.txt.toml"
+        )
+
+        path_to_carbon_txt = str(svelte_output.absolute())
+
+        res = validator.validate_url(path_to_carbon_txt)
+
+        assert res.result
         assert not res.exceptions

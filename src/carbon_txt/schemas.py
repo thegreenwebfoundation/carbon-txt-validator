@@ -17,7 +17,7 @@ class Service(BaseModel):
     # javascript prefers camelCase
     # but kebab-case is arguable more common in URLS
     # how do we support this?
-    service_type: Optional[List[str]] = None
+    service_type: Optional[List[str]] | str = None
 
 
 class Disclosure(BaseModel):
