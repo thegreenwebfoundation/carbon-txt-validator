@@ -35,46 +35,54 @@ def test_hitting_validate_endpoint_fail(live_server, url_suffix):
 
 
 @pytest.mark.parametrize("url_suffix", ["", "/"])
-def test_hitting_validate_url_endpoint_ok(live_server, url_suffix):
+def test_hitting_validate_url_endpoint_ok(
+    live_server, url_suffix, mocked_carbon_txt_url
+):
     api_url = f"{live_server.url}/api/validate/url{url_suffix}"
-    data = {"url": "https://aremythirdpartiesgreen.com/carbon.txt"}
+    data = {"url": mocked_carbon_txt_url}
     res = httpx.post(api_url, json=data, follow_redirects=True, timeout=None)
 
     assert res.status_code == 200
 
 
 @pytest.mark.parametrize("url_suffix", ["", "/"])
-def test_hitting_validate_url_endpoint_fail(live_server, url_suffix):
+def test_hitting_validate_url_endpoint_fail(
+    live_server, url_suffix, mocked_carbon_txt_url
+):
     api_url = f"{live_server.url}/api/validate/url{url_suffix}"
-    data = {"url": "https://aremythirdpartiesgreen.com/carbon.txt"}
+    data = {"url": mocked_carbon_txt_url}
     res = httpx.post(api_url, json=data, follow_redirects=True, timeout=None)
 
     assert res.status_code == 200
 
 
-def test_hitting_validate_url_endpoint_with_via_delegation(live_server):
+def test_hitting_validate_url_endpoint_with_via_delegation(
+    live_server, mocked_http_delegating_carbon_txt_url
+):
     """
     When we have a carbon.txt url that is delegating to a another server
     using the http 'via' header, does it follow the delegation and return the
     correct response?
     """
     api_url = f"{live_server.url}/api/validate/url/"
-    data = {"url": "https://hosted.carbontxt.org/carbon.txt"}
+    data = {"url": mocked_http_delegating_carbon_txt_url}
     res = httpx.post(api_url, json=data, follow_redirects=True, timeout=None)
 
     assert res.status_code == 200
     actual_provider_domain = res.json()["data"]["org"]["disclosures"][0]["domain"]
-    assert actual_provider_domain == "managed-service.carbontxt.org"
+    assert actual_provider_domain == "used-in-tests.carbontxt.org"
 
 
-def test_hitting_validate_url_endpoint_with_txt_delegation(live_server):
+def test_hitting_validate_url_endpoint_with_txt_delegation(
+    live_server, mocked_dns_delegating_carbon_txt_url
+):
     """
     When we have a carbon.txt url that is delegating to a another server
     using the DNS txt record, does it follow the delegation and return the
     correct response?
     """
     api_url = f"{live_server.url}/api/validate/url/"
-    data = {"url": "https://delegating-with-txt-record.carbontxt.org/carbon.txt"}
+    data = {"url": mocked_dns_delegating_carbon_txt_url}
     res = httpx.post(api_url, json=data, follow_redirects=True, timeout=None)
     assert res.status_code == 200
 

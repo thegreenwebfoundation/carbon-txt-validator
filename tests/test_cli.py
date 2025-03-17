@@ -12,27 +12,23 @@ class TestCLI:
     Test our CLI commands RETURN WHT WE
     """
 
-    def test_lookup_domain(self):
+    def test_lookup_domain(self, mocked_carbon_txt_domain):
         """
         Run our CLI to `carbontxt validate domain some-domain.com`, and confirm we
         get back the expected URI, and whether the file was valid.
         """
 
-        result = runner.invoke(
-            app, ["validate", "domain", "used-in-tests.carbontxt.org"]
-        )
+        result = runner.invoke(app, ["validate", "domain", mocked_carbon_txt_domain])
         assert result.exit_code == 0
         assert "used-in-tests.carbontxt.org" in result.stdout
 
-    def test_lookup_file(self):
+    def test_lookup_file(self, mocked_carbon_txt_url):
         """
         Run our CLI to `carbontxt validate file https://some-domain.com/carbon.txt`,
         and confirm we end up with the expected URI, and whether the file was valid.
         """
 
-        result = runner.invoke(
-            app, ["validate", "file", "https://used-in-tests.carbontxt.org/carbon.txt"]
-        )
+        result = runner.invoke(app, ["validate", "file", mocked_carbon_txt_url])
 
         assert result.exit_code == 0
         assert "https://used-in-tests.carbontxt.org" in result.stdout
@@ -63,7 +59,7 @@ class TestCLI:
         assert "CarbonTxtFile" in parsed_schema.get("title")
         assert "$defs" in parsed_schema.keys()
 
-    def test_lookup_domain_with_test_plugin(self):
+    def test_lookup_domain_with_test_plugin(self, mocked_carbon_txt_domain):
         """
         Test that we can run the CLI with a custom plugin directory
         """
@@ -73,7 +69,7 @@ class TestCLI:
             [
                 "validate",
                 "domain",
-                "used-in-tests.carbontxt.org",
+                mocked_carbon_txt_domain,
                 "--plugins-dir",
                 "tests/test_plugins",
             ],
