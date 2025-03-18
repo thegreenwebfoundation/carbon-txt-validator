@@ -125,11 +125,16 @@ class FileFinder:
         if uri.startswith("http"):
             try:
                 response = httpx.get(uri)
+                response.raise_for_status()
                 result = response.text
                 return result
             except httpx._exceptions.ConnectError as ex:
                 raise UnreachableCarbonTxtFile(
                     f"Could not connect to {uri}. Error was: {ex}"
+                )
+            except httpx._exceptions.HTTPStatusError as exc:
+                raise UnreachableCarbonTxtFile(
+                    f"Requesting {uri} returned an HTTP {exc.response.status_code} response"
                 )
 
         if pathlib.Path(uri).exists():
@@ -207,7 +212,6 @@ class FileFinder:
         # check for DNS TXT record delegation first, and call this function again
         # with the resolved URI, to follow the delegation
         log_safely(f"Trying a DNS delegated lookup for URI: {parsed_uri.netloc}", logs)
-
         if delegated_dns_uri := self._lookup_dns(parsed_uri.netloc):
             log_safely(
                 f"Found new carbon.txt URL via DNS lookup: {delegated_dns_uri}", logs
@@ -239,8 +243,5 @@ class FileFinder:
             )
             return self.resolve_uri(via_domain)
         log_safely("None found. Continuing.", logs)
-
-        # if the response is a 200 OK, return the URI
-        response.raise_for_status()
 
         return parsed_uri.geturl()

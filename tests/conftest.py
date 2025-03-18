@@ -1,10 +1,11 @@
 import pytest
 import pathlib
 
-
 import structlog
 
 logger = structlog.get_logger()
+
+pytest_plugins = ["http_mocks"]
 
 
 @pytest.fixture

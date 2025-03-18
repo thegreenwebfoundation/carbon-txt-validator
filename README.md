@@ -49,14 +49,14 @@ This will start an local server that by default listens on http://127.0.0.1:8000
 
 ![Screenshot of the validator API](docs/img/plugins-apidocs-example.png)
 
-### Further guidance on usage 
+### Further guidance on usage
 
 Please see the [dedicated documentation site for the validator](https://carbon-txt-validator.readthedocs.io/en/latest/) for details about how the validator works, and how to install it, extend it, and to deploy it.
 
 # Installation
 
 > [!TIP]
-> See more detailed [guidance on installation on the dedicated valiator docs site](https://carbon-txt-validator.readthedocs.io/en/latest/installation.html). 
+> See more detailed [guidance on installation on the dedicated valiator docs site](https://carbon-txt-validator.readthedocs.io/en/latest/installation.html).
 
 ## Using `pip`
 
@@ -134,7 +134,7 @@ We are always open for discussions about how people can contribute back to the d
 
 The Green Web Foundation offers commercial consulting on:
 
-- using the carbon.txt validator to parse and process sustainability disclosures online, 
+- using the carbon.txt validator to parse and process sustainability disclosures online,
 - disclosing this information in a way that validators can pick up, by implementing carbon.txt files
 - requesting disclosures from suppliers using the carbon.txt convention
 
