@@ -118,6 +118,9 @@ LOGGING = {
         "carbon_txt": {
             "level": "WARNING",
         },
+        "carbon_txt.web.middleware.log_requested_domain": {
+            "level": "INFO",
+        },
     },
 }
 
