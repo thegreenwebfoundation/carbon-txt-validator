@@ -103,6 +103,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "carbon_txt.web.middleware.AddTrailingSlashMiddleware",
     "django_structlog.middlewares.RequestMiddleware",
+    "carbon_txt.web.middleware.LogRequestedDomainMiddleware",
 ]
 
 ROOT_URLCONF = "config.urls"
