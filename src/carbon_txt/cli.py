@@ -12,6 +12,7 @@ import rich
 import structlog
 import typer
 from django.core.management import execute_from_command_line
+from django.conf import settings
 
 from . import exceptions, log_config, schemas, validators  # noqa
 
@@ -189,6 +190,9 @@ def serve(
     plugins_dir: str = typer.Option(
         None, "--plugins-dir", help="path to optional plugin directory"
     ),
+    migrate: bool = typer.Option(
+        False, help="Run database migrations before starting server"
+    ),
 ):
     """Run the carbon.txt validator web server"""
 
@@ -212,6 +216,23 @@ def serve(
         configure_django(
             settings_module=settings_module,
         )
+
+        if migrate:
+            execute_from_command_line(["manage.py", "migrate"])
+        else:
+            try:
+                execute_from_command_line(["manage.py", "migrate", "--check"])
+            except SystemExit as e:
+                rich.print(
+                    "[bold red]There are database migrations pending that must be applied before running the server![/bold red]"
+                )
+                rich.print(
+                    "Please check your database settings are correct and re-run with the [bold]--migrate[/bold] flag."
+                )
+                rich.print(
+                    f"Your current [bold]DATABASE_URL[/bold] is: [cyan bold]{settings.DATABASE_URL}[/cyan bold]."
+                )
+                raise e
 
         if server == "granian":
             rich.print("Running with Granian server")

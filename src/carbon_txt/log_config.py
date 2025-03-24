@@ -57,7 +57,7 @@ shared_processors = [
     structlog.processors.UnicodeDecoder(),
     # Anonymise requested domain logs
     RemoveAttributesProcessor(
-        loggers=["carbon_txt.web.middleware.log_requested_domain"],
+        loggers=["carbon_txt.web.validation_logging"],
         attributes=["ip", "request_id", "user_id"],
     ),
 ]
@@ -160,7 +160,7 @@ LOGGING = {
         "carbon_txt": {
             "level": "WARNING",
         },
-        "carbon_txt.web.middleware.log_requested_domain": {
+        "carbon_txt.web.validation_logging": {
             "level": "INFO",
         },
     },

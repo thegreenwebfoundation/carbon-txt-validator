@@ -5,16 +5,17 @@ from unittest.mock import MagicMock
 from django.http import HttpRequest, HttpResponse
 from structlog.stdlib import BoundLogger
 
-from carbon_txt.web.middleware import LogRequestedDomainMiddleware
+from carbon_txt.web.validation_logging.middleware import LogValidationMiddleware
+from carbon_txt.web.validation_logging.models import ValidationLogEntry
 
 validation_paths = ["/api/validate/path", "/api/validate/file"]
 all_paths = ["/not/validation"] + validation_paths
 
 
-class TestLogRequestedDomainMiddleware:
+class TestLogValidationMiddleware:
     def setup(self, path, request={}, response={}):
         """
-        Setup mocks for the request, response and logger.
+        Setup mocks for the request, response and loggers.
         """
         self.request = MagicMock(HttpRequest)
         self.request.path = path
@@ -24,8 +25,12 @@ class TestLogRequestedDomainMiddleware:
         self.get_response = MagicMock()
         self.get_response.return_value = self.response
         self.logger = MagicMock(BoundLogger)
+        self.db_log_instance = MagicMock(ValidationLogEntry)
+        self.db_log_class = MagicMock(return_value=self.db_log_instance)
 
-        self.middleware = LogRequestedDomainMiddleware(self.get_response, self.logger)
+        self.middleware = LogValidationMiddleware(
+            self.get_response, self.logger, self.db_log_class
+        )
 
     @pytest.mark.parametrize("path", all_paths)
     def test_calls_the_get_response_callable_with_the_request(self, path):
@@ -77,7 +82,7 @@ class TestLogRequestedDomainMiddleware:
         assert json.loads(returned.content) == response
 
         # And the error should be logged
-        self.logger.warn.assert_called()
+        self.logger.exception.assert_called()
 
     def test_non_api_validation_requests_not_logged(self):
         """
@@ -92,7 +97,8 @@ class TestLogRequestedDomainMiddleware:
 
         # Then nothing is logged
         self.logger.info.assert_not_called()
-        self.logger.warn.assert_not_called()
+        self.logger.exception.assert_not_called()
+        self.db_log_class.assert_not_called()
 
     def test_validate_file_requests_logged_without_url_or_domain(self):
         """
@@ -109,14 +115,23 @@ class TestLogRequestedDomainMiddleware:
         # When the request is made
         self.middleware(self.request)
 
-        # A validation request is logged, with the endpoint details and the success status of the validation.
+        # A validation request is logged to the system log and the db, with the endpoint
+        # details and the success status of the validation.
         self.logger.info.assert_called_with(
             "validation_request", endpoint="/api/validate/file", success=True
         )
+        self.db_log_class.assert_called_with(
+            endpoint="/api/validate/file", success=True
+        )
+        self.db_log_instance.save.assert_called()
 
     def test_validate_url_requests_logged_with_url_and_domain(self):
-        # Given a valid request for a url validation
+        """
+        URL validation reequests are logged, including the url and domain metadata
 
+        """
+
+        # Given a valid request for a url validation
         self.setup(
             path="/api/validate/file",
             request={"url": "https://www.example.com/carbon.txt"},
@@ -126,8 +141,8 @@ class TestLogRequestedDomainMiddleware:
         # When the request is made
         self.middleware(self.request)
 
-        # A validation request is logged, with the endpoint details, the success status
-        # of the validation. the domain and url.
+        # A validation request is logged, to the system log and to the database, with the
+        # endpoint details, the success status of the validation. the domain and url.
         self.logger.info.assert_called_with(
             "validation_request",
             endpoint="/api/validate/file",
@@ -135,3 +150,10 @@ class TestLogRequestedDomainMiddleware:
             domain="www.example.com",
             success=True,
         )
+        self.db_log_class.assert_called_with(
+            endpoint="/api/validate/file",
+            url="https://www.example.com/carbon.txt",
+            domain="www.example.com",
+            success=True,
+        )
+        self.db_log_instance.save.assert_called()
