@@ -10,7 +10,7 @@ class LogRequestedDomainMiddleware:
     """
     Middleware to log the domains requested by users of the carbon.txt validator.
     This enables us to track use of the standard, but also which domains are implementing it.
-    All request to `/api/validate` endpoints are tracked, along with the `success` flag
+    All requests to `/api/validate` endpoints are tracked, along with the `success` flag
     returned in the response. In the case where a URL was supplied, we also log the
     url tested and the domain.
     """
