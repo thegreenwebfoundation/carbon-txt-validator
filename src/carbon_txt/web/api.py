@@ -1,4 +1,5 @@
 import pydantic
+import pydantic_extra_types.domain as pydantic_domain
 from django.conf import settings
 from django.http import HttpRequest, HttpResponse  # noqa
 from ninja import NinjaAPI, Schema
@@ -25,7 +26,8 @@ ninja_api = NinjaAPI(
 
 class CarbonTextSubmission(Schema):
     """
-    Schema for the submission of carbon.txt file contents. We expect a string, containing the contents of the carbon.txt file.
+    Schema for the submission of carbon.txt file contents.
+    We expect a string, containing the contents of the carbon.txt file.
     """
 
     text_contents: str
@@ -33,10 +35,21 @@ class CarbonTextSubmission(Schema):
 
 class CarbonTextUrlSubmission(Schema):
     """
-    Schema for the submission of a URL pointing to a carbon.txt file. We expect an URL pointing to a carbon.txt file, which is downloaded and parsed.
+    Schema for the submission of a URL pointing to a carbon.txt file.
+    We expect an URL pointing to a carbon.txt file, which is downloaded and parsed.
     """
 
     url: pydantic.HttpUrl
+
+
+class CarbonTextDomainSubmission(Schema):
+    """
+    Schema for the submission of a domain to check for a carbon.txt file.
+    We expect a fully qualified domain, which is then searched for carbon.txt
+    data in one of the allowed locations..
+    """
+
+    domain: pydantic_domain.DomainStr
 
 
 def sanitize_document_results(document_results: dict[str, list]) -> dict[str, list]:
@@ -79,7 +92,7 @@ def validate_contents(
 
     Args:
         request: The request object.
-        CarbonTextSubmission: The schema containing the text contents of the carbon.txt file.
+        carbon_txt_submission: The request body containing the text contents of the carbon.txt file.
 
     Returns:
         dict: A dictionary containing the success status and either the validated data or errors.
@@ -124,7 +137,7 @@ def validate_url(
 
     Args:
         request: The request object.
-        CarbonTextSubmission: The schema containing the text contents of the carbon.txt file.
+        carbon_txt_url_data: The request body containing the url of the carbon.txt file.
 
     Returns:
         dict: A dictionary containing the success status and either the validated data or errors.
@@ -145,6 +158,7 @@ def validate_url(
         # https://github.com/thegreenwebfoundation/carbon-txt-validator/issues/59
         return {
             "success": True,
+            "url": validation_results.url,
             "data": carbon_txt_file,
             "document_data": doc_results,
             "logs": validation_results.logs,
@@ -152,6 +166,70 @@ def validate_url(
     else:
         return {
             "success": False,
+            "url": validation_results.url,
+            "errors": validation_results.exceptions,
+            "logs": validation_results.logs,
+        }  # type: ignore
+
+
+@ninja_api.post(
+    "/validate/domain/",
+    description="Find a file for a given domain and validate it.",
+    openapi_extra={
+        "requestBody": {
+            "content": {
+                "application/json": {
+                    "schema": {
+                        "required": ["domain"],
+                        "type": "object",
+                        "properties": {
+                            "domain": {"type": "string", "example": "example.com"},
+                        },
+                    }
+                }
+            },
+            "required": True,
+        }
+    },
+)
+def validate_domain(
+    request: HttpRequest, carbon_txt_domain_data: CarbonTextDomainSubmission
+) -> HttpResponse:
+    """
+    Endpoint to validate a carbon.txt file for the provided domain.
+
+    Args:
+        request: The request object.
+        carbon_txt_domain_data: The request body containing the domain to validate.
+
+    Returns:
+        dict: A dictionary containing the success status and either the validated data or errors.
+    """
+    domain_string = str(carbon_txt_domain_data.domain)
+    validator = validators.CarbonTxtValidator(
+        plugins_dir=settings.CARBON_TXT_PLUGINS_DIR,
+        active_plugins=settings.ACTIVE_CARBON_TXT_PLUGINS,
+    )
+
+    validation_results = validator.validate_domain(str(domain_string))
+    if carbon_txt_file := validation_results.result:
+        if validation_results:
+            doc_results = sanitize_document_results(
+                validation_results.document_results or {}
+            )
+        # TODO: make sure empty doc_results show as {}, with no keys
+        # https://github.com/thegreenwebfoundation/carbon-txt-validator/issues/59
+        return {
+            "success": True,
+            "url": validation_results.url,
+            "data": carbon_txt_file,
+            "document_data": doc_results,
+            "logs": validation_results.logs,
+        }  # type: ignore
+    else:
+        return {
+            "success": False,
+            "url": validation_results.url,
             "errors": validation_results.exceptions,
             "logs": validation_results.logs,
         }  # type: ignore

@@ -22,6 +22,7 @@ dependencies = [
     "granian>=1.6.2",
     "httpx>=0.27.2",
     "pluggy>=1.5.0",
+    "pydantic-extra-types>=2.10.3",
     "rich>=13.9.2",
     "sentry-sdk[django]>=2.18.0",
     # faster, but not yet supported by python 3.13 yet

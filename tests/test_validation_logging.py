@@ -133,7 +133,7 @@ class TestLogValidationMiddleware:
 
         # Given a valid request for a url validation
         self.setup(
-            path="/api/validate/file",
+            path="/api/validate/url",
             request={"url": "https://www.example.com/carbon.txt"},
             response={"success": True},
         )
@@ -145,13 +145,47 @@ class TestLogValidationMiddleware:
         # endpoint details, the success status of the validation. the domain and url.
         self.logger.info.assert_called_with(
             "validation_request",
-            endpoint="/api/validate/file",
+            endpoint="/api/validate/url",
             url="https://www.example.com/carbon.txt",
             domain="www.example.com",
             success=True,
         )
         self.db_log_class.assert_called_with(
-            endpoint="/api/validate/file",
+            endpoint="/api/validate/url",
+            url="https://www.example.com/carbon.txt",
+            domain="www.example.com",
+            success=True,
+        )
+        self.db_log_instance.save.assert_called()
+
+    def test_validate_domain_requests_logged_with_domain_and_overriding_url(self):
+        """
+        Domain validation reequests are logged, including the domain requested
+        and the resolved url returned from the validator.
+
+        """
+
+        # Given a valid request for a url validation
+        self.setup(
+            path="/api/validate/domain",
+            request={"domain": "www.example.com"},
+            response={"success": True, "url": "https://www.example.com/carbon.txt"},
+        )
+
+        # When the request is made
+        self.middleware(self.request)
+
+        # A validation request is logged, to the system log and to the database, with the
+        # endpoint details, the success status of the validation. the domain and url.
+        self.logger.info.assert_called_with(
+            "validation_request",
+            endpoint="/api/validate/domain",
+            url="https://www.example.com/carbon.txt",
+            domain="www.example.com",
+            success=True,
+        )
+        self.db_log_class.assert_called_with(
+            endpoint="/api/validate/domain",
             url="https://www.example.com/carbon.txt",
             domain="www.example.com",
             success=True,

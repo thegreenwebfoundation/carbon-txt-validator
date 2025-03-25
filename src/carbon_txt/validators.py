@@ -23,6 +23,7 @@ class ValidationResult:
     logs: list
     exceptions: list
     result: Optional[schemas.CarbonTxtFile]
+    url: Optional[pydantic.HttpUrl] = None
     document_results: Optional[dict[str, list]] = None
 
 
@@ -221,6 +222,7 @@ class CarbonTxtValidator:
                 logs=self.event_log,
                 exceptions=errors,
                 document_results=document_processing_results or {},
+                url=url,
             )
 
         # the file path is local, but we can't access it
@@ -291,9 +293,9 @@ class CarbonTxtValidator:
         try:
             message = f"Attempting to resolve domain: {domain}"
             self.event_log.append(message)
-            result = file_finder.resolve_domain(domain, logs=self.event_log)
+            resolved_url = file_finder.resolve_domain(domain, logs=self.event_log)
             fetched_file_contents = file_finder.fetch_carbon_txt_file(
-                result, logs=self.event_log
+                resolved_url, logs=self.event_log
             )
             parsed_toml = parser.parse_toml(fetched_file_contents, logs=self.event_log)
             validation_results = parser.validate_as_carbon_txt(
@@ -312,6 +314,7 @@ class CarbonTxtValidator:
                 logs=self.event_log,
                 exceptions=errors,
                 document_results=document_processing_results or {},
+                url=resolved_url,
             )
         except Exception as ex:
             message = f"An unexpected error occurred: {ex}"
