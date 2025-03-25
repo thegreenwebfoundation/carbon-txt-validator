@@ -30,6 +30,12 @@ You need to set the Django SECRET KEY in production to a non default value, or t
 You can do this via setting an environment variable directly, or declaring it in a .env file in the same directory as where you are running the tool.
 ```
 
+### Database configuration
+
+The validation API requires a database, for session management, and validation request logging (see "Monitoring and gathering stats", below). By default, a sqlite database is created in the BASE_DIR of the django project (typically `$INSTALL_LOCATION/src/carbon_text/web`). This may be overridden by setting the DATABASE_URL environment variable.
+
+On first running the `serve` command, this database will need to be initialized - you will be prompted to verify that your database connection settings are correct, and re-run with the `--migrate` flag.
+
 ### CORS support
 
 By default, when the validator server is run, it has CORS support, and accepts
@@ -138,3 +144,9 @@ The carbon.txt validator when run as a server, supports the use of `.env` (doten
 Which allows you to keep secrets in a separate file, without needing to make changes to the project codebase, or explicitly set them on the command line.
 
 To see default values that can be override, see the `base.py` file, in `src/web/config/settings/base.py`.
+
+#### Monitoring and gathering stats on use of the API.
+
+When run as a server, the carbon.txt validator logs anonymous usage data about validation requests received, in order to track the uptake of the carbon.xt standard. We log the validation endpoint used (`file`, `url`, or `domain`), the domain requested and carbon.txt url (in the case of requests to the `url` and `domain` endpoints), and whether or not the validation was succesful.
+
+This information is saved to the application database (configured with the `DATABASE_URL` environment variable, as described above) in the table `validation_logging_ValidationLogEntry`. It is also output as an INFO message to the log, with a log name of `carbon_txt.web.validation_logging.middleware`.

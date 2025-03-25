@@ -5,8 +5,10 @@ from urllib.parse import urlparse
 import structlog
 from django.http import HttpRequest, HttpResponse
 
+from carbon_txt.web.validation_logging.models import ValidationLogEntry
 
-class LogRequestedDomainMiddleware:
+
+class LogValidationMiddleware:
     """
     Middleware to log the domains requested by users of the carbon.txt validator.
     This enables us to track use of the standard, but also which domains are implementing it.
@@ -15,11 +17,14 @@ class LogRequestedDomainMiddleware:
     url tested and the domain.
     """
 
-    def __init__(self, get_response: Callable, logger=None):
+    def __init__(
+        self, get_response: Callable, logger=None, log_model_class=ValidationLogEntry
+    ):
         if logger is None:
             logger = structlog.get_logger(__name__)
         self.get_response = get_response
         self.logger = logger
+        self.log_model_class = log_model_class
 
     def __call__(self, request: HttpRequest) -> HttpResponse:
         response = self.get_response(request)
@@ -27,14 +32,15 @@ class LogRequestedDomainMiddleware:
             try:
                 self.log_validation(request, response)
             except Exception as ex:
-                self.logger.warn(f"Validation logging failed with exception: {ex}")
+                self.logger.exception(f"Validation logging failed with exception: {ex}")
         return response
 
     def log_validation(self, request: HttpRequest, response: HttpResponse):
         """
         This method parses out the relevant details of the request and response
-        (url, domain, and success) and logs them in grafana as a validation_request event,
-        which we can then use to track uptake of the carbon.txt standard.
+        (url, domain, and success) and logs them in grafana as a validation_request
+        event, as well as adding a log entry in the database. we can then use these
+        to track uptake of the carbon.txt standard.
         """
         request_json = json.loads(request.body)
         response_json = json.loads(response.content)
@@ -48,3 +54,5 @@ class LogRequestedDomainMiddleware:
             log_params["domain"] = urlparse(url).netloc
 
         self.logger.info("validation_request", **log_params)
+        log_entry = self.log_model_class(**log_params)
+        log_entry.save()

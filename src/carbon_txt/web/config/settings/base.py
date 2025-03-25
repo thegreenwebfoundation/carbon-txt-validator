@@ -31,6 +31,8 @@ BASE_DIR = pathlib.Path(__file__).resolve().parent.parent.parent
 
 DEFAULT_SECRET_KEY = "default-insecure-secret-key"
 
+DEFAULT_DATABASE_URL = f"sqlite:///{BASE_DIR}/db.sqlite3"
+
 env = environ.Env(
     DEBUG=(bool, False),
     SECRET_KEY=(str, os.getenv("SECRET_KEY", DEFAULT_SECRET_KEY)),
@@ -41,6 +43,7 @@ env = environ.Env(
     CARBON_TXT_PLUGINS_DIR=(str, None),
     ACTIVE_CARBON_TXT_PLUGINS=(list, []),
     DEFAULT_CARBON_TXT_PLUGINS=(list, DEFAULT_CARBON_TXT_PLUGINS),
+    DATABASE_URL=(str, DEFAULT_DATABASE_URL),
 )
 
 # fetch environment variables from .env file
@@ -90,6 +93,7 @@ INSTALLED_APPS = [
     "django.contrib.staticfiles",
     "corsheaders",
     "django_structlog",
+    "carbon_txt.web.validation_logging",
 ]
 
 MIDDLEWARE = [
@@ -103,7 +107,7 @@ MIDDLEWARE = [
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
     "carbon_txt.web.middleware.AddTrailingSlashMiddleware",
     "django_structlog.middlewares.RequestMiddleware",
-    "carbon_txt.web.middleware.LogRequestedDomainMiddleware",
+    "carbon_txt.web.validation_logging.middleware.LogValidationMiddleware",
 ]
 
 ROOT_URLCONF = "config.urls"
@@ -131,13 +135,9 @@ WSGI_APPLICATION = "config.wsgi.application"
 # Database
 # https://docs.djangoproject.com/en/5.1/ref/settings/#databases
 
-DATABASES = {
-    "default": {
-        "ENGINE": "django.db.backends.sqlite3",
-        "NAME": BASE_DIR / "db.sqlite3",
-    }
-}
+DATABASE_URL = env("DATABASE_URL")
 
+DATABASES = {"default": env.db()}
 
 # Password validation
 # https://docs.djangoproject.com/en/5.1/ref/settings/#auth-password-validators

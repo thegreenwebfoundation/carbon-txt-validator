@@ -36,6 +36,8 @@ This playbook is designed to be run from a developer's server, or as part of an 
     project_path: /var/www/carbon-txt-api.greenweb.org
     service_user: "{{ remote_user}}"
     service_restart: true
+    database_url: "{{ lookup('env', 'CARBON_TXT_API_DATABASE_URL') }}"
+
 
   tasks:
     - name: Set up directory for running web app
@@ -58,6 +60,13 @@ This playbook is designed to be run from a developer's server, or as part of an 
       ansible.builtin.template:
         src: carbon_txt_api_config.j2
         dest: "{{ project_path }}/local_config.sh"
+        mode: "0755"
+      tags: [setup-script]
+
+    - name: Upload dotenv file for running carbon.txt.api
+      ansible.builtin.template:
+        src: carbon_txt_api_dotenv.sh.j2
+        dest: "{{ project_path }}/.env"
         mode: "0755"
       tags: [setup-script]
 
@@ -106,7 +115,8 @@ It also uses a `local_config` file - this can be used to add extra configuration
 --django-settings local_config \
 --port <PORT> \
 --host <HOST> \
---server granian
+--server granian \
+--migrate
 ```
 
 The local config file is templated out into the the same directory as where the command is run from. and the same directory as the environment variables file:
@@ -124,6 +134,15 @@ SOME_SETTING = "some value"
 
 ```
 
+Environment variables are provided through a env file:
+
+```shell
+# carbon_text_api_dotenv.sh
+# templated out to /var/www/carbon-txt-api.greenweb.org/.env
+
+DATABASE_URL="{{ database_url }}"
+
+```
 
 
 The templated out Systemd service file looks like the example below. It uses the `run_carbon_txt_api.sh` script to run the service. Any required environment variables are placed in the `.env ` environment file.
@@ -161,7 +180,8 @@ See the README on the [carbon-text-site github repository](https://github.com/th
 
 ## Seeing Logs
 
-Logs from the carbon txt validator service, when deployed in Green Web Foundation infrastructure are aggregated by Systemd, and forwarded to a Loki centralised logging server. These logs can be queried at [grafana.greenweb.org](https://grafana.greenweb.org) - filter logs by the systemd unit `carbon_txt_api`, using the label filter `{unit="carbon_txt_api.service"}`.
+Logs from the carbon txt validator service, when deployed in Green Web Foundation infrastructure are aggregated by Systemd, and forwarded to a Loki centralised logging server. These logs can be queried at [grafana.greenweb.org](https://grafana.greenweb.org) - filter logs by the systemd unit `carbon_txt_api`, using the label filter `{unit="carbon_txt_api.service"}`
+Anonymised information on the domains validated is also logged to the django database, in the table `validation_logging_ValidationLogEntry`.
 
 ## Monitoring, and exception tracking
 
