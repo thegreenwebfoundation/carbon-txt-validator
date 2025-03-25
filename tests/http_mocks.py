@@ -12,22 +12,36 @@ def test_finder(mocked_carbon_text_url):
 The available mocks are as follows:
     - mocked_carbon_txt_url
         (url with path to carbon.txt, returns valid TOML with 200 response)
-    - mocked_cabon_txt_domain
+    - mocked_carbon_txt_domain
         (domain only, valid TOML, 200 response)
     - mocked_http_delegating_carbon_txt_url
-        (delegates to other domain with Via header, other domain returns
-         valid TOML with 200 resposne)
+        (url with path, delegates to other domain with Via header, other domain
+        returns valid TOML with 200 resposne)
+    - mocked_http_delegating_carbon_txt_domain
+        (domain only, delegates to other domain with Via header, other domain
+        returns valid TOML with 200 response)
     - mocked_dns_delegating_carbon_txt_url
-        (redirects to other domain wtih DNS TXT record, other domain returns
-         valid TOML with 200 response)
+        (url with path, redirects to other domain wtih DNS TXT record, other domain
+        returns valid TOML with 200 response)
+    - mocked_dns_delegating_carbon_txt_domain
+        (domain only, redirects to other domain wtih DNS TXT record, other domain
+        returns valid TOML with 200 response)
     - mocked_404_carbon_txt_url
-        (No delegation, request for carbon.txt returns 404 status.)
+        (url with path, No delegation, request for carbon.txt returns 404 status.)
+    - mocked_404_carbon_txt_domain
+        (domain only, No delegation, request for carbon.txt returns 404 status.)
 
-Why do we provide these fixtures, instead of just setting up the mocks in the tests themselves? Firstly, because, while it might appear a bit "magic", it makes the tests themselves smaller and easier to follow, and avoids repetition of setup code for common test scenarios. Secondly, and more importantly, however, it allows us to mock HTTP request when running the api tests with pytest-django: the mocks must be set up *before* the test itself, or they won't be available in the live_server that pytest-django provides.
+Why do we provide these fixtures, instead of just setting up the mocks in the tests themselves?
+Firstly, because, while it might appear a bit "magic", it makes the tests themselves smaller and
+easier to follow, and avoids repetition of setup code for common test scenarios. Secondly, and
+more importantly, however, it allows us to mock HTTP request when running the api tests with
+pytest-django: the mocks must be set up *before* the test itself, or they won't be available
+in the live_server that pytest-django provides.
 
 """
 
 import pytest
+import re
 from unittest.mock import MagicMock
 
 
@@ -83,17 +97,16 @@ def mocked_carbon_txt_url(mocked_carbon_txt_domain) -> str:
         )
     ]
 )
-def mocked_http_delegating_carbon_txt_url(minimal_carbon_txt_org, httpx_mock) -> str:
+def mocked_http_delegating_carbon_txt_domain(minimal_carbon_txt_org, httpx_mock) -> str:
     """
-    Return a url which delegates carbon.txt using an HTTP via header,
-    and provide the full URL to the test.
+    Return a domain which delegates carbon.txt using an HTTP via header,
     Ensure the delegated URL responds with a valid carbon.txt and a 200 response.
     """
-    website_url = "https://delegating.withcarbontxt.example.com/carbon.txt"
+    domain = "delegating.withcarbontxt.example.com"
     managed_service_url = "https://delegate.withcarbontxt.example.com/carbon.txt"
     domain_hash_check = "deadb33fdeadf00d"  # TODO: This will need to be generated properly once verification is in place
     httpx_mock.add_response(
-        url=website_url,
+        url=re.compile(f"https?://{domain}"),
         status_code=204,
         content="",
         headers={"Via": f"1.1 {managed_service_url} {domain_hash_check}"},
@@ -105,7 +118,18 @@ def mocked_http_delegating_carbon_txt_url(minimal_carbon_txt_org, httpx_mock) ->
         content=minimal_carbon_txt_org,
         is_reusable=True,
     )
-    return website_url
+    return domain
+
+
+@pytest.fixture
+def mocked_http_delegating_carbon_txt_url(
+    mocked_http_delegating_carbon_txt_domain,
+) -> str:
+    """
+    Return a URL which delegates carbon.txt using an HTTP via header,
+    Ensure the delegated URL responds with a valid carbon.txt and a 200 response.
+    """
+    return f"https://{mocked_http_delegating_carbon_txt_domain}/carbon.txt"
 
 
 @pytest.fixture(
@@ -120,15 +144,14 @@ def mocked_http_delegating_carbon_txt_url(minimal_carbon_txt_org, httpx_mock) ->
         )
     ]
 )
-def mocked_dns_delegating_carbon_txt_url(
+def mocked_dns_delegating_carbon_txt_domain(
     minimal_carbon_txt_org, mocker, httpx_mock
 ) -> str:
     """
-    Return a url which delegates carbon.txt using a DNS TXT record,
-    and provide the full URL to the test.
+    Return a domain which delegates carbon.txt using a DNS TXT record,
     Ensure the delegated URL responds with a valid carbon.txt and a 200 response.
     """
-    website_url = "https://delegating.withcarbontxt.example.com/carbon.txt"
+    domain = "delegating.withcarbontxt.example.com"
     managed_service_url = "https://delegate.withcarbontxt.example.com/carbon.txt"
     domain_hash_check = "deadb33fdeadf00d"  # TODO: This will need to be generated properly once verification is in place
     record = MagicMock()
@@ -136,8 +159,8 @@ def mocked_dns_delegating_carbon_txt_url(
         f'"carbon-txt={managed_service_url} {domain_hash_check}"'
     )
 
-    def dns_lookup_side_effect(domain, record_type):
-        if domain == "delegating.withcarbontxt.example.com":
+    def dns_lookup_side_effect(requested_domain, record_type):
+        if requested_domain == domain:
             return [record]
         else:
             return []
@@ -150,7 +173,18 @@ def mocked_dns_delegating_carbon_txt_url(
         is_reusable=True,
         is_optional=True,
     )
-    return website_url
+    return domain
+
+
+@pytest.fixture
+def mocked_dns_delegating_carbon_txt_url(
+    mocked_dns_delegating_carbon_txt_domain,
+) -> str:
+    """
+    Return a URL which delegates carbon.txt using a DNS TXT record,
+    Ensure the delegated URL responds with a valid carbon.txt and a 200 response.
+    """
+    return f"https://{mocked_dns_delegating_carbon_txt_domain}/carbon.txt"
 
 
 @pytest.fixture(
@@ -165,15 +199,33 @@ def mocked_dns_delegating_carbon_txt_url(
         )
     ]
 )
-def mocked_404_carbon_txt_url(httpx_mock) -> str:
+def mocked_404_carbon_txt_domain(httpx_mock) -> str:
     """
-    Return a 404 error on requests for carbon.txt. Provide the full
-    URL of carbon.txt to the test.
+    Return a 404 error on requests for carbon.txt. Provide the domain
+    name to the test.
     """
-    url = "https://non-existent.withcarbontxt.example.com/carbon.txt"
+    domain = "non-existent.withcarbontxt.example.com"
+    url = f"https://{domain}/carbon.txt"
+    well_known_url = f"https://{domain}/.well-known/carbon.txt"
     httpx_mock.add_response(
         url=url,
         status_code=404,
         is_reusable=True,
+        is_optional=True,
     )
-    return url
+    httpx_mock.add_response(
+        url=well_known_url,
+        status_code=404,
+        is_reusable=True,
+        is_optional=True,
+    )
+    return domain
+
+
+@pytest.fixture
+def mocked_404_carbon_txt_url(mocked_404_carbon_txt_domain) -> str:
+    """
+    Return a 404 error on requests for carbon.txt. Provide the full
+    URL to the test.
+    """
+    return f"https://{mocked_404_carbon_txt_domain}/carbon.txt"

@@ -28,6 +28,7 @@ class LogValidationMiddleware:
 
     def __call__(self, request: HttpRequest) -> HttpResponse:
         response = self.get_response(request)
+
         if "api/validate" in request.path:
             try:
                 self.log_validation(request, response)
@@ -44,14 +45,19 @@ class LogValidationMiddleware:
         """
         request_json = json.loads(request.body)
         response_json = json.loads(response.content)
-
         log_params = {}
         log_params["endpoint"] = request.path
         log_params["success"] = response_json.get("success")
-        if "url" in request_json:
-            url = request_json["url"]
-            log_params["url"] = url
-            log_params["domain"] = urlparse(url).netloc
+
+        if "url" in response_json:
+            log_params["url"] = response_json["url"]
+        elif "url" in request_json:
+            log_params["url"] = request_json["url"]
+
+        if "domain" in request_json:
+            log_params["domain"] = request_json["domain"]
+        elif "url" in request_json:
+            log_params["domain"] = urlparse(log_params["url"]).netloc
 
         self.logger.info("validation_request", **log_params)
         log_entry = self.log_model_class(**log_params)
