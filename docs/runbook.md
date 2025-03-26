@@ -111,7 +111,8 @@ It also uses a `local_config` file - this can be used to add extra configuration
 ```shell
 # written to /var/www/carbon-txt-api.greenweb.org/run_carbon_txt_api.sh
 
-/path/to/bin/uv tool run carbon-txt@latest serve \
+# Inject any extra libraries needed for database connectivity here, eg mysqlclient;
+/path/to/bin/uv tool --with mysqlclient run carbon-txt@latest serve \
 --django-settings local_config \
 --port <PORT> \
 --host <HOST> \
