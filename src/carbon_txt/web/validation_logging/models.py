@@ -11,8 +11,6 @@ class ValidationLogEntry(models.Model):
 
     timestamp = models.DateTimeField(auto_now_add=True)
     endpoint = models.CharField(max_length=255)
-    domain = models.CharField(max_length=255)  # Length limit from RFC 1035
-    url = models.CharField(
-        max_length=32 * 1024  # Length limit based on cloudflare maximum
-    )
-    success = models.BooleanField()
+    domain = models.CharField(max_length=255, blank=True, null=True)  # Length limit from RFC 1035
+    url = models.TextField(blank=True, null=True)
+    success = models.BooleanField(blank=True, null=True)
