@@ -184,6 +184,17 @@ See the README on the [carbon-text-site github repository](https://github.com/th
 Logs from the carbon txt validator service, when deployed in Green Web Foundation infrastructure are aggregated by Systemd, and forwarded to a Loki centralised logging server. These logs can be queried at [grafana.greenweb.org](https://grafana.greenweb.org) - filter logs by the systemd unit `carbon_txt_api`, using the label filter `{unit="carbon_txt_api.service"}`
 Anonymised information on the domains validated is also logged to the django database, in the table `validation_logging_ValidationLogEntry`.
 
+You can see these statistics in the [carbon.txt validations grafana dashboard](https://grafana.greenweb.org/d/deh0shbr55340f/carbon-txt-validations):
+
+![Screnshot of the grafana dashboard](img/carbon-dashboard.png).
+
+The large numbers at the top of the dashboard show figures for all time, and do not alter with the time range selected - They show the number of unique domains requested for validation (plus the number of those domains which validates succesfully), and on the next row, the total number of validation requests (and the number of those which were succesful).
+
+Below these, the tables and graphs which provide an overview for the selected time range: A breakdown of the validations requested during the selected time period by domain validated, plus a graph of the total, cumulative number of validations requested, and the same, but for succesful validations: a list of domains which were succesfully validated, plus a graph of the cumulative total number of succesful validations, over time.
+
+
+
+
 ## Monitoring, and exception tracking
 
 We use Sentry's suite of hosted monitoring tools for tracking exceptions, performance, and uptime. See [greenweb.sentry.io](https://greenweb.sentry.io/).

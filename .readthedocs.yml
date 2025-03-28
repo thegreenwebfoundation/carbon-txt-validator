@@ -12,4 +12,8 @@ build:
     # RTD needs to build the docs into a specific directory
     # https://docs.readthedocs.io/en/stable/build-customization.html#where-to-put-files
     - mkdir --parents $READTHEDOCS_OUTPUT/html/
-    - uv run sphinx-build docs $READTHEDOCS_OUTPUT/html
+
+# build the docs with sphinx
+# https://about.readthedocs.com/blog/2024/12/deprecate-config-files-without-sphinx-or-mkdocs-config/
+sphinx:
+  configuration: docs/conf.py   - uv run sphinx-build docs $READTHEDOCS_OUTPUT/html
