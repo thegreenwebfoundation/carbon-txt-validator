@@ -4,22 +4,28 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
-    dependencies = [
-    ]
+    dependencies = []
 
     operations = [
         migrations.CreateModel(
-            name='ValidationLogEntry',
+            name="ValidationLogEntry",
             fields=[
-                ('id', models.BigAutoField(auto_created=True, primary_key=True, serialize=False, verbose_name='ID')),
-                ('timestamp', models.DateTimeField(auto_now_add=True)),
-                ('endpoint', models.CharField(max_length=255)),
-                ('domain', models.CharField(blank=True, max_length=255, null=True)),
-                ('url', models.TextField(blank=True, null=True)),
-                ('success', models.BooleanField(blank=True, null=True)),
+                (
+                    "id",
+                    models.BigAutoField(
+                        auto_created=True,
+                        primary_key=True,
+                        serialize=False,
+                        verbose_name="ID",
+                    ),
+                ),
+                ("timestamp", models.DateTimeField(auto_now_add=True)),
+                ("endpoint", models.CharField(max_length=255)),
+                ("domain", models.CharField(blank=True, max_length=255, null=True)),
+                ("url", models.TextField(blank=True, null=True)),
+                ("success", models.BooleanField(blank=True, null=True)),
             ],
         ),
     ]

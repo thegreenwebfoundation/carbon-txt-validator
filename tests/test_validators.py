@@ -4,22 +4,21 @@ import pathlib
 
 
 class TestCarbonTxtValidator:
-    def test_validate_file_with_greenweb_root(self):
+    def test_validate_domain_without_carbon_txt(self, mocked_404_carbon_txt_domain):
         """
-        This should show a failure, as thegreenwebfoundation.org does not currently have a carbon.txt file,
-        but does serve content at the root path (i.e. '/')
+        This should show a failure, as there is no carbon.txt file at this domain
         """
         validator = validators.CarbonTxtValidator()
-        res = validator.validate_url("https://www.thegreenwebfoundation.org")
+        res = validator.validate_domain(f"https://{mocked_404_carbon_txt_domain}")
         assert not res.result
         assert res.exceptions
 
-    def test_validate_file_with_greenweb_carbon_txt(self):
+    def test_validate_url_without_carbon_txt(self, mocked_404_carbon_txt_url):
         """
-        This should show a failure, as thegreenwebfoundation.org does not currently have a carbon.txt file
+        This should show a failure, as there is no carbon.txt file at this URL
         """
         validator = validators.CarbonTxtValidator()
-        res = validator.validate_url("https://www.thegreenwebfoundation.org/carbon.txt")
+        res = validator.validate_url(mocked_404_carbon_txt_url)
         assert not res.result
         assert res.exceptions
 
