@@ -16,7 +16,7 @@ The available mocks are as follows:
         (domain only, valid TOML, 200 response)
     - mocked_http_delegating_carbon_txt_url
         (url with path, delegates to other domain with Via header, other domain
-        returns valid TOML with 200 resposne)
+        returns valid TOML with 200 response)
     - mocked_http_delegating_carbon_txt_domain
         (domain only, delegates to other domain with Via header, other domain
         returns valid TOML with 200 response)
@@ -103,7 +103,7 @@ def mocked_http_delegating_carbon_txt_domain(minimal_carbon_txt_org, httpx_mock)
     Ensure the delegated URL responds with a valid carbon.txt and a 200 response.
     """
     domain = "delegating.withcarbontxt.example.com"
-    managed_service_url = "https://delegate.withcarbontxt.example.com/carbon.txt"
+    managed_service_url = "https://managed-service.withcarbontxt.example.com/carbon.txt"
     domain_hash_check = "deadb33fdeadf00d"  # TODO: This will need to be generated properly once verification is in place
     httpx_mock.add_response(
         url=re.compile(f"https?://{domain}"),
@@ -137,10 +137,10 @@ def mocked_http_delegating_carbon_txt_domain(minimal_carbon_txt_org, httpx_mock)
 def mocked_http_delegating_carbon_txt_url(minimal_carbon_txt_org, httpx_mock) -> str:
     """
     Return a URL which delegates carbon.txt using an HTTP via header,
-    Ensure that the requested URL responds with a valid resposne despite delegation.
+    Ensure that the requested URL responds with a valid response despite delegation.
     """
     domain = "delegating.withcarbontxt.example.com"
-    managed_service_url = "https://delegate.withcarbontxt.example.com/carbon.txt"
+    managed_service_url = "https://managed-service.withcarbontxt.example.com/carbon.txt"
     domain_hash_check = "deadb33fdeadf00d"  # TODO: This will need to be generated properly once verification is in place
     url = f"https://{domain}/carbon.txt"
     httpx_mock.add_response(
@@ -174,7 +174,7 @@ def mocked_dns_delegating_carbon_txt_domain(
     Ensure the delegated URL responds with a valid carbon.txt and a 200 response.
     """
     domain = "delegating.withcarbontxt.example.com"
-    managed_service_url = "https://delegate.withcarbontxt.example.com/carbon.txt"
+    managed_service_url = "https://managed-service.withcarbontxt.example.com/carbon.txt"
     domain_hash_check = "deadb33fdeadf00d"  # TODO: This will need to be generated properly once verification is in place
     record = MagicMock()
     record.to_text.return_value = (
@@ -220,7 +220,7 @@ def mocked_dns_delegating_carbon_txt_url(
     Ensure that the requested URL responds with a valid response despite delegation.
     """
     domain = "delegating.withcarbontxt.example.com"
-    managed_service_url = "https://delegate.withcarbontxt.example.com/carbon.txt"
+    managed_service_url = "https://managed-service.withcarbontxt.example.com/carbon.txt"
     domain_hash_check = "deadb33fdeadf00d"  # TODO: This will need to be generated properly once verification is in place
     url = f"https://{domain}/carbon.txt"
     record = MagicMock()

@@ -36,7 +36,7 @@ class TestFinder:
         result = finder.resolve_domain(mocked_dns_delegating_carbon_txt_domain)
 
         # We get back the URI of the carbon.txt file to lookup
-        assert result == "https://delegate.withcarbontxt.example.com/carbon.txt"
+        assert result == "https://managed-service.withcarbontxt.example.com/carbon.txt"
 
     def test_looking_up_domain_with_delegation_using_http(
         self, mocked_http_delegating_carbon_txt_domain
@@ -54,7 +54,7 @@ class TestFinder:
         result = finder.resolve_domain(mocked_http_delegating_carbon_txt_domain)
 
         # We get back the URI of the carbon.txt file to lookup
-        assert result == "https://delegate.withcarbontxt.example.com/carbon.txt"
+        assert result == "https://managed-service.withcarbontxt.example.com/carbon.txt"
 
     def test_looking_up_uri_simple(self, mocked_carbon_txt_url):
         """Looking up a domain with a carbon.txt file"""
