@@ -117,19 +117,41 @@ def mocked_http_delegating_carbon_txt_domain(minimal_carbon_txt_org, httpx_mock)
         status_code=200,
         content=minimal_carbon_txt_org,
         is_reusable=True,
+        is_optional=True,
     )
     return domain
 
 
-@pytest.fixture
-def mocked_http_delegating_carbon_txt_url(
-    mocked_http_delegating_carbon_txt_domain,
-) -> str:
+@pytest.fixture(
+    params=[
+        pytest.param(
+            "",
+            marks=pytest.mark.httpx_mock(
+                should_mock=lambda request: request.url.host.endswith(
+                    "withcarbontxt.example.com"
+                )
+            ),
+        )
+    ]
+)
+def mocked_http_delegating_carbon_txt_url(minimal_carbon_txt_org, httpx_mock) -> str:
     """
     Return a URL which delegates carbon.txt using an HTTP via header,
-    Ensure the delegated URL responds with a valid carbon.txt and a 200 response.
+    Ensure that the requested URL responds with a valid resposne despite delegation.
     """
-    return f"https://{mocked_http_delegating_carbon_txt_domain}/carbon.txt"
+    domain = "delegating.withcarbontxt.example.com"
+    managed_service_url = "https://delegate.withcarbontxt.example.com/carbon.txt"
+    domain_hash_check = "deadb33fdeadf00d"  # TODO: This will need to be generated properly once verification is in place
+    url = f"https://{domain}/carbon.txt"
+    httpx_mock.add_response(
+        url=url,
+        status_code=200,
+        content=minimal_carbon_txt_org,
+        headers={"Via": f"1.1 {managed_service_url} {domain_hash_check}"},
+        is_reusable=True,
+        is_optional=True,
+    )
+    return url
 
 
 @pytest.fixture(
@@ -176,15 +198,51 @@ def mocked_dns_delegating_carbon_txt_domain(
     return domain
 
 
-@pytest.fixture
+@pytest.fixture(
+    params=[
+        pytest.param(
+            "",
+            marks=pytest.mark.httpx_mock(
+                should_mock=lambda request: request.url.host.endswith(
+                    "withcarbontxt.example.com"
+                ),
+            ),
+        )
+    ]
+)
 def mocked_dns_delegating_carbon_txt_url(
-    mocked_dns_delegating_carbon_txt_domain,
+    minimal_carbon_txt_org,
+    mocker,
+    httpx_mock,
 ) -> str:
     """
     Return a URL which delegates carbon.txt using a DNS TXT record,
-    Ensure the delegated URL responds with a valid carbon.txt and a 200 response.
+    Ensure that the requested URL responds with a valid response despite delegation.
     """
-    return f"https://{mocked_dns_delegating_carbon_txt_domain}/carbon.txt"
+    domain = "delegating.withcarbontxt.example.com"
+    managed_service_url = "https://delegate.withcarbontxt.example.com/carbon.txt"
+    domain_hash_check = "deadb33fdeadf00d"  # TODO: This will need to be generated properly once verification is in place
+    url = f"https://{domain}/carbon.txt"
+    record = MagicMock()
+    record.to_text.return_value = (
+        f'"carbon-txt={managed_service_url} {domain_hash_check}"'
+    )
+
+    def dns_lookup_side_effect(requested_domain, record_type):
+        if requested_domain == domain:
+            return [record]
+        else:
+            return []
+
+    mocker.patch("dns.resolver.resolve", side_effect=dns_lookup_side_effect)
+    httpx_mock.add_response(
+        url=url,
+        status_code=200,
+        content=minimal_carbon_txt_org,
+        is_reusable=True,
+        is_optional=True,
+    )
+    return url
 
 
 @pytest.fixture(
