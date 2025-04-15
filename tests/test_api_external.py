@@ -125,8 +125,8 @@ def test_hitting_validate_domain_endpoint_with_via_delegation(
 
     assert res.status_code == 200
     print(res.json())
-    actual_provider_domain = res.json()["data"]["org"]["disclosures"][0]["domain"]
-    assert actual_provider_domain == "used-in-tests.carbontxt.org"
+    actual_url = res.json()["url"]
+    assert actual_url== "https://managed-service.withcarbontxt.example.com/carbon.txt"
 
 
 @pytest.mark.parametrize("url_suffix", ["", "/"])
@@ -141,7 +141,9 @@ def test_hitting_validate_domain_endpoint_with_txt_delegation(
     api_url = f"{live_server.url}/api/validate/domain{url_suffix}"
     data = {"domain": mocked_dns_delegating_carbon_txt_domain}
     res = httpx.post(api_url, json=data, follow_redirects=True, timeout=None)
+    actual_url = res.json()["url"]
     assert res.status_code == 200
+    assert actual_url== "https://managed-service.withcarbontxt.example.com/carbon.txt"
 
 
 # TODO: Do we still need to run this with a full on external server?
