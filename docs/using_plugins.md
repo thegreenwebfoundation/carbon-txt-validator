@@ -69,7 +69,7 @@ Should return output, that (once formatted) similar to the JSON below:
     "Attempting to validate url: https://used-in-tests.carbontxt.org/carbon-txt-with-csrd-and-renewables.txt",
     "Trying a DNS delegated lookup for URI: used-in-tests.carbontxt.org",
     "None found. Continuing.",
-    "Checking for a 'via' header in the response: https://used-in-tests.carbontxt.org/carbon-txt-with-csrd-and-renewables.txt",
+    "Checking for a 'CarbonTxt-Location' header in the response: https://used-in-tests.carbontxt.org/carbon-txt-with-csrd-and-renewables.txt",
     "None found. Continuing.",
     "Carbon.txt file parsed as valid TOML.",
     "Parsed TOML was recognised as valid Carbon.txt file.\n"
@@ -153,7 +153,7 @@ Our request now returns extra output in the `document_data` part of the object. 
     "Attempting to validate url: https://used-in-tests.carbontxt.org/carbon-txt-with-csrd-and-renewables.txt",
     "Trying a DNS delegated lookup for URI: used-in-tests.carbontxt.org",
     "None found. Continuing.",
-    "Checking for a 'via' header in the response: https://used-in-tests.carbontxt.org/carbon-txt-with-csrd-and-renewables.txt",
+    "Checking for a 'CarbonTxt-Location' header in the response: https://used-in-tests.carbontxt.org/carbon-txt-with-csrd-and-renewables.txt",
     "None found. Continuing.",
     "Carbon.txt file parsed as valid TOML.",
     "Parsed TOML was recognised as valid Carbon.txt file.\n",

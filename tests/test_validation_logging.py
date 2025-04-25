@@ -102,7 +102,7 @@ class TestLogValidationMiddleware:
 
     def test_validate_file_requests_logged_without_url_or_domain(self):
         """
-        File validation requests are logged, without any url or domain metadata.
+        File validation requests are logged, without any URL or domain metadata.
         """
 
         # Given a valid request for a file validation
@@ -127,11 +127,11 @@ class TestLogValidationMiddleware:
 
     def test_validate_url_requests_logged_with_url_and_domain(self):
         """
-        URL validation reequests are logged, including the url and domain metadata
+        URL validation reequests are logged, including the URL and domain metadata
 
         """
 
-        # Given a valid request for a url validation
+        # Given a valid request for a URL validation
         self.setup(
             path="/api/validate/url",
             request={"url": "https://www.example.com/carbon.txt"},
@@ -161,11 +161,11 @@ class TestLogValidationMiddleware:
     def test_validate_domain_requests_logged_with_domain_and_overriding_url(self):
         """
         Domain validation reequests are logged, including the domain requested
-        and the resolved url returned from the validator.
+        and the resolved URL returned from the validator.
 
         """
 
-        # Given a valid request for a url validation
+        # Given a valid request for a URL validation
         self.setup(
             path="/api/validate/domain",
             request={"domain": "www.example.com"},

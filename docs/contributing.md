@@ -150,6 +150,6 @@ As you make changes to the documentation source files, the rendered results will
 
 ### Updating the public documentation
 
-Every time changes are merged into the `main` branch, a build script at [Read the docs](https://about.readthedocs.com/?ref=readthedocs.org) generates the documentation to serve at the url below:
+Every time changes are merged into the `main` branch, a build script at [Read the docs](https://about.readthedocs.com/?ref=readthedocs.org) generates the documentation to serve at the URL below:
 
 [https://carbon-txt-validator.readthedocs.io](https://carbon-txt-validator.readthedocs.io)

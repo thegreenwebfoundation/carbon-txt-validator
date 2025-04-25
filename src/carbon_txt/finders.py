@@ -59,27 +59,11 @@ class FileFinder:
 
             for answer in answers:
                 txt_record = answer.to_text().strip('"')
-                if txt_record.startswith("carbon-txt"):
-                    # pull out our url to check
-                    _, txt_record_body = txt_record.split("=")
+                if txt_record.startswith("carbon-txt-location"):
+                    # pull out our URL to check
+                    _, override_url = txt_record.split("=")
 
-                    domain_hash_check = txt_record_body.split(" ")
-
-                    # check for delegation with no domain hash
-                    if len(domain_hash_check) == 1:
-                        override_url = domain_hash_check[0]
-                        logger.info(
-                            f"Found an override_url to use from the DNS lookup: {override_url}"
-                        )
-                        return override_url
-
-                    # check for delegation WITH a domain hash
-                    if len(domain_hash_check) == 2:
-                        override_url = domain_hash_check[0]
-
-                        # TODO add verification of domain hash
-                        domain_hash = domain_hash_check[1]  # noqa
-
+                    if override_url is not None:
                         logger.info(
                             f"Found an override_url to use from the DNS lookup: {override_url}"
                         )
@@ -97,25 +81,56 @@ class FileFinder:
 
         return None
 
-    def _check_for_via_delegation(self, response: httpx.Response) -> Optional[str]:
+    def _check_for_hosted_carbon_txt(self, url, logs=None) -> Optional[str]:
         """
-        Check for a 'via' header in the response, and return the URL in the 'via' header if present
+        Check for a hosted carbon.txt file at the given URL, and returns the URL if present
         """
+        message = f"Checking if a carbon.txt file is reachable at {url}"
+        log_safely(message, logs)
+        uri = urlparse(url)
+        try:
+            response = self.resolve_uri(uri.geturl(), logs)
+            if response:
+                log_safely(f"New Carbon text file found at: {response}", logs)
+                return response
+        except UnreachableCarbonTxtFile:
+            pass
 
-        if "via" in response.headers:
-            via_header = response.headers.get("via")
+    def _check_for_dns_delegation(self, domain : str, logs=None) -> Optional[str]:
+        """
+        Check for a 'carbon-txt-location' DNS TXT record, and return the URL in the record if present
+        """
+        log_safely(f"Trying a DNS delegated lookup for domain {domain}", logs)
+        if uri_from_domain := self._lookup_dns(domain):
+            log_safely(f"New lookup found for domain {domain}: {uri_from_domain}", logs)
+            return self.resolve_domain_or_uri(uri_from_domain, logs)
 
-            version, via_url, *rest = via_header.split(" ")
-            logger.info(f"Found a 'via' header, following to: {via_url}")
 
-            try:
-                parsed_url = httpx.URL(via_url)
-                return str(parsed_url)
-            except httpx.InvalidURL:
-                logger.error(f"Invalid URL in 'via' header: {via_url}")
-                return None
-
-        return None
+    def _check_for_http_header_delegation(self, domain: str, logs=None) -> Optional[str]:
+        """
+        Check for a 'CarbonTxt-Location' header in the response, and return the URL in the header if present
+        """
+        log_safely(
+            f"Checking for a 'CarbonTxt-Location' header in the response: http://{domain}",
+            logs,
+        )
+        response = httpx.head(f"https://{domain}")
+        if "carbontxt-location" in response.headers:
+            header_url = response.headers.get("carbontxt-location")
+            if header_url is not None:
+                log_safely(
+                    f"Found a 'CarbonTxt-Location' header, following to {header_url}",
+                    logs,
+                    )
+                try:
+                    parsed_url = str(httpx.URL(header_url))
+                    return self.resolve_domain_or_uri(
+                        parsed_url, logs
+                    )
+                except httpx.InvalidURL:
+                    logger.error(
+                        f"Invalid URL in 'CarbonTxt-Location' header: {header_url}"
+                    )
 
     def fetch_carbon_txt_file(self, uri: str, logs=None) -> str:
         """
@@ -142,43 +157,56 @@ class FileFinder:
 
         raise ValueError(f"Could not fetch file contents at {str}")
 
+    def resolve_domain_or_uri(self, domain_or_uri: str, logs=None) -> str:
+        """
+        Accepts EITHER an HTTP or HTTP URI, OR a Fully-qualified domain name.
+        In the case where an HTTP(S) URI is provided, it is taken to refer to
+        the location of a carbon.txt file, and no further delegation resolution
+        is attempted. In the case of a FQDN, we follow the domain delegation logic,
+        checking for carbon.txt in the root and .well-known locations, and then for
+        a carbon-txt-location DNS TXT record or a Carbon-Txt-Location HTTP header.
+        """
+        if domain_or_uri.startswith("http"):
+            return self.resolve_uri(domain_or_uri, logs)
+        else:
+            return self.resolve_domain(domain_or_uri, logs)
+
     def resolve_domain(self, domain: str, logs=None) -> str:
         """
         Accepts a domain, and returns a URI to fetch a carbon.txt file from.
 
-        Follows delegation logic from DNS TXT records, and the 'via' header in
-        HTTP responses to resolve to a final URL for a carbon.txt file.
+        Follows delegation logic from DNS TXT records, and the 'CarbonTxt-Location' header in
+        HTTP responses to resolve to a final URL for a carbon.txt file, in the following order of priority.
+
+        - carbon.txt file at /carbon.txt
+        - carbon.txt file at .well-known/carbon.txt
+        - delegation with DNS record
+        - delegation with HTTP header
+
+        This method is called recursively if the DNS TXT record or CarbonTxt-Location Header are present
+        and also point to a domain rather than a full carbon.txt URL. If the header or TXT record points to
+        a full path to a file, no further delegation is attempted.
         """
 
-        log_safely(f"Trying a DNS delegated lookup for domain {domain}", logs)
-        if uri_from_domain := self._lookup_dns(domain):
-            log_safely(f"New lookup found for domain {domain}: {uri_from_domain}", logs)
-            return self.resolve_uri(uri_from_domain)
-
-        # otherwise we look for a carbon.txt file at the root of the domain.
+        # We look for a carbon.txt file at the root of the domain.
         # If that isn't there try a fallback to one at the `.well-known`` path
         # following the well-known convention
         default_paths = ["/carbon.txt", "/.well-known/carbon.txt"]
 
         for url_path in default_paths:
-            message = f"Checking if a carbon.txt file is reachable at https://{domain}{url_path}"
-            log_safely(message, logs)
-            uri = urlparse(f"https://{domain}{url_path}")
-            response = httpx.head(uri.geturl())
-            if response.status_code == 200:
-                log_safely(f"New Carbon text file found at: {uri.geturl()}", logs)
-                return uri.geturl()
+            if candidate := self._check_for_hosted_carbon_txt(f"https://{domain}{url_path}", logs):
+                return candidate
 
-        # if a path has the 'via' header, it suggests a managed service or proxy
-        # follow that path to fetch the active carbon.txt file
-        log_safely(f"Checking for a 'via' header in the response: {response.url}", logs)
-        if delegated_via_carbon_file_url := self._check_for_via_delegation(response):
-            log_safely(
-                f"Found a 'via' header, following to {delegated_via_carbon_file_url}",
-                logs,
-            )
-            return delegated_via_carbon_file_url
+        # If we have not found a carbon.txt file at the root or in the .well-known directory,
+        # we then check whether a carbon-txt-location DNS TXT record exists
+        if candidate := self._check_for_dns_delegation(domain, logs):
+            return candidate
 
+        # If there is no DNS TXT record, check for a CarbonTxt-Location HTTP header:
+        if candidate := self._check_for_http_header_delegation(domain, logs):
+            return candidate
+
+        # If none of the above yield a reachable carbon.txt file, raise an error.
         raise UnreachableCarbonTxtFile(
             f"Unable to find a valid carbon.txt file at the domain {domain}"
         )
@@ -186,18 +214,16 @@ class FileFinder:
     def resolve_uri(self, uri: str, logs=None) -> str:
         """
         Accept a URI pointing to a carbon.txt file, and return the final
-        resolved URI, following any 'via' referrers or similar.
+        resolved URI, without following any 'CarbonTxt-Location' referrers or similar.
 
-        This is a recursive function, so it expects to be called, following redirections until
-        it either arrives at a 200 OK response, or a non 400/500.
-
-        This does NOT try to fetch the file, just resolve the final URI to fetch it from
+        This does NOT try to fetch the file, just resolve the final URI to fetch it from and
+        check that it is reachable.
         """
 
-        # check if the uri looks like one we might reach over HTTP / HTTPS
+        # check if the URI looks like one we might reach over HTTP / HTTPS
         parsed_uri = self._parse_uri(uri)
 
-        # if there is no http or https scheme, we assume a local file, return the
+        # if there is no HTTP or HTTPS scheme, we assume a local file, return the
         # absolute path of the file
         if not parsed_uri:
             log_safely(f"URI appears to be a local file: {uri}", logs)
@@ -210,7 +236,7 @@ class FileFinder:
 
         # If the URI is a valid HTTP or HTTPS URI, check if the URI is reachable.
         try:
-            httpx.head(parsed_uri.geturl())
+            response = httpx.head(parsed_uri.geturl())
         except httpx._exceptions.ConnectError:
             raise UnreachableCarbonTxtFile(
                 f"Could not connect to {parsed_uri.geturl()}."
@@ -220,6 +246,11 @@ class FileFinder:
             logger.exception(f"Unexpected error fetching {parsed_uri.geturl()}: {ex}")
             raise UnreachableCarbonTxtFile(
                 f"Could not connect to {parsed_uri.geturl()}."
+            )
+
+        if response.status_code > 399:
+            raise UnreachableCarbonTxtFile(
+                f"HTTP error {response.status_code} when connecting to {parsed_uri.geturl()}"
             )
 
         return parsed_uri.geturl()

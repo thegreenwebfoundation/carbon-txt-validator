@@ -255,7 +255,7 @@ class CarbonTxtValidator:
             )
 
         # the file path is reachable, and but it's not valid TOML. We re-raise the exception
-        # with the url listed in the error message, so it's clear to what URL the error refers to
+        # with the URL listed in the error message, so it's clear to what URL the error refers to
         except exceptions.NotParseableTOML as ex:
             message = f"A file was found at {url}: but it wasn't parseable TOML. Error was: {ex}"
             log_exception_safely(ex, message, errors, self.event_log)

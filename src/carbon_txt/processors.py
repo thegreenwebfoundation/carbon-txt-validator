@@ -27,7 +27,7 @@ class DataPoint(BaseModel):
     value: str | float | int
     unit: str  # the type of unit the value is expressed in
     context: str  # the line in the original xml file this value is from
-    file: str  # the url to the file this value is from
+    file: str  # the URL to the file this value is from
     start_date: datetime.date
     end_date: datetime.date
 
@@ -225,7 +225,7 @@ class GreenwebCSRDProcessor:
         """
         Set up the GreenwebCSRDProcessor with an instance of ArelleProcessor.
         Used when the GreenwebCSRDProcessor is initialized wihtout a ArellProcessor instance
-        or report url passed in.
+        or report URL passed in.
         """
         self.arelle_processor = arelle_processor
 
