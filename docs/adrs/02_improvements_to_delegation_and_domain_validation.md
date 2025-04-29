@@ -38,7 +38,7 @@ carbon-txt-location: https://example.com/carbon.txt
 gwf-domain-hash: <domain hash>
 ```
 
-(there's also no reason why clients should not mix and match - using a DNS record to show domain ownership, for instance, and an HTTP header for carbon.txt location or vice-versa). The current `carbon-txt` TXT record and `Via` Header delegation methods will be deprecated (they're not publicly documented yet in any case).
+(there's also no reason why clients should not mix and match - using a DNS record to show domain ownership, for instance, and an HTTP header for carbon.txt location or vice-versa). The current `carbon-txt` TXT record and `Via` Header delegation methods will be deprecated (however, we have no evidence they're actually being used "in the wild" yet, ).
 
 We prefix the DomainHash HTTP header with GWF to make it clear it's a non-standard header of use only by our organization, while we do not prefix the CarbonTxt header in the same way, to make it clear that it's part of a potential future standard, as recommended in [RFC 6648](https://datatracker.ietf.org/doc/html/rfc6648).
 
@@ -51,6 +51,8 @@ We should standardise and make explicit a priority order for the delegation mech
     - a carbon.txt in the `well-known` directory, which should always take priority over
     - a DNS text record, which should always take priority over
     - an HTTP header.
+
+We explicitly *do not* follow HTTP 301 or 302 redirects when locating a carbon.txt file, preferring instead the use of the CarbonTxt-Location Header or the carbon-txt-location DNS txt field. This is for two reasons: Firstly, following redirects transparently allows abuse of the service whereby `bad-polluting-company.com` could redirect their carbon.txt to `good-green-company.com`'s carbon.txt URL, without the passing-off being explicitly flagged to the user'. Using our own delegation mechanisms allows a way for consumers to follow these types of redirections while surfacing the fact that the delegation is happening in a transparent manner. Secondly, following HTTP redirects would complicate the priority order above considerably (should redirects be followed before or after the CarbonTxt HTTP header or dns record? What if a 301 response _also_ contains the carbon.txt header?) We haven't found a satisfactory answer for any of these cases, nor a particulary compelling use-case for following HTTP redirects, while the other mechanisms exist.
 
 This both makes the behaviour of the validator more predictable, and allows flexibility in overriding the published carbon.txt in specific contexts.
 
@@ -68,7 +70,9 @@ Some advantages of this change:
  - We are able to provide a mechanism whereby GWF validators can validate control over all their domains (including the canonical domain hosting their carbon.txt file), while maintaining a separation of concerns between this and the carbon.txt standard itself.
  - We avoid issues arising from other uses of the HTTP Via header, and make our own implementation more "standards-friendly" by not overloading an existing standard and widely-used header with our own non-standard semantics.
  - We allow for other means of validating domain ownership in the GWF platform, including manual overrides by GWF staff (useful in the case of large, trusted, providers who might want to provide us with a list of controlled domains directly), or the future addition of, for instance, a domain-hash.txt file in the .well-known directory.
- - We delineate a separation between the business of the carbon.txt standard (discoverability and publishing of sustainability data), and the role of the GWF (aggregating this data and providing an additional layer of trust and verification on top of it). This also makes it easier for other actors to provide similar services on top of the carbon.txt standard in future as part of a broader carbon.txt ecosystem.
+ - We delineate a separation between the business of the carbon.txt standard (discoverability and publishing of sustainability data), and the role of the GWF (aggregating this data and providing an additional layer of trust and verification on top of it). This also makes it easier for other actors to provide similar trust services on top of the carbon.txt standard in future as part of a broader carbon.txt ecosystem.
+ - We defer any broader work on trust and verification in the carbon.txt ecosystem until we have time to tackle it properly, and come up with a good solution: We've discussed something similar to ACME protocol (the existing GWF domain hash implementation is broadly similar to ACME's DNS-1 challenge), but haven't yet worked through the details of how it might be incorporated into carbon.txt. By making the decision to rule the current domain-hash implementation out of scope for now, we open up the possibility of returning to the issue later with more focused attention and coming up with a better implementation, rather than committing ourselves early to an approach which may not be optimal.
+
 
 Some possible disadvantages:
 
