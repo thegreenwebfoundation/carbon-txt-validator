@@ -147,6 +147,6 @@ To see default values that can be override, see the `base.py` file, in `src/web/
 
 #### Monitoring and gathering stats on use of the API.
 
-When run as a server, the carbon.txt validator logs anonymous usage data about validation requests received, in order to track the uptake of the carbon.xt standard. We log the validation endpoint used (`file`, `url`, or `domain`), the domain requested and carbon.txt url (in the case of requests to the `url` and `domain` endpoints), and whether or not the validation was succesful.
+When run as a server, the carbon.txt validator logs anonymous usage data about validation requests received, in order to track the uptake of the carbon.txt standard. We log the validation endpoint used (`file`, `url`, or `domain`), the domain requested and carbon.txt URL (in the case of requests to the `url` and `domain` endpoints), and whether or not the validation was succesful.
 
 This information is saved to the application database (configured with the `DATABASE_URL` environment variable, as described above) in the table `validation_logging_ValidationLogEntry`. It is also output as an INFO message to the log, with a log name of `carbon_txt.web.validation_logging.middleware`.

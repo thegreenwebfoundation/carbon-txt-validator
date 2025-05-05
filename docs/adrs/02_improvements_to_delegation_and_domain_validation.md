@@ -22,7 +22,7 @@ This leads to problems with (existing) Via headers which use a pseudonym instead
 
 ## Decision
 
-The main change proposed here is to separate out the business of _delegating_ the location of carbon.txt to another domain from the business of verifying ownership of a domain in the Green Web platform. In the current carbon.txt design, a single HTTP Via header or DNS txt record does double duty here, representing both the canonical carbon.txt location and asserting ownership of the domain via a domain hash.
+The main change proposed here is to separate out the business of _delegating_ the location of carbon.txt to another domain from the business of verifying ownership of a domain in the Green Web platform. In the current carbon.txt design, a single HTTP Via header or DNS TXT record does double duty here, representing both the canonical carbon.txt location and asserting ownership of the domain via a domain hash.
 
 Instead we propose that this should be done by either two separate HTTP headers:
 
@@ -31,7 +31,7 @@ CarbonTxt-Location: https://example.com/carbon.txt
 GWF-DomainHash: <domain hash>
 ```
 
-... or two separate DNS txt records:
+... or two separate DNS TXT records:
 
 ```
 carbon-txt-location: https://example.com/carbon.txt
@@ -49,14 +49,14 @@ In addition, we also propose elaborating a few further details around how the de
 We should standardise and make explicit a priority order for the delegation mechanisms we offer:
     - A carbon.txt in the root of the domain should always take priority over
     - a carbon.txt in the `well-known` directory, which should always take priority over
-    - a DNS text record, which should always take priority over
+    - a DNS TXT record, which should always take priority over
     - an HTTP header.
 
-We explicitly *do not* follow HTTP 301 or 302 redirects when locating a carbon.txt file, preferring instead the use of the CarbonTxt-Location Header or the carbon-txt-location DNS txt field. This is for two reasons: Firstly, following redirects transparently allows abuse of the service whereby `bad-polluting-company.com` could redirect their carbon.txt to `good-green-company.com`'s carbon.txt URL, without the passing-off being explicitly flagged to the user'. Using our own delegation mechanisms allows a way for consumers to follow these types of redirections while surfacing the fact that the delegation is happening in a transparent manner. Secondly, following HTTP redirects would complicate the priority order above considerably (should redirects be followed before or after the CarbonTxt HTTP header or dns record? What if a 301 response _also_ contains the carbon.txt header?) We haven't found a satisfactory answer for any of these cases, nor a particulary compelling use-case for following HTTP redirects, while the other mechanisms exist.
+We explicitly *do not* follow HTTP 301 or 302 redirects when locating a carbon.txt file, preferring instead the use of the CarbonTxt-Location Header or the carbon-txt-location DNS TXT field. This is for two reasons: Firstly, following redirects transparently allows abuse of the service whereby `bad-polluting-company.com` could redirect their carbon.txt to `good-green-company.com`'s carbon.txt URL, without the passing-off being explicitly flagged to the user'. Using our own delegation mechanisms allows a way for consumers to follow these types of redirections while surfacing the fact that the delegation is happening in a transparent manner. Secondly, following HTTP redirects would complicate the priority order above considerably (should redirects be followed before or after the CarbonTxt HTTP header or dns record? What if a 301 response _also_ contains the carbon.txt header?) We haven't found a satisfactory answer for any of these cases, nor a particulary compelling use-case for following HTTP redirects, while the other mechanisms exist.
 
 This both makes the behaviour of the validator more predictable, and allows flexibility in overriding the published carbon.txt in specific contexts.
 
-The DNS TXT record and HTTP Header validation mechanisms should allow users to delegate EITHER to a full url of a carbon.txt OR to another domain. In the latter case, the same resolution mechanism will be applied recursively to the new domain, until a concrete carbon.txt file is
+The DNS TXT record and HTTP Header validation mechanisms should allow users to delegate EITHER to a full URL of a carbon.txt OR to another domain. In the latter case, the same resolution mechanism will be applied recursively to the new domain, until a concrete carbon.txt file is
 One consequence of this is that the validator _should never_  follow any of the delegating logic when testing full URLs that directly reference a carbon.txt file with the `/api/validate/url/` endpoint. This is both consistent with the logic above (a local URL with a carbon.txt file always takes priority over a delegation mechanism), but also solves a concrete problem we have currently where hosting providers attempting to publish and validate their carbon.txt files are running into spurious errors because of http headers inserted by downstream CDNS outside of their control. A change making sure that this is the case is [already implemented in #84](https://github.com/thegreenwebfoundation/carbon-txt-validator/pull/84).
 
 ## Consequences
@@ -66,7 +66,7 @@ One consequence of this is that the validator _should never_  follow any of the 
 Some advantages of this change:
 
  - The behaviour of the validator becomes easier to reason about as we have made the order of priority of delegation mechanisms explicit.
- - It becomes easier to test the "simplest" case -  a carbon.txt file directly hosted on a domain, as no http headers or DNS records can override it.
+ - It becomes easier to test the "simplest" case -  a carbon.txt file directly hosted on a domain, as no HTTP headers or DNS records can override it.
  - We are able to provide a mechanism whereby GWF validators can validate control over all their domains (including the canonical domain hosting their carbon.txt file), while maintaining a separation of concerns between this and the carbon.txt standard itself.
  - We avoid issues arising from other uses of the HTTP Via header, and make our own implementation more "standards-friendly" by not overloading an existing standard and widely-used header with our own non-standard semantics.
  - We allow for other means of validating domain ownership in the GWF platform, including manual overrides by GWF staff (useful in the case of large, trusted, providers who might want to provide us with a list of controlled domains directly), or the future addition of, for instance, a domain-hash.txt file in the .well-known directory.
@@ -76,7 +76,7 @@ Some advantages of this change:
 
 Some possible disadvantages:
 
-- This might introduce a little additional complexity for GWF-verified hosting providers, as they would need to create two additional DNS txt records (or add two HTTP headers) instead of one in order to set up their provider to use carbon.txt. However, given that we are in control of the design of this process in the greenweb platform, we're confident that we can mitigate this.
+- This might introduce a little additional complexity for GWF-verified hosting providers, as they would need to create two additional DNS TXT records (or add two HTTP headers) instead of one in order to set up their provider to use carbon.txt. However, given that we are in control of the design of this process in the greenweb platform, we're confident that we can mitigate this.
 - It adds a requirement for substantially more detail in the documentation, but we think that the effect of this will be greater clarity rather than greater confusion.
 - If, in the future, we decided we wanted to build a decentralised trust/verification mechanism into the carbon.txt standard itself (using something analogous to OpenID connect or TLS chains of trust), the separation between the two headers or txt records would become superfluous, and perhaps should be rethought. This isn't on our roadmap though, so isn't really a concern for now.
 

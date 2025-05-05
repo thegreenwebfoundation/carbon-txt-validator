@@ -56,12 +56,12 @@ def test_hitting_validate_url_endpoint_fail(
 
 
 @pytest.mark.parametrize("url_suffix", ["", "/"])
-def test_hitting_validate_url_endpoint_with_via_delegation(
+def test_hitting_validate_url_endpoint_with_http_header_delegation(
     live_server, url_suffix, mocked_http_delegating_carbon_txt_url
 ):
     """
-    When we have a carbon.txt url that is delegating to a another server
-    using the http 'via' header, does it follow the delegation and return the
+    When we have a carbon.txt URL that is delegating to a another server
+    using the HTTP 'CarbonTxt-Location' header, does it follow the delegation and return the
     correct response?
     """
     api_url = f"{live_server.url}/api/validate/url{url_suffix}"
@@ -78,8 +78,8 @@ def test_hitting_validate_url_endpoint_with_txt_delegation(
     live_server, url_suffix, mocked_dns_delegating_carbon_txt_url
 ):
     """
-    When we have a carbon.txt url that is delegating to a another server
-    using the DNS txt record, does it follow the delegation and return the
+    When we have a carbon.txt URL that is delegating to a another server
+    using the DNS TXT record, does it follow the delegation and return the
     correct response?
     """
     api_url = f"{live_server.url}/api/validate/url{url_suffix}"
@@ -111,12 +111,12 @@ def test_hitting_validate_domain_endpoint_fail(
 
 
 @pytest.mark.parametrize("url_suffix", ["", "/"])
-def test_hitting_validate_domain_endpoint_with_via_delegation(
+def test_hitting_validate_domain_endpoint_with_http_header_delegation(
     live_server, url_suffix, mocked_http_delegating_carbon_txt_domain
 ):
     """
-    When we have a carbon.txt url that is delegating to a another server
-    using the http 'via' header, does it follow the delegation and return the
+    When we have a carbon.txt URL that is delegating to a another server
+    using the HTTP 'CarbonTxt-Location' header, does it follow the delegation and return the
     correct response?
     """
     api_url = f"{live_server.url}/api/validate/domain{url_suffix}"
@@ -126,7 +126,7 @@ def test_hitting_validate_domain_endpoint_with_via_delegation(
     assert res.status_code == 200
     print(res.json())
     actual_url = res.json()["url"]
-    assert actual_url== "https://managed-service.withcarbontxt.example.com/carbon.txt"
+    assert actual_url == "https://managed-service.withcarbontxt.example.com/carbon.txt"
 
 
 @pytest.mark.parametrize("url_suffix", ["", "/"])
@@ -134,8 +134,8 @@ def test_hitting_validate_domain_endpoint_with_txt_delegation(
     live_server, url_suffix, mocked_dns_delegating_carbon_txt_domain
 ):
     """
-    When we have a carbon.txt url that is delegating to a another server
-    using the DNS txt record, does it follow the delegation and return the
+    When we have a carbon.txt URL that is delegating to a another server
+    using the DNS TXT record, does it follow the delegation and return the
     correct response?
     """
     api_url = f"{live_server.url}/api/validate/domain{url_suffix}"
@@ -143,7 +143,7 @@ def test_hitting_validate_domain_endpoint_with_txt_delegation(
     res = httpx.post(api_url, json=data, follow_redirects=True, timeout=None)
     actual_url = res.json()["url"]
     assert res.status_code == 200
-    assert actual_url== "https://managed-service.withcarbontxt.example.com/carbon.txt"
+    assert actual_url == "https://managed-service.withcarbontxt.example.com/carbon.txt"
 
 
 # TODO: Do we still need to run this with a full on external server?

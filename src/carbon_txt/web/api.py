@@ -137,7 +137,7 @@ def validate_url(
 
     Args:
         request: The request object.
-        carbon_txt_url_data: The request body containing the url of the carbon.txt file.
+        carbon_txt_url_data: The request body containing the URL of the carbon.txt file.
 
     Returns:
         dict: A dictionary containing the success status and either the validated data or errors.
