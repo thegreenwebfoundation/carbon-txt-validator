@@ -10,6 +10,10 @@ Fixed, Changed, Added, Removed, Fixed, Security
 
 ## Unreleased
 
+## [0.0.15]
+
+### Changed
+
  - Use of 'Via' HTTP header and `carbon-txt` DNS TXT record deprecated in favour of new `Carbon-Txt-Location` HTTP header and `carbon-txt-location` DNS TXT record.
  - Formalise the order of priority in carbon.txt domain lookups: Local file in root, followed by local file in `.well-known`, followed by DNS TXT record, followed by HTTP Header.
  - Ensure that checks for a specific carbon.txt URL do not follow the domain delegation lookup logic
