@@ -1,0 +1,43 @@
+name: Deploy latest version of API service to production
+
+on:
+  push:
+    branches:
+      - prod
+
+defaults:
+  run:
+    shell: bash
+    working-directory: ./
+
+jobs:
+  deploy:
+    environment: prod
+    timeout-minutes: 10
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Use turnstyle to serialise deploys
+        uses: softprops/turnstyle@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Run playbook
+        uses: dawidd6/action-ansible-playbook@v2
+        with:
+          playbook: ./ansible/deploy.yml
+          directory: ./
+          key: ${{secrets.SSH_PRIVATE_KEY}}
+          inventory: |
+          options: |
+            --inventory ./ansible/inventories/prod.yml
+        env:
+          ANSIBLE_STDOUT_CALLBACK: yaml
+          PYTHONDONTWRITEBYTECODE: 1
+          CARBON_TXT_API_DATABASE_URL: ${{ secrets.CARBON_TXT_API_DATABASE_URL }}
+          CARBON_TXT_API_SECRET_KEY: ${{ secrets.CARBON_TXT_API_SECRET_KEY }}
+          CARBON_TXT_API_DJANGO_SETTINGS_MODULE: ${{ secrets.CARBON_TXT_API_DJANGO_SETTINGS_MODULE }}
+          CARBON_TXT_API_SENTRY_DSN: ${{ secrets.CARBON_TXT_API_SENTRY_DSN }}
