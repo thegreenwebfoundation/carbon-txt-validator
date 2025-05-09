@@ -13,6 +13,10 @@ default:
 run-cli *options:
   uv run carbon-txt {{ options }}
 
+# Run a command with installed python tools available via 'uv', and environment variables via 'just'
+run *options:
+  uv run  {{ options }}
+
 # show the environment variables available
 env:
   env

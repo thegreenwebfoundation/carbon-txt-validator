@@ -1,0 +1,9 @@
+/home/deploy/.cargo/bin/uv tool run \
+    --with mysqlclient \
+    --from git+https://github.com/thegreenwebfoundation/carbon-txt-validator/ \
+    carbon-txt serve \
+    --django-settings local_config \
+    --port 11000 \
+    --host 0.0.0.0 \
+    --server granian \
+    --migrate

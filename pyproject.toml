@@ -55,4 +55,5 @@ dev-dependencies = [
     "marimo>=0.9.23",
     "pytest-httpx>=0.34.0",
     "pytest-mock>=3.14.0",
+    "ansible>=11.5.0",
 ]

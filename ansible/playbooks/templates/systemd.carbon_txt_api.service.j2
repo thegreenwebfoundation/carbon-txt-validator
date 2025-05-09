@@ -1,0 +1,20 @@
+# {{ ansible_managed }}
+# Last run: {{ template_run_date }}
+[Unit]
+Description=Carbon.txt API
+Documentation=https://carbon-txt-validator.readthedocs.io/en/latest/
+Wants=network-online.target
+After=network-online.target
+[Service]
+ExecStart=bash ./run_carbon_txt_api.sh
+ExecReload=/bin/kill -s HUP $MAINPID
+WorkingDirectory={{ project_path }}/
+EnvironmentFile={{ project_path }}/.env
+User={{ service_user }}
+Group={{ service_user }}
+KillMode=control-group
+KillSignal=SIGINT
+TimeoutStopSec=5
+Restart=on-failure
+[Install]
+WantedBy=multi-user.target
