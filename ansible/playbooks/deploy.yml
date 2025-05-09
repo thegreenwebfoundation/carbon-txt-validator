@@ -1,0 +1,114 @@
+---
+- name: Deploy carbon.txt API to server and run service with systemd
+  gather_facts: false
+
+  hosts:
+    - app5.greenweb.org
+
+  remote_user: deploy
+
+  vars:
+    project_path: /var/www/carbon-txt-api.greenweb.org
+    service_user: deploy
+    service_restart: true
+
+    # Environment variables for carbon.txt.api
+    secret_key: "{{ lookup('env', 'CARBON_TXT_API_SECRET_KEY') }}"
+    database_url: "{{ lookup('env', 'CARBON_TXT_API_DATABASE_URL') }}"
+
+    # Sentry configuration
+    sentry_dsn: "{{ lookup('env', 'CARBON_TXT_API_SENTRY_DSN') }}"
+    sentry_trace_sample_rate: 1.0
+    sentry_profile_sample_rate: 1.0
+
+    # running these checks is slow, and we only need them when setting up
+    check_for_mysql_dependencies: false
+
+  tasks:
+
+    - name: Verify required environment variables
+      ansible.builtin.fail:
+        msg: "Required environment variable {{ item }} is not set or empty"
+      when: lookup('env', item) | trim == ''
+      loop:
+        - CARBON_TXT_API_SECRET_KEY
+        - CARBON_TXT_API_SENTRY_DSN
+        - CARBON_TXT_API_DATABASE_URL
+      tags: [pre-flight]
+
+    - name: "Install pkg-config dependency for mysql client"
+      ansible.builtin.apt:
+        name: "pkg-config"
+        state: "present"
+      when: check_for_mysql_dependencies | bool
+      tags: [setup-script]
+
+    - name: "Install clang dependency for mysql client"
+      ansible.builtin.apt:
+        name: "clang"
+        state: "present"
+      when: check_for_mysql_dependencies | bool
+      tags: [setup-script]
+
+    - name: Set up directory for running web app
+      ansible.builtin.file:
+        path: "{{ project_path }}"
+        state: directory
+        owner: "{{ service_user }}"
+        group: "{{ service_user }}"
+        mode: "0755"
+      tags: [setup-script]
+
+    - name: Upload bash script for running carbon.txt.api
+      ansible.builtin.template:
+        src: "run_carbon_txt_api.sh.j2"
+        dest: "{{ project_path }}/run_carbon_txt_api.sh"
+        mode: "0755"
+      tags: [setup-script]
+
+    - name: Upload dotenv file for running carbon.txt.api
+      ansible.builtin.template:
+        src: carbon_txt_api_dotenv.sh.j2
+        dest: "{{ project_path }}/.env"
+        mode: "0755"
+      tags: [setup-script]
+
+    - name: Upload extra django config file
+      ansible.builtin.template:
+        src: carbon_txt_api_local_config.py.j2
+        dest: "{{ project_path }}/local_config.py"
+        mode: "0755"
+      tags: [setup-script]
+
+    - name: Upload systemd service file for running carbon.txt.api
+      ansible.builtin.template:
+        src: systemd.carbon_txt_api.service.j2
+        dest: "/etc/systemd/system/carbon_txt_api.service"
+        mode: "0755"
+        owner: "{{ service_user }}"
+        group: "{{ service_user }}"
+      become: true
+      tags: [setup-script]
+
+    - name: Reload systemd to pick up new changes
+      ansible.builtin.systemd:
+        daemon_reload: true
+      become: true
+      tags: [systemd-config]
+
+    - name: Query state of services including api service
+      ansible.builtin.service_facts:
+      tags: [systemd-service, systemd-check]
+
+    - name: Show state of services
+      ansible.builtin.debug:
+        var: ansible_facts.services["carbon_txt_api.service"]
+      tags: [systemd-check]
+
+    - name: Trigger restart for app with systemd
+      ansible.builtin.systemd:
+        name: "carbon_txt_api.service"
+        state: restarted
+      become: true
+      when: service_restart is true
+      tags: [systemd-service]

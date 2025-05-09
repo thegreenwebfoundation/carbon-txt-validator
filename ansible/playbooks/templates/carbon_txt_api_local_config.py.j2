@@ -1,0 +1,9 @@
+# {{ ansible_managed }}
+# Last run: {{ template_run_date }}
+
+from carbon_txt.web.config.settings.production import *  # noqa
+
+# Allow connections from any domain, using the installed django-cors-headers package
+# https://github.com/adamchainz/django-cors-headers#cors_allow_all_origins-bool
+CORS_ALLOW_ALL_ORIGINS = True
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")

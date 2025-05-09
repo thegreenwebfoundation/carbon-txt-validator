@@ -8,101 +8,24 @@ This is content is primarily aimed at an internal audience of staff at the Green
 
 ## How the Green Web Foundation deploys the validator
 
+We use the following Ansible playbook ourselves to deploy the latest version of the API to a given server.
 
-We've included the example below to demonstrate a relatively simple, repeatable deployment scenario, using Ansible for managing repeatable deploys.
-
-We use a tweaked version of this playbook ourselves. It assumes you have a dedicated user set up to run the service running on a linux server, called `YOUR_USER`, and sets up a folder structure to run the service, using the tool `uv` to run the latest published version of the package.
+It assumes you have a dedicated user set up to run the service running on a linux server, called `deploy`, and sets up a folder structure to run the service, using the tool `uv` to run the latest published version of the package.
 
 It refers to a django config file accessible in the same folder as where the command is run.
 
 It also sets up a systemd service to run the service behind a reverse proxy server like Nginx or Caddy (in our case, we use Caddy). Systemd handles restarts and failures, and collects logs to be sent to a centralised logging server.
 
-This playbook is designed to be run from a developer's server, or as part of an internal github action in an separate "infrastructure" repository.
+This playbook is designed to be run from a developer's server, or as part of an internally managed github action.
+
+### Deployment
 
 
-```yaml
----
-- name: Deploy carbon.txt API to server and run service with systemd
-  gather_facts: false
-
-  hosts:
-    # with ansible the same steps will be run on the servers listed
-    # below. Adding more servers will deploy the code on more machines
-    - your_chosen_webserver.your_domain.org
-
-  remote_user: YOUR_USER
-
-  vars:
-    project_path: /var/www/carbon-txt-api.greenweb.org
-    service_user: "{{ remote_user}}"
-    service_restart: true
-    database_url: "{{ lookup('env', 'CARBON_TXT_API_DATABASE_URL') }}"
-
-
-  tasks:
-    - name: Set up directory for running web app
-      ansible.builtin.file:
-        path: "{{ project_path }}"
-        state: directory
-        owner: "{{ remote_user}}"
-        group: "{{ remote_user}}"
-        mode: "0755"
-      tags: [setup-script]
-
-    - name: Upload bash script for running carbon.txt.api
-      ansible.builtin.template:
-        src: run_carbon_txt_api.sh.j2
-        dest: "{{ project_path }}/run_carbon_txt_api.sh"
-        mode: "0755"
-      tags: [setup-script]
-
-    - name: Upload django settings module for running carbon.txt.api
-      ansible.builtin.template:
-        src: carbon_txt_api_config.j2
-        dest: "{{ project_path }}/local_config.sh"
-        mode: "0755"
-      tags: [setup-script]
-
-    - name: Upload dotenv file for running carbon.txt.api
-      ansible.builtin.template:
-        src: carbon_txt_api_dotenv.sh.j2
-        dest: "{{ project_path }}/.env"
-        mode: "0755"
-      tags: [setup-script]
-
-    - name: Upload systemd service file for running carbon.txt.api
-      ansible.builtin.template:
-        src: systemd.carbon_txt_api.service.j2
-        dest: "/etc/systemd/system/carbon_txt_api.service"
-        mode: "0755"
-        owner: "{{ remote_user}}"
-        group: "{{ remote_user}}"
-      become: true
-      tags: [setup-script]
-
-    - name: Reload systemd to pick up new changes
-      ansible.builtin.systemd:
-        daemon_reload: true
-      become: true
-      tags: [systemd, config]
-
-    - name: Query state of web app service
-      ansible.builtin.service_facts:
-      tags: [systemd-check]
-
-    - name: Show state of services
-      ansible.builtin.debug:
-        var: ansible_facts.services["carbon_txt_api.service"]
-      tags: [systemd-check]
-
-    - name: Trigger restart for app with systemd
-      ansible.builtin.systemd:
-        name: "carbon_txt_api.service"
-        state: restarted
-      become: true
-      when: service_restart is true
-      tags: [systemd-service]
+```{literalinclude} ./../ansible/playbooks/deploy.yml
+:language: yaml
 ```
+
+
 
 The carbon_txt_api file is the file run by Systemd. Every time this is run, it pulls down the latest published version of the carbon-txt package and runs the `serve` command.
 

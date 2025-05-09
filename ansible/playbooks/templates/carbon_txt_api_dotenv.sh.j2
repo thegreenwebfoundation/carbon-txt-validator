@@ -1,0 +1,14 @@
+# {{ ansible_managed }}
+# Last run: {{ template_run_date }}
+
+SECRET_KEY="{{ secret_key }}"
+DATABASE_URL="{{ database_url }}"
+
+# We default to having this, to avoid needing to set it every time
+ACTIVE_CARBON_TXT_PLUGINS="carbon_txt.process_csrd_document"
+
+{% if sentry_dsn is defined %}
+SENTRY_DSN="{{ sentry_dsn }}"
+SENTRY_TRACE_SAMPLE_RATE="{{ sentry_trace_sample_rate }}"
+SENTRY_PROFILE_SAMPLE_RATE="{{ sentry_profile_sample_rate }}"
+{% endif %}
