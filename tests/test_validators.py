@@ -82,14 +82,31 @@ class TestCarbonTxtValidator:
         assert res.result
         assert not res.exceptions
 
-    def test_validate_with_valid_html_instead_of_expected_toml(
+    def test_validate_with_valid_404_html_page_instead_of_expected_toml(
         self, mocked_404_page_at_carbon_txt_path
+    ):
+        """
+        This should show a failure with the 404 triggering an UnreachableCarbonTxtFile,
+        as though we have HTML content being returned in the "not found" response, the
+        status code is what we check for first, and it is a 404.
+        """
+        validator = validators.CarbonTxtValidator()
+        res = validator.validate_url(mocked_404_page_at_carbon_txt_path)
+
+        assert not res.result
+        assert res.exceptions
+        assert len(res.exceptions) == 1
+
+        assert "UnreachableCarbonTxtFile" in res.exceptions[0]
+
+    def test_validate_with_valid_200_html_instead_of_expected_toml(
+        self, mocked_not_found_page_at_carbon_txt_path
     ):
         """
         This should show a failure, as the HTML is not a valid carbon.txt file
         """
         validator = validators.CarbonTxtValidator()
-        res = validator.validate_url(mocked_404_page_at_carbon_txt_path)
+        res = validator.validate_url(mocked_not_found_page_at_carbon_txt_path)
 
         assert not res.result
         assert res.exceptions
