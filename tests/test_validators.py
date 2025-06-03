@@ -81,3 +81,22 @@ class TestCarbonTxtValidator:
 
         assert res.result
         assert not res.exceptions
+
+    def test_validate_with_valid_html_instead_of_expected_toml(
+        self, mocked_404_page_at_carbon_txt_path
+    ):
+        """
+        This should show a failure, as the HTML is not a valid carbon.txt file
+        """
+        validator = validators.CarbonTxtValidator()
+        res = validator.validate_url(mocked_404_page_at_carbon_txt_path)
+
+        assert not res.result
+        assert res.exceptions
+        assert len(res.exceptions) == 1
+
+        # TODO we list the exception class name in the exception message.
+        # Consider providing more structured information to render in the
+        # CLI and validator web UI
+
+        assert "NotParseableTOMLButHTML" in res.exceptions[0]

@@ -590,3 +590,35 @@ def mocked_carbon_txt_domain_with_recursive_delegation(
             is_optional=True,
         )
     return domain
+
+
+@pytest.fixture(
+    params=[
+        pytest.param(
+            "",
+            marks=pytest.mark.httpx_mock(
+                should_mock=lambda request: request.url.host.endswith(
+                    "withcarbontxt.example.com"
+                ),
+            ),
+        )
+    ]
+)
+def mocked_404_page_at_carbon_txt_path(httpx_mock, valid_html_not_found_page) -> str:
+    """
+    Return a 404 error on requests for carbon.txt, but provide a valid
+    carbon.txt file at the path.
+    """
+    domain = "withcarbontxt.example.com"
+    url = f"https://{domain}/carbon.txt"
+
+    for method in ["get", "head"]:
+        httpx_mock.add_response(
+            method=method,
+            url=f"https://{domain}/carbon.txt",
+            content=valid_html_not_found_page,
+            status_code=200,
+            is_reusable=True,
+            is_optional=True,
+        )
+    return url
