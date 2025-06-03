@@ -2,6 +2,10 @@ name: Run tests
 
 on:
   push:
+    branches:
+      - main
+    tags:
+      - "**"
     paths-ignore:
       - "**.md"
       - ".gitignore"
