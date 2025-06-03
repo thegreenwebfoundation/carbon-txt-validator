@@ -26,8 +26,11 @@ class NotParseableTOML(Exception):
 
 class NotParseableTOMLButHTML(Exception):
     """
-    Raised when we have an parsed HTML string when we expected
-    TOML instead
+    Raised when we have a parsed HTML string when we expected
+    TOML instead. Used to catch "Not Found" style pages, or fallback
+    index pages that return with a 200 OK status code when there is
+    no carbon.txt file at the expected /carbon.txt or
+    ./.well-known/carbon.txt paths.
     """
 
     pass
@@ -64,3 +67,5 @@ class NoLoadableCSRDFile(ValueError):
     """
     Thrown when a the link CSRD file can't be loaded by Arelle.
     """
+
+    pass
