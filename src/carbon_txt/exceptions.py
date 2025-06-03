@@ -17,8 +17,17 @@ class UnreachableCarbonTxtFile(Exception):
 
 class NotParseableTOML(Exception):
     """
-    Raised when we have a response at a the given carbon txt
-    URL, but it is not parsable TOML file
+    Raised when we have a response at the given carbon txt
+    URL, but it is not parsable TOML file.
+    """
+
+    pass
+
+
+class NotParseableTOMLButHTML(Exception):
+    """
+    Raised when we have an parsed HTML string when we expected
+    TOML instead
     """
 
     pass

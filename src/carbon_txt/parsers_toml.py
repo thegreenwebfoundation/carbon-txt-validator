@@ -1,16 +1,56 @@
-import tomllib as toml
-from . import schemas
-
-from . import exceptions
-import pydantic
-import typing
-
 import logging
+import typing
+import html.parser
+import pydantic
+import tomllib as toml
 from structlog import get_logger
+
+from . import exceptions, schemas
 
 logger = get_logger()
 
 # # Do not surface warning messages, as we show them at the end anyway.
+
+
+class HTMLValidator(html.parser.HTMLParser):
+    """A simple HTML validator that tracks parsing errors."""
+
+    def __init__(self):
+        super().__init__()
+        self.errors = []
+
+    def error(self, message):
+        self.errors.append(message)
+
+
+def is_valid_html(html_string, logs=None):
+    """
+    Check if a string is valid parsable HTML. Used to distinguish invalid TOML
+    files from valid HTML files that may have been returned by a server
+    when a carbon.txt file is expected.
+
+    Args:
+        html_string: The string to check
+        logs: Optional list to append log messages to
+
+    Returns:
+        bool: True if the string is valid HTML, False otherwise
+    """
+    try:
+        parser = HTMLValidator()
+        parser.feed(html_string)
+
+        if parser.errors:
+            if logs:
+                logs.append(f"HTML validation failed: {parser.errors}")
+            return False
+
+        log_safely("String parsed as valid HTML.", logs)
+        return True
+
+    except Exception as ex:
+        log_safely(f"HTML parsing failed: {str(ex)}", logs, level=logging.WARNING)
+        return False
 
 
 def log_safely(log_message: str, logs: typing.Optional[list], level=logging.INFO):
@@ -40,6 +80,16 @@ class CarbonTxtParser:
             return parsed
         except toml.TOMLDecodeError as ex:
             log_safely("TOML parsing failed.", logs, level=logging.WARNING)
+
+            log_safely("Checking if content is an valid HTML page instead.", logs)
+            if is_valid_html(str, logs):
+                log_safely(
+                    "Parsed content is valid HTML, not TOML.",
+                    logs,
+                    level=logging.WARNING,
+                )
+                raise exceptions.NotParseableTOMLButHTML(ex)
+
             raise exceptions.NotParseableTOML(ex)
 
     def validate_as_carbon_txt(

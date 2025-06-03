@@ -1,4 +1,5 @@
 from carbon_txt.parsers_toml import CarbonTxtParser
+from carbon_txt.exceptions import NotParseableTOMLButHTML
 import pytest
 
 parser = CarbonTxtParser()
@@ -69,3 +70,16 @@ class TestParseCarbonTxt:
         # errors are triggered on instantiation, so if the parsed data
         # validates, then the test passes
         parser.validate_as_carbon_txt(parsed, logs=[])
+
+    def test_parse_invalid_toml_but_valid_html(self, valid_html_not_found_page):
+        """
+        Do we raise an appropriate exception when we were expecting TOML,
+        but got a valid HTML page instead?
+
+        like with a 404 or 200 index html page?
+        """
+
+        # Test passing HTML content to the parser raises NotTOMLButHTML exception
+        with pytest.raises(NotParseableTOMLButHTML) as excinfo:
+            parser.parse_toml(valid_html_not_found_page, logs=[])
+            assert excinfo.type.__name__ == "NotParseableTOMLButHTML"

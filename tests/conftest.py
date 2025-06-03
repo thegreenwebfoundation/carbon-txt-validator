@@ -78,6 +78,24 @@ def minimal_carbon_txt_org_with_csrd_file():
     """  # noqa
 
 
+@pytest.fixture
+def valid_html_not_found_page():
+    return """
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+            <meta charset="UTF-8">
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <title>404 Not Found</title>
+        </head>
+        <body>
+            <h1>404 Not Found</h1>
+            <p>The requested URL was not found on this server.</p>
+        </body>
+        </html>
+    """
+
+
 @pytest.fixture()
 def reset_plugin_registry():
     """
@@ -85,7 +103,7 @@ def reset_plugin_registry():
     because the plugin framework we have doesn't reset on each test, and
     if we set up a plugin in one test, it can still be active in the next.
     """
-    from carbon_txt.plugins import pm
+    from carbon_txt.plugins import pm  # noqa
 
     modules = pm.get_plugins()
     logger.debug(f"\n current modules: {modules}")
