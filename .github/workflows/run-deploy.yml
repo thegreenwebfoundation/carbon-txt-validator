@@ -21,7 +21,7 @@ jobs:
         uses: actions/checkout@v4
 
       - name: Use turnstyle to serialise deploys
-        uses: softprops/turnstyle@v1
+        uses: softprops/turnstyle@v2.3.2
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
