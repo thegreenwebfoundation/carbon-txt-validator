@@ -96,7 +96,7 @@ class FileFinder:
         except UnreachableCarbonTxtFile:
             pass
 
-    def _check_for_dns_delegation(self, domain : str, logs=None) -> Optional[str]:
+    def _check_for_dns_delegation(self, domain: str, logs=None) -> Optional[str]:
         """
         Check for a 'carbon-txt-location' DNS TXT record, and return the URL in the record if present
         """
@@ -105,8 +105,9 @@ class FileFinder:
             log_safely(f"New lookup found for domain {domain}: {uri_from_domain}", logs)
             return self.resolve_domain_or_uri(uri_from_domain, logs)
 
-
-    def _check_for_http_header_delegation(self, domain: str, logs=None) -> Optional[str]:
+    def _check_for_http_header_delegation(
+        self, domain: str, logs=None
+    ) -> Optional[str]:
         """
         Check for a 'CarbonTxt-Location' header in the response, and return the URL in the header if present
         """
@@ -121,12 +122,10 @@ class FileFinder:
                 log_safely(
                     f"Found a 'CarbonTxt-Location' header, following to {header_url}",
                     logs,
-                    )
+                )
                 try:
                     parsed_url = str(httpx.URL(header_url))
-                    return self.resolve_domain_or_uri(
-                        parsed_url, logs
-                    )
+                    return self.resolve_domain_or_uri(parsed_url, logs)
                 except httpx.InvalidURL:
                     logger.error(
                         f"Invalid URL in 'CarbonTxt-Location' header: {header_url}"
@@ -178,9 +177,9 @@ class FileFinder:
         Follows delegation logic from DNS TXT records, and the 'CarbonTxt-Location' header in
         HTTP responses to resolve to a final URL for a carbon.txt file, in the following order of priority.
 
+        - delegation with DNS record
         - carbon.txt file at /carbon.txt
         - carbon.txt file at .well-known/carbon.txt
-        - delegation with DNS record
         - delegation with HTTP header
 
         This method is called recursively if the DNS TXT record or CarbonTxt-Location Header are present
@@ -188,21 +187,23 @@ class FileFinder:
         a full path to a file, no further delegation is attempted.
         """
 
-        # We look for a carbon.txt file at the root of the domain.
-        # If that isn't there try a fallback to one at the `.well-known`` path
-        # following the well-known convention
-        default_paths = ["/carbon.txt", "/.well-known/carbon.txt"]
-
-        for url_path in default_paths:
-            if candidate := self._check_for_hosted_carbon_txt(f"https://{domain}{url_path}", logs):
-                return candidate
-
-        # If we have not found a carbon.txt file at the root or in the .well-known directory,
-        # we then check whether a carbon-txt-location DNS TXT record exists
+        # First, we check whether a carbon-txt-location DNS TXT record exists
         if candidate := self._check_for_dns_delegation(domain, logs):
             return candidate
 
-        # If there is no DNS TXT record, check for a CarbonTxt-Location HTTP header:
+        # If no DNS record exists, we look for a carbon.txt file at
+        # the root of the domain. If that isn't there try a fallback
+        # to one at the `.well-known` path:
+        default_paths = ["/carbon.txt", "/.well-known/carbon.txt"]
+
+        for url_path in default_paths:
+            if candidate := self._check_for_hosted_carbon_txt(
+                f"https://{domain}{url_path}", logs
+            ):
+                return candidate
+
+        # If we have not found a carbon.txt file at the root or in the
+        # .well-known directory, check for a CarbonTxt-Location HTTP header:
         if candidate := self._check_for_http_header_delegation(domain, logs):
             return candidate
 
