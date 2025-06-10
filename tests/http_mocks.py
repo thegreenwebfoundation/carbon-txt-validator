@@ -432,7 +432,7 @@ def mocked_carbon_txt_domain_with_file_and_dns_delegation(
         )
     ]
 )
-def mocked_carbon_txt_domain_with_dns_and_http_delegation(
+def mocked_carbon_txt_domain_with_file_and_http_delegation(
     httpx_mock, mocker, minimal_carbon_txt_org
 ) -> str:
     """
@@ -441,28 +441,16 @@ def mocked_carbon_txt_domain_with_dns_and_http_delegation(
     Provide the domain name to the test.
     """
     domain = "delegating.withcarbontxt.example.com"
-    dns_managed_service_url = (
-        "https://dns-managed-service.withcarbontxt.example.com/carbon.txt"
-    )
     http_managed_service_url = (
         "https://http-managed-service.withcarbontxt.example.com/carbon.txt"
     )
-    record = MagicMock()
-    record.to_text.return_value = f'"carbon-txt-location={dns_managed_service_url}"'
-
-    def dns_lookup_side_effect(requested_domain, record_type):
-        if requested_domain == domain:
-            return [record]
-        else:
-            return []
-
-    mocker.patch("dns.resolver.resolve", side_effect=dns_lookup_side_effect)
 
     for method in ["get", "head"]:
         httpx_mock.add_response(
             method=method,
             url=f"https://{domain}/carbon.txt",
-            status_code=404,
+            status_code=200,
+            content=minimal_carbon_txt_org,
             headers={"CarbonTxt-Location": http_managed_service_url},
             is_reusable=True,
             is_optional=True,
@@ -486,14 +474,6 @@ def mocked_carbon_txt_domain_with_dns_and_http_delegation(
         )
         httpx_mock.add_response(
             method=method,
-            url=dns_managed_service_url,
-            status_code=200,
-            content=minimal_carbon_txt_org,
-            is_reusable=True,
-            is_optional=True,
-        )
-        httpx_mock.add_response(
-            method=method,
             url=http_managed_service_url,
             status_code=200,
             content=minimal_carbon_txt_org,
@@ -501,6 +481,7 @@ def mocked_carbon_txt_domain_with_dns_and_http_delegation(
             is_optional=True,
         )
     return domain
+
 
 @pytest.fixture(
     params=[
@@ -524,14 +505,12 @@ def mocked_carbon_txt_domain_with_recursive_delegation(
     Provide the 1st domain name to the test.
     """
     domain = "delegating.withcarbontxt.example.com"
-    first_managed_service_domain = (
-        "first-managed-service.withcarbontxt.example.com"
-    )
-    second_managed_service_domain = (
-        "second-managed-service.withcarbontxt.example.com"
-    )
+    first_managed_service_domain = "first-managed-service.withcarbontxt.example.com"
+    second_managed_service_domain = "second-managed-service.withcarbontxt.example.com"
     record = MagicMock()
-    record.to_text.return_value = f'"carbon-txt-location={first_managed_service_domain}"'
+    record.to_text.return_value = (
+        f'"carbon-txt-location={first_managed_service_domain}"'
+    )
 
     def dns_lookup_side_effect(requested_domain, record_type):
         if requested_domain == domain:

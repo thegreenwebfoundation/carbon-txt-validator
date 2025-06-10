@@ -127,7 +127,7 @@ class TestFinder:
     ):
         """
         When a domain has a carbon.txt file in the root directory, and also a DNS delegation record,
-        the carbon.txt file should take precedence.
+        the DNS record should take precedence.
         """
         finder = FileFinder()
 
@@ -138,32 +138,30 @@ class TestFinder:
             mocked_carbon_txt_domain_with_file_and_dns_delegation
         )
 
-        # We get back the URI of the carbon.txt file at the domain itself
-        assert (
-            result
-            == f"https://{mocked_carbon_txt_domain_with_file_and_dns_delegation}/carbon.txt"
-        )
+        # We get back the URI of the carbon.txt file from the DNS record
+        assert result == "https://managed-service.withcarbontxt.example.com/carbon.txt"
 
-    def test_dns_takes_precedence_over_http_header(
-        self, mocked_carbon_txt_domain_with_dns_and_http_delegation
+    def test_file_takes_precedence_over_http_header(
+        self, mocked_carbon_txt_domain_with_file_and_http_delegation
     ):
         """
-        When a domain has both a DNS delegation record, and an HTTP delegation header
-        the URL in the DNS record should take precedence.
+        When a domain has both a carbon.txt file, and an HTTP delegation
+        header, the file should take precedence.
         """
         finder = FileFinder()
 
-        # Given a domain with both a DNS delegation record and an HTTP delegation header
+        # Given a domain with both a hosted carbon.txt file and an HTTP
+        # delegation header
 
         # When we pass a domain
         result = finder.resolve_domain(
-            mocked_carbon_txt_domain_with_dns_and_http_delegation
+            mocked_carbon_txt_domain_with_file_and_http_delegation
         )
 
-        # We get back the URI of the carbon.txt file at managed service referred to by the
-        # DNS record
+        # We get back the URI of the hosted carbon.txt file
         assert (
-            result == "https://dns-managed-service.withcarbontxt.example.com/carbon.txt"
+            result
+            == f"https://{mocked_carbon_txt_domain_with_file_and_http_delegation}/carbon.txt"
         )
 
     def test_recursive_delegation(
@@ -186,5 +184,6 @@ class TestFinder:
 
         # We get back the URI of the carbon.txt file at the second managed service
         assert (
-            result == "https://second-managed-service.withcarbontxt.example.com/carbon.txt"
+            result
+            == "https://second-managed-service.withcarbontxt.example.com/carbon.txt"
         )
