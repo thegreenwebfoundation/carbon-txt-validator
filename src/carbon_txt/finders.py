@@ -1,6 +1,7 @@
+from dataclasses import dataclass
 import pathlib
 from pathlib import Path
-from typing import Optional
+from typing import Literal, Optional
 from urllib.parse import ParseResult, urlparse
 
 import dns.resolver
@@ -18,6 +19,18 @@ logger = get_logger()
 
 
 parser = parsers_toml.CarbonTxtParser()
+
+DelegationMethod = Optional[Literal["http", "dns"]]
+
+
+@dataclass
+class FinderResult:
+    """
+    Encapsulates the result of succesfully looking up the location of a carbon.txt for a domain, which
+    doesn't just include the uri of the carbon.txt itself, but also the method by which it was found.
+    """
+    uri: str
+    delegation_method: DelegationMethod = None
 
 
 def log_safely(log_message: str, logs: Optional[list], level=logging.INFO):
@@ -91,8 +104,8 @@ class FileFinder:
         try:
             response = self.resolve_uri(uri.geturl(), logs)
             if response:
-                log_safely(f"New Carbon text file found at: {response}", logs)
-                return response
+                log_safely(f"New Carbon text file found at: {response.uri}", logs)
+                return response.uri
         except UnreachableCarbonTxtFile:
             pass
 
@@ -103,7 +116,7 @@ class FileFinder:
         log_safely(f"Trying a DNS delegated lookup for domain {domain}", logs)
         if uri_from_domain := self._lookup_dns(domain):
             log_safely(f"New lookup found for domain {domain}: {uri_from_domain}", logs)
-            return self.resolve_domain_or_uri(uri_from_domain, logs)
+            return self.resolve_domain_or_uri(uri_from_domain, logs).uri
 
     def _check_for_http_header_delegation(
         self, domain: str, logs=None
@@ -125,7 +138,7 @@ class FileFinder:
                 )
                 try:
                     parsed_url = str(httpx.URL(header_url))
-                    return self.resolve_domain_or_uri(parsed_url, logs)
+                    return self.resolve_domain_or_uri(parsed_url, logs).uri
                 except httpx.InvalidURL:
                     logger.error(
                         f"Invalid URL in 'CarbonTxt-Location' header: {header_url}"
@@ -156,7 +169,7 @@ class FileFinder:
 
         raise ValueError(f"Could not fetch file contents at {str}")
 
-    def resolve_domain_or_uri(self, domain_or_uri: str, logs=None) -> str:
+    def resolve_domain_or_uri(self, domain_or_uri: str, logs=None) -> FinderResult:
         """
         Accepts EITHER an HTTP or HTTP URI, OR a Fully-qualified domain name.
         In the case where an HTTP(S) URI is provided, it is taken to refer to
@@ -170,7 +183,7 @@ class FileFinder:
         else:
             return self.resolve_domain(domain_or_uri, logs)
 
-    def resolve_domain(self, domain: str, logs=None) -> str:
+    def resolve_domain(self, domain: str, logs=None) -> FinderResult:
         """
         Accepts a domain, and returns a URI to fetch a carbon.txt file from.
 
@@ -189,7 +202,7 @@ class FileFinder:
 
         # First, we check whether a carbon-txt-location DNS TXT record exists
         if candidate := self._check_for_dns_delegation(domain, logs):
-            return candidate
+            return FinderResult(candidate, "dns")
 
         # If no DNS record exists, we look for a carbon.txt file at
         # the root of the domain. If that isn't there try a fallback
@@ -200,19 +213,19 @@ class FileFinder:
             if candidate := self._check_for_hosted_carbon_txt(
                 f"https://{domain}{url_path}", logs
             ):
-                return candidate
+                return FinderResult(candidate, None)
 
         # If we have not found a carbon.txt file at the root or in the
         # .well-known directory, check for a CarbonTxt-Location HTTP header:
         if candidate := self._check_for_http_header_delegation(domain, logs):
-            return candidate
+            return FinderResult(candidate, "http")
 
         # If none of the above yield a reachable carbon.txt file, raise an error.
         raise UnreachableCarbonTxtFile(
             f"Unable to find a valid carbon.txt file at the domain {domain}"
         )
 
-    def resolve_uri(self, uri: str, logs=None) -> str:
+    def resolve_uri(self, uri: str, logs=None) -> FinderResult:
         """
         Accept a URI pointing to a carbon.txt file, and return the final
         resolved URI, without following any 'CarbonTxt-Location' referrers or similar.
@@ -231,7 +244,7 @@ class FileFinder:
             path_to_file = Path(uri)
             if not path_to_file.exists():
                 raise FileNotFoundError(f"File not found at {path_to_file.absolute()}")
-            return str(path_to_file.resolve())
+            return FinderResult(str(path_to_file.resolve()), None)
 
         # if we reach this point.we are dealing with remote file.
 
@@ -254,4 +267,4 @@ class FileFinder:
                 f"HTTP error {response.status_code} when connecting to {parsed_uri.geturl()}"
             )
 
-        return parsed_uri.geturl()
+        return FinderResult(parsed_uri.geturl(), None)

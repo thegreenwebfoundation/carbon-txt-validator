@@ -23,8 +23,9 @@ class ValidationResult:
     logs: list
     exceptions: list
     result: Optional[schemas.CarbonTxtFile]
-    url: Optional[pydantic.HttpUrl] = None
+    url: Optional[str] = None
     document_results: Optional[dict[str, list]] = None
+    delegation_method: finders.DelegationMethod = None
 
 
 def log_exception_safely(
@@ -203,7 +204,7 @@ class CarbonTxtValidator:
             self.event_log.append(message)
             result = file_finder.resolve_uri(url, logs=self.event_log)
             fetched_file_contents = file_finder.fetch_carbon_txt_file(
-                result, logs=self.event_log
+                result.uri, logs=self.event_log
             )
             parsed_result = parser.parse_toml(
                 fetched_file_contents, logs=self.event_log
@@ -293,9 +294,9 @@ class CarbonTxtValidator:
         try:
             message = f"Attempting to resolve domain: {domain}"
             self.event_log.append(message)
-            resolved_url = file_finder.resolve_domain(domain, logs=self.event_log)
+            finder_result = file_finder.resolve_domain(domain, logs=self.event_log)
             fetched_file_contents = file_finder.fetch_carbon_txt_file(
-                resolved_url, logs=self.event_log
+                finder_result.uri, logs=self.event_log
             )
             parsed_toml = parser.parse_toml(fetched_file_contents, logs=self.event_log)
             validation_results = parser.validate_as_carbon_txt(
@@ -314,7 +315,8 @@ class CarbonTxtValidator:
                 logs=self.event_log,
                 exceptions=errors,
                 document_results=document_processing_results or {},
-                url=resolved_url,
+                delegation_method=finder_result.delegation_method,
+                url=finder_result.uri,
             )
         except Exception as ex:
             message = f"An unexpected error occurred: {ex}"
