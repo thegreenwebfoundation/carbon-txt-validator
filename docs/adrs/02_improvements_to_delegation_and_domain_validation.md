@@ -79,5 +79,3 @@ Some possible disadvantages:
 - This might introduce a little additional complexity for GWF-verified hosting providers, as they would need to create two additional DNS TXT records (or add two HTTP headers) instead of one in order to set up their provider to use carbon.txt. However, given that we are in control of the design of this process in the greenweb platform, we're confident that we can mitigate this.
 - It adds a requirement for substantially more detail in the documentation, but we think that the effect of this will be greater clarity rather than greater confusion.
 - If, in the future, we decided we wanted to build a decentralised trust/verification mechanism into the carbon.txt standard itself (using something analogous to OpenID connect or TLS chains of trust), the separation between the two headers or txt records would become superfluous, and perhaps should be rethought. This isn't on our roadmap though, so isn't really a concern for now.
-
-

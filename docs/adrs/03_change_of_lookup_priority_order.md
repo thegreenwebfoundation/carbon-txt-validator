@@ -51,5 +51,3 @@ From now on, the order of lookups used in the carbon.txt finder will be as follo
 - Look for carbon.txt in the *root of the domain at `/carbon.txt`*. If it is not found:
 - Look for carbon.txt in the *well-known directory at `/.well-known/carbon.txt`*. If it is not found:
 - Look for a `carbon-txt-location` *HTTP header* returned by the web server.
-
-
