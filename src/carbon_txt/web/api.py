@@ -222,6 +222,7 @@ def validate_domain(
         return {
             "success": True,
             "url": validation_results.url,
+            "delegation_method": validation_results.delegation_method,
             "data": carbon_txt_file,
             "document_data": doc_results,
             "logs": validation_results.logs,
@@ -230,6 +231,7 @@ def validate_domain(
         return {
             "success": False,
             "url": validation_results.url,
+            "delegation_method": validation_results.delegation_method,
             "errors": validation_results.exceptions,
             "logs": validation_results.logs,
         }  # type: ignore

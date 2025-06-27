@@ -18,7 +18,10 @@ class TestFinder:
         result = finder.resolve_domain(mocked_carbon_txt_domain)
 
         # We get back the URI of the carbon.txt file to lookup
-        assert result == f"https://{mocked_carbon_txt_domain}/carbon.txt"
+        assert result.uri == f"https://{mocked_carbon_txt_domain}/carbon.txt"
+
+        # We get back a result that is not delegated
+        assert result.delegation_method is None
 
     def test_looking_up_domain_with_delegation_using_dns(
         self, mocked_dns_delegating_carbon_txt_domain
@@ -35,7 +38,12 @@ class TestFinder:
         result = finder.resolve_domain(mocked_dns_delegating_carbon_txt_domain)
 
         # We get back the URI of the carbon.txt file to lookup
-        assert result == "https://managed-service.withcarbontxt.example.com/carbon.txt"
+        assert (
+            result.uri == "https://managed-service.withcarbontxt.example.com/carbon.txt"
+        )
+
+        # We get back a result that is delegated using DNS
+        assert result.delegation_method == "dns"
 
     def test_looking_up_domain_with_delegation_using_http(
         self, mocked_http_delegating_carbon_txt_domain
@@ -52,7 +60,12 @@ class TestFinder:
         result = finder.resolve_domain(mocked_http_delegating_carbon_txt_domain)
 
         # We get back the URI of the carbon.txt file to lookup
-        assert result == "https://managed-service.withcarbontxt.example.com/carbon.txt"
+        assert (
+            result.uri == "https://managed-service.withcarbontxt.example.com/carbon.txt"
+        )
+
+        # We get back a result that is delegated using HTTP
+        assert result.delegation_method == "http"
 
     def test_looking_up_uri_simple(self, mocked_carbon_txt_url):
         """Looking up a domain with a carbon.txt file"""
@@ -65,7 +78,10 @@ class TestFinder:
         result = finder.resolve_uri(mocked_carbon_txt_url)
 
         # We get back the URI of the carbon.txt file to lookup
-        assert result == mocked_carbon_txt_url
+        assert result.uri == mocked_carbon_txt_url
+
+        # We get back a result that is not delegated
+        assert result.delegation_method is None
 
     def test_looking_up_uri_with_delegation_using_dns(
         self, mocked_dns_delegating_carbon_txt_url
@@ -94,7 +110,10 @@ class TestFinder:
         result = finder.resolve_uri(mocked_http_delegating_carbon_txt_url)
 
         # We get back the URI of the carbon.txt file to lookup
-        assert result == mocked_http_delegating_carbon_txt_url
+        assert result.uri == mocked_http_delegating_carbon_txt_url
+
+        # We get back a result that is not delegated
+        assert result.delegation_method is None
 
     def test_looking_up_uri_with_no_carbon_txt_at_all(self, mocked_404_carbon_txt_url):
         """
@@ -139,7 +158,12 @@ class TestFinder:
         )
 
         # We get back the URI of the carbon.txt file from the DNS record
-        assert result == "https://managed-service.withcarbontxt.example.com/carbon.txt"
+        assert (
+            result.uri == "https://managed-service.withcarbontxt.example.com/carbon.txt"
+        )
+
+        # We get back a result that is delegated using DNS
+        assert result.delegation_method == "dns"
 
     def test_file_takes_precedence_over_http_header(
         self, mocked_carbon_txt_domain_with_file_and_http_delegation
@@ -160,9 +184,12 @@ class TestFinder:
 
         # We get back the URI of the hosted carbon.txt file
         assert (
-            result
+            result.uri
             == f"https://{mocked_carbon_txt_domain_with_file_and_http_delegation}/carbon.txt"
         )
+
+        # We get back a result that is not delegated
+        assert result.delegation_method is None
 
     def test_recursive_delegation(
         self, mocked_carbon_txt_domain_with_recursive_delegation
@@ -184,6 +211,11 @@ class TestFinder:
 
         # We get back the URI of the carbon.txt file at the second managed service
         assert (
-            result
+            result.uri
             == "https://second-managed-service.withcarbontxt.example.com/carbon.txt"
         )
+
+        # We get back a result that is delegated using DNS
+        # TODO: This needs to be thought through some more.
+        # this case be represented?
+        assert result.delegation_method == "dns"
