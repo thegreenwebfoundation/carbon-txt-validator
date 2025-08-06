@@ -10,6 +10,22 @@ Fixed, Changed, Added, Removed, Fixed, Security
 
 ## Unreleased
 
+## [0.0.16]
+
+###  Added
+ - Expose delegation method on domain endpoint.
+ - Add distinguish between failing 200 and 404 responses
+ - Add handling HTML served at example.org/carbon.txt
+
+### Changed
+ - Ensure DNS record delegation takes priority
+
+### Fixed
+ - add pyright config to get rid of spurious typecheck warnings
+ - Stop the CI double runs
+ - Add github action for deploying the service
+
+
 ## [0.0.15]
 
 ### Changed
