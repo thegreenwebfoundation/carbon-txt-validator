@@ -10,6 +10,12 @@ Fixed, Changed, Added, Removed, Fixed, Security
 
 ## Unreleased
 
+## [0.0.17]
+
+### Added
+
+ - Add http_timeout argument to FileFinder and CarbonTxtValidator class, defaulting to 5 seconds, and applied to all HTTP calls made.
+
 ## [0.0.16]
 
 ###  Added
