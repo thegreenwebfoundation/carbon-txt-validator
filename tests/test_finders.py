@@ -219,3 +219,20 @@ class TestFinder:
         # TODO: This needs to be thought through some more.
         # this case be represented?
         assert result.delegation_method == "dns"
+
+    def test_passing_timeout_to_finder(self, mocked_carbon_txt_domain, httpx_mock):
+        """
+        Passing an http timeout to the finder constructor passes it
+        through to any httpx requests made
+        """
+
+        # Given a FileFinder with a Timeout
+        timeout = 2.0
+        finder = FileFinder(http_timeout=timeout)
+
+        # When we pass a domain
+        finder.resolve_domain(mocked_carbon_txt_domain)
+
+        # Then the http transport library should be called with the timeout.
+        for request in httpx_mock.get_requests():
+            assert set(request.extensions["timeout"].values()) == set([timeout])
