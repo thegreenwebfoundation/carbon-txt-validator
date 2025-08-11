@@ -12,7 +12,6 @@ import structlog
 from . import exceptions, finders, parsers_toml, schemas  # noqa
 from .plugins import module_from_path, pm
 
-file_finder = finders.FileFinder()
 parser = parsers_toml.CarbonTxtParser()
 
 logger = structlog.get_logger()
@@ -57,6 +56,7 @@ class CarbonTxtValidator:
         self,
         plugins_dir: Optional[str] = None,
         active_plugins: Optional[list[str]] = None,
+        http_timeout: float = 5.0,
     ):
         """
         Initialise the validator, registering any required plugins in the
@@ -70,8 +70,7 @@ class CarbonTxtValidator:
             f"active_plugins {active_plugins}",
         )
 
-        # breakpoint()
-
+        self.file_finder = finders.FileFinder(http_timeout=http_timeout)
         # make sure the plugins list is empty before we start
 
         if plugins_dir is not None:
@@ -202,8 +201,8 @@ class CarbonTxtValidator:
         try:
             message = f"Attempting to validate url: {url}"
             self.event_log.append(message)
-            result = file_finder.resolve_uri(url, logs=self.event_log)
-            fetched_file_contents = file_finder.fetch_carbon_txt_file(
+            result = self.file_finder.resolve_uri(url, logs=self.event_log)
+            fetched_file_contents = self.file_finder.fetch_carbon_txt_file(
                 result.uri, logs=self.event_log
             )
             parsed_result = parser.parse_toml(
@@ -294,8 +293,8 @@ class CarbonTxtValidator:
         try:
             message = f"Attempting to resolve domain: {domain}"
             self.event_log.append(message)
-            finder_result = file_finder.resolve_domain(domain, logs=self.event_log)
-            fetched_file_contents = file_finder.fetch_carbon_txt_file(
+            finder_result = self.file_finder.resolve_domain(domain, logs=self.event_log)
+            fetched_file_contents = self.file_finder.fetch_carbon_txt_file(
                 finder_result.uri, logs=self.event_log
             )
             parsed_toml = parser.parse_toml(fetched_file_contents, logs=self.event_log)

@@ -29,6 +29,7 @@ class FinderResult:
     Encapsulates the result of succesfully looking up the location of a carbon.txt for a domain, which
     doesn't just include the uri of the carbon.txt itself, but also the method by which it was found.
     """
+
     uri: str
     delegation_method: DelegationMethod = None
 
@@ -47,6 +48,9 @@ class FileFinder:
     Responsible for figuring out which URI to fetch
     a carbon.txt file from.
     """
+
+    def __init__(self, http_timeout: float = 5.0):
+        self.http_timeout = http_timeout
 
     def _parse_uri(self, uri: str) -> Optional[ParseResult]:
         """
@@ -128,7 +132,7 @@ class FileFinder:
             f"Checking for a 'CarbonTxt-Location' header in the response: http://{domain}",
             logs,
         )
-        response = httpx.head(f"https://{domain}")
+        response = httpx.head(f"https://{domain}", timeout=self.http_timeout)
         if "carbontxt-location" in response.headers:
             header_url = response.headers.get("carbontxt-location")
             if header_url is not None:
@@ -151,7 +155,7 @@ class FileFinder:
         """
         if uri.startswith("http"):
             try:
-                response = httpx.get(uri)
+                response = httpx.get(uri, timeout=self.http_timeout)
                 response.raise_for_status()
                 result = response.text
                 return result
@@ -250,7 +254,7 @@ class FileFinder:
 
         # If the URI is a valid HTTP or HTTPS URI, check if the URI is reachable.
         try:
-            response = httpx.head(parsed_uri.geturl())
+            response = httpx.head(parsed_uri.geturl(), timeout=self.http_timeout)
         except httpx._exceptions.ConnectError:
             raise UnreachableCarbonTxtFile(
                 f"Could not connect to {parsed_uri.geturl()}."
