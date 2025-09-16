@@ -10,6 +10,12 @@ Fixed, Changed, Added, Removed, Fixed, Security
 
 ## Unreleased
 
+## [0.0.18]
+
+### Added
+
+ - Add optional http_user_agent argument to FileFinder and CarbonTxtValidator class, applied to all HTTP calls made.
+
 ## [0.0.17]
 
 ### Added
