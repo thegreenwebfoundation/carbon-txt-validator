@@ -3,6 +3,7 @@ import pathlib
 from pathlib import Path
 from typing import Literal, Optional
 from urllib.parse import ParseResult, urlparse
+import importlib.metadata
 
 import dns.resolver
 import httpx
@@ -49,8 +50,18 @@ class FileFinder:
     a carbon.txt file from.
     """
 
-    def __init__(self, http_timeout: float = 5.0):
+    def __init__(
+        self, http_timeout: float = 5.0, http_user_agent: Optional[str] = None
+    ):
         self.http_timeout = http_timeout
+
+        if http_user_agent is not None:
+            self.http_user_agent = http_user_agent
+        else:
+            version = importlib.metadata.version("carbon_txt")
+            self.http_user_agent = (
+                f"CarbonTxtValidator/{version} (https://carbontxt.org/tools/validator)"
+            )
 
     def _parse_uri(self, uri: str) -> Optional[ParseResult]:
         """
@@ -62,6 +73,10 @@ class FileFinder:
             return parsed_uri
 
         return None
+
+    @property
+    def http_headers(self) -> dict[str, str]:
+        return {"User-Agent": self.http_user_agent}
 
     def _lookup_dns(self, domain: str) -> Optional[str]:
         """
@@ -132,7 +147,9 @@ class FileFinder:
             f"Checking for a 'CarbonTxt-Location' header in the response: http://{domain}",
             logs,
         )
-        response = httpx.head(f"https://{domain}", timeout=self.http_timeout)
+        response = httpx.head(
+            f"https://{domain}", timeout=self.http_timeout, headers=self.http_headers
+        )
         if "carbontxt-location" in response.headers:
             header_url = response.headers.get("carbontxt-location")
             if header_url is not None:
@@ -155,7 +172,9 @@ class FileFinder:
         """
         if uri.startswith("http"):
             try:
-                response = httpx.get(uri, timeout=self.http_timeout)
+                response = httpx.get(
+                    uri, timeout=self.http_timeout, headers=self.http_headers
+                )
                 response.raise_for_status()
                 result = response.text
                 return result
@@ -254,7 +273,11 @@ class FileFinder:
 
         # If the URI is a valid HTTP or HTTPS URI, check if the URI is reachable.
         try:
-            response = httpx.head(parsed_uri.geturl(), timeout=self.http_timeout)
+            response = httpx.head(
+                parsed_uri.geturl(),
+                timeout=self.http_timeout,
+                headers=self.http_headers,
+            )
         except httpx._exceptions.ConnectError:
             raise UnreachableCarbonTxtFile(
                 f"Could not connect to {parsed_uri.geturl()}."
