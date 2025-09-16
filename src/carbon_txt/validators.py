@@ -57,6 +57,7 @@ class CarbonTxtValidator:
         plugins_dir: Optional[str] = None,
         active_plugins: Optional[list[str]] = None,
         http_timeout: float = 5.0,
+        http_user_agent: Optional[str] = None,
     ):
         """
         Initialise the validator, registering any required plugins in the
@@ -70,7 +71,9 @@ class CarbonTxtValidator:
             f"active_plugins {active_plugins}",
         )
 
-        self.file_finder = finders.FileFinder(http_timeout=http_timeout)
+        self.file_finder = finders.FileFinder(
+            http_timeout=http_timeout, http_user_agent=http_user_agent
+        )
         # make sure the plugins list is empty before we start
 
         if plugins_dir is not None:
