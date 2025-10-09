@@ -54,7 +54,7 @@ from unittest.mock import MagicMock
             "",
             marks=pytest.mark.httpx_mock(
                 should_mock=lambda request: request.url.host.endswith(
-                    "withcarbontxt.example.com"
+                    "example.com"
                 )
             ),
         )
@@ -65,7 +65,7 @@ def mocked_carbon_txt_domain(minimal_carbon_txt_org, httpx_mock) -> str:
     Return a valid carbon.txt with a 200 response, and provide
     the domain name only to the test
     """
-    domain = "withcarbontxt.example.com"
+    domain = "example.com"
     for method in ["get", "head"]:
         httpx_mock.add_response(
             method=method,
@@ -93,7 +93,7 @@ def mocked_carbon_txt_url(mocked_carbon_txt_domain) -> str:
             "",
             marks=pytest.mark.httpx_mock(
                 should_mock=lambda request: request.url.host.endswith(
-                    "withcarbontxt.example.com"
+                    "example.com"
                 )
             ),
         )
@@ -104,8 +104,8 @@ def mocked_http_delegating_carbon_txt_domain(minimal_carbon_txt_org, httpx_mock)
     Return a domain which delegates carbon.txt using an HTTP header,
     Ensure the delegated URL responds with a valid carbon.txt and a 200 response.
     """
-    domain = "delegating.withcarbontxt.example.com"
-    managed_service_url = "https://managed-service.withcarbontxt.example.com/carbon.txt"
+    domain = "delegating.example.com"
+    managed_service_url = "https://managed-service.example.com/carbon.txt"
     for method in ["get", "head"]:
         httpx_mock.add_response(
             method=method,
@@ -161,7 +161,7 @@ def mocked_http_delegating_carbon_txt_domain(minimal_carbon_txt_org, httpx_mock)
             "",
             marks=pytest.mark.httpx_mock(
                 should_mock=lambda request: request.url.host.endswith(
-                    "withcarbontxt.example.com"
+                    "example.com"
                 )
             ),
         )
@@ -172,8 +172,8 @@ def mocked_http_delegating_carbon_txt_url(minimal_carbon_txt_org, httpx_mock) ->
     Return a URL which delegates carbon.txt using an HTTP header,
     Ensure that the requested URL responds with a valid response despite delegation.
     """
-    domain = "delegating.withcarbontxt.example.com"
-    managed_service_url = "https://managed-service.withcarbontxt.example.com/carbon.txt"
+    domain = "delegating.example.com"
+    managed_service_url = "https://managed-service.example.com/carbon.txt"
     url = f"https://{domain}/carbon.txt"
     for method in ["get", "head"]:
         httpx_mock.add_response(
@@ -194,7 +194,7 @@ def mocked_http_delegating_carbon_txt_url(minimal_carbon_txt_org, httpx_mock) ->
             "",
             marks=pytest.mark.httpx_mock(
                 should_mock=lambda request: request.url.host.endswith(
-                    "withcarbontxt.example.com"
+                    "example.com"
                 ),
             ),
         )
@@ -207,8 +207,8 @@ def mocked_dns_delegating_carbon_txt_domain(
     Return a domain which delegates carbon.txt using a DNS TXT record,
     Ensure the delegated URL responds with a valid carbon.txt and a 200 response.
     """
-    domain = "delegating.withcarbontxt.example.com"
-    managed_service_url = "https://managed-service.withcarbontxt.example.com/carbon.txt"
+    domain = "delegating.example.com"
+    managed_service_url = "https://managed-service.example.com/carbon.txt"
     record = MagicMock()
     record.to_text.return_value = f'"carbon-txt-location={managed_service_url}"'
 
@@ -251,7 +251,7 @@ def mocked_dns_delegating_carbon_txt_domain(
             "",
             marks=pytest.mark.httpx_mock(
                 should_mock=lambda request: request.url.host.endswith(
-                    "withcarbontxt.example.com"
+                    "example.com"
                 ),
             ),
         )
@@ -266,8 +266,8 @@ def mocked_dns_delegating_carbon_txt_url(
     Return a URL which delegates carbon.txt using a DNS TXT record,
     Ensure that the requested URL responds with a valid response despite delegation.
     """
-    domain = "delegating.withcarbontxt.example.com"
-    managed_service_url = "https://managed-service.withcarbontxt.example.com/carbon.txt"
+    domain = "delegating.example.com"
+    managed_service_url = "https://managed-service.example.com/carbon.txt"
     url = f"https://{domain}/carbon.txt"
     record = MagicMock()
     record.to_text.return_value = f'"carbon-txt-location={managed_service_url}"'
@@ -312,7 +312,7 @@ def mocked_dns_delegating_carbon_txt_url(
             "",
             marks=pytest.mark.httpx_mock(
                 should_mock=lambda request: request.url.host.endswith(
-                    "withcarbontxt.example.com"
+                    "example.com"
                 ),
             ),
         )
@@ -323,7 +323,7 @@ def mocked_404_carbon_txt_domain(httpx_mock) -> str:
     Return a 404 error on requests for carbon.txt. Provide the domain
     name to the test.
     """
-    domain = "non-existent.withcarbontxt.example.com"
+    domain = "non-existent.example.com"
     url = f"https://{domain}/carbon.txt"
     well_known_url = f"https://{domain}/.well-known/carbon.txt"
     for method in ["get", "head"]:
@@ -366,7 +366,7 @@ def mocked_404_carbon_txt_url(mocked_404_carbon_txt_domain) -> str:
             "",
             marks=pytest.mark.httpx_mock(
                 should_mock=lambda request: request.url.host.endswith(
-                    "withcarbontxt.example.com"
+                    "example.com"
                 ),
             ),
         )
@@ -380,8 +380,8 @@ def mocked_carbon_txt_domain_with_file_and_dns_delegation(
     DNS record, but also serves its own carbon.txt.
     Provide the domain name to the test.
     """
-    domain = "delegating.withcarbontxt.example.com"
-    managed_service_url = "https://managed-service.withcarbontxt.example.com/carbon.txt"
+    domain = "delegating.example.com"
+    managed_service_url = "https://managed-service.example.com/carbon.txt"
     record = MagicMock()
     record.to_text.return_value = f'"carbon-txt-location={managed_service_url}"'
 
@@ -426,7 +426,7 @@ def mocked_carbon_txt_domain_with_file_and_dns_delegation(
             "",
             marks=pytest.mark.httpx_mock(
                 should_mock=lambda request: request.url.host.endswith(
-                    "withcarbontxt.example.com"
+                    "example.com"
                 ),
             ),
         )
@@ -440,9 +440,9 @@ def mocked_carbon_txt_domain_with_file_and_http_delegation(
     DNS record, but also serves its own carbon.txt.
     Provide the domain name to the test.
     """
-    domain = "delegating.withcarbontxt.example.com"
+    domain = "delegating.example.com"
     http_managed_service_url = (
-        "https://http-managed-service.withcarbontxt.example.com/carbon.txt"
+        "https://http-managed-service.example.com/carbon.txt"
     )
 
     for method in ["get", "head"]:
@@ -489,7 +489,7 @@ def mocked_carbon_txt_domain_with_file_and_http_delegation(
             "",
             marks=pytest.mark.httpx_mock(
                 should_mock=lambda request: request.url.host.endswith(
-                    "withcarbontxt.example.com"
+                    "example.com"
                 ),
             ),
         )
@@ -504,9 +504,9 @@ def mocked_carbon_txt_domain_with_recursive_delegation(
     domain, using HTTP, which hosts its own carbon.txt
     Provide the 1st domain name to the test.
     """
-    domain = "delegating.withcarbontxt.example.com"
-    first_managed_service_domain = "first-managed-service.withcarbontxt.example.com"
-    second_managed_service_domain = "second-managed-service.withcarbontxt.example.com"
+    domain = "delegating.example.com"
+    first_managed_service_domain = "first-managed-service.example.com"
+    second_managed_service_domain = "second-managed-service.example.com"
     record = MagicMock()
     record.to_text.return_value = (
         f'"carbon-txt-location={first_managed_service_domain}"'
@@ -577,7 +577,7 @@ def mocked_carbon_txt_domain_with_recursive_delegation(
             "",
             marks=pytest.mark.httpx_mock(
                 should_mock=lambda request: request.url.host.endswith(
-                    "withcarbontxt.example.com"
+                    "example.com"
                 ),
             ),
         )
@@ -588,7 +588,7 @@ def mocked_404_page_at_carbon_txt_path(httpx_mock, valid_html_not_found_page) ->
     Return a 404 error on requests for example.com/carbon.txt, but still provide a valid
     HTML page, mimicking the common case for a 404 page for websites.
     """
-    domain = "withcarbontxt.example.com"
+    domain = "example.com"
     url = f"https://{domain}/carbon.txt"
 
     for method in ["get", "head"]:
@@ -609,7 +609,7 @@ def mocked_404_page_at_carbon_txt_path(httpx_mock, valid_html_not_found_page) ->
             "",
             marks=pytest.mark.httpx_mock(
                 should_mock=lambda request: request.url.host.endswith(
-                    "withcarbontxt.example.com"
+                    "example.com"
                 ),
             ),
         )
@@ -624,7 +624,7 @@ def mocked_not_found_page_at_carbon_txt_path(
     serving a fallback index page when a specific file is not found instead
     of an explicit 404 error.
     """
-    domain = "withcarbontxt.example.com"
+    domain = "example.com"
     url = f"https://{domain}/carbon.txt"
 
     for method in ["get", "head"]:

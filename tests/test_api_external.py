@@ -130,7 +130,7 @@ def test_hitting_validate_domain_endpoint_with_http_header_delegation(
     delegation_method = res.json()["delegation_method"]
 
     assert res.status_code == 200
-    assert actual_url == "https://managed-service.withcarbontxt.example.com/carbon.txt"
+    assert actual_url == "https://managed-service.example.com/carbon.txt"
     assert delegation_method == "http"
 
 
@@ -150,7 +150,7 @@ def test_hitting_validate_domain_endpoint_with_txt_delegation(
     delegation_method = res.json()["delegation_method"]
 
     assert res.status_code == 200
-    assert actual_url == "https://managed-service.withcarbontxt.example.com/carbon.txt"
+    assert actual_url == "https://managed-service.example.com/carbon.txt"
     assert delegation_method == "dns"
 
 

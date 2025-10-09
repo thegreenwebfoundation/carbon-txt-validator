@@ -39,7 +39,7 @@ class TestFinder:
 
         # We get back the URI of the carbon.txt file to lookup
         assert (
-            result.uri == "https://managed-service.withcarbontxt.example.com/carbon.txt"
+            result.uri == "https://managed-service.example.com/carbon.txt"
         )
 
         # We get back a result that is delegated using DNS
@@ -61,7 +61,7 @@ class TestFinder:
 
         # We get back the URI of the carbon.txt file to lookup
         assert (
-            result.uri == "https://managed-service.withcarbontxt.example.com/carbon.txt"
+            result.uri == "https://managed-service.example.com/carbon.txt"
         )
 
         # We get back a result that is delegated using HTTP
@@ -159,7 +159,7 @@ class TestFinder:
 
         # We get back the URI of the carbon.txt file from the DNS record
         assert (
-            result.uri == "https://managed-service.withcarbontxt.example.com/carbon.txt"
+            result.uri == "https://managed-service.example.com/carbon.txt"
         )
 
         # We get back a result that is delegated using DNS
@@ -212,7 +212,7 @@ class TestFinder:
         # We get back the URI of the carbon.txt file at the second managed service
         assert (
             result.uri
-            == "https://second-managed-service.withcarbontxt.example.com/carbon.txt"
+            == "https://second-managed-service.example.com/carbon.txt"
         )
 
         # We get back a result that is delegated using DNS
