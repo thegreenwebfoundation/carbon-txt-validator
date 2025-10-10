@@ -219,11 +219,11 @@ class FileFinder:
                 response.raise_for_status()
                 result = response.text
                 return result
-            except httpx._exceptions.ConnectError as ex:
+            except httpx.ConnectError as ex:
                 raise UnreachableCarbonTxtFile(
                     f"Could not connect to {uri}. Error was: {ex}"
                 )
-            except httpx._exceptions.HTTPStatusError as exc:
+            except httpx.HTTPStatusError as exc:
                 raise UnreachableCarbonTxtFile(
                     f"Requesting {uri} returned an HTTP {exc.response.status_code} response"
                 )
@@ -343,7 +343,7 @@ class FileFinder:
                 timeout=self.http_timeout,
                 headers=self.http_headers,
             )
-        except httpx._exceptions.ConnectError:
+        except httpx.ConnectError:
             raise UnreachableCarbonTxtFile(
                 f"Could not connect to {parsed_uri.geturl()}."
             )
