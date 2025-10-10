@@ -9,6 +9,9 @@ from .. import exceptions, finders, schemas, validators  # noqa
 
 file_finder = finders.FileFinder()
 
+# On boot, we update the public suffic list cache used by tldextract,
+# In order that it's not fetched later, slowing down a lookup.
+file_finder.update_tld_suffix_list()
 
 logger = structlog.get_logger()
 
