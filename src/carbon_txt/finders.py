@@ -66,7 +66,7 @@ class FileFinder:
                 f"CarbonTxtValidator/{version} (https://carbontxt.org/tools/validator)"
             )
 
-    def update_tld_suffix_list(self):
+    def update_tld_suffix_list(self) -> None:
         """
         Updates the  public suffix list used by tldextract.
         This is used to identify whether a domain is a TLD or not
@@ -247,7 +247,9 @@ class FileFinder:
         else:
             return self.resolve_domain(domain_or_uri, logs)
 
-    def resolve_domain(self, domain: str, logs=None, checking_alternate=False) -> FinderResult:
+    def resolve_domain(
+        self, domain: str, logs: Optional[list] = None, checking_alternate: bool = False
+    ) -> FinderResult:
         """
         Accepts a domain, and returns a URI to fetch a carbon.txt file from.
 
