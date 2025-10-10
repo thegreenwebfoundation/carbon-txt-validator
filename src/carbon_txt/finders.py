@@ -4,7 +4,10 @@ from pathlib import Path
 from typing import Literal, Optional
 from urllib.parse import ParseResult, urlparse
 import importlib.metadata
+import re
+import traceback
 
+import tldextract
 import dns.resolver
 import httpx
 import rich  # noqa
@@ -63,6 +66,16 @@ class FileFinder:
                 f"CarbonTxtValidator/{version} (https://carbontxt.org/tools/validator)"
             )
 
+    def update_tld_suffix_list(self):
+        """
+        Updates the  public suffix list used by tldextract.
+        This is used to identify whether a domain is a TLD or not
+        when resolving carbon.txt locations
+        """
+        tldextract.update(fetch_now=True)
+
+
+
     def _parse_uri(self, uri: str) -> Optional[ParseResult]:
         """
         Return a parsed URI object if the URI is valid, otherwise return None
@@ -112,6 +125,34 @@ class FileFinder:
             return None
 
         return None
+
+    def _is_tld(self, domain : str) -> bool:
+        """
+        Tests if a given domain is a TLD
+        """
+        tld = tldextract.extract(domain).top_domain_under_public_suffix
+        return domain == tld
+
+    def _is_www_subdomain(self, domain : str) -> bool:
+        """
+        Tests if a given domain is a www subdomain of a TLD
+        """
+        tld = tldextract.extract(domain).top_domain_under_public_suffix
+        return domain == f"www.{tld}"
+
+    def _alternate_domain(self, domain : str) -> Optional[str]:
+        """
+        Returns the "alternate" variant for a domain, for which resolution should be attempted if no method succeeds for the original domain.
+         . For TLDS, this is the www. subdomain,
+         - For www subdomains, this is the TLD,
+         - For all other domain names, no alternate is defined.
+        """
+        if self._is_tld(domain):
+            return f"www.{domain}"
+        elif self._is_www_subdomain(domain):
+            return re.sub("^www\\.", "", domain)
+        else:
+            return None
 
     def _check_for_hosted_carbon_txt(self, url, logs=None) -> Optional[str]:
         """
@@ -206,7 +247,7 @@ class FileFinder:
         else:
             return self.resolve_domain(domain_or_uri, logs)
 
-    def resolve_domain(self, domain: str, logs=None) -> FinderResult:
+    def resolve_domain(self, domain: str, logs=None, checking_alternate=False) -> FinderResult:
         """
         Accepts a domain, and returns a URI to fetch a carbon.txt file from.
 
@@ -221,27 +262,49 @@ class FileFinder:
         This method is called recursively if the DNS TXT record or CarbonTxt-Location Header are present
         and also point to a domain rather than a full carbon.txt URL. If the header or TXT record points to
         a full path to a file, no further delegation is attempted.
-        """
 
-        # First, we check whether a carbon-txt-location DNS TXT record exists
-        if candidate := self._check_for_dns_delegation(domain, logs):
-            return FinderResult(candidate, "dns")
+
+        In the case that a www. subdomain or TLD is looked up, the alternative variant is attempted too, if and only
+        if no carbon.txt is found at the original domain requested. All other subdomains are treated normally and no
+        alternative domain is tried.
+        """
+        try:
+            # First, we check whether a carbon-txt-location DNS TXT record exists
+            if candidate := self._check_for_dns_delegation(domain, logs):
+                return FinderResult(candidate, "dns")
 
         # If no DNS record exists, we look for a carbon.txt file at
         # the root of the domain. If that isn't there try a fallback
         # to one at the `.well-known` path:
-        default_paths = ["/carbon.txt", "/.well-known/carbon.txt"]
+            default_paths = ["/carbon.txt", "/.well-known/carbon.txt"]
 
-        for url_path in default_paths:
-            if candidate := self._check_for_hosted_carbon_txt(
-                f"https://{domain}{url_path}", logs
-            ):
-                return FinderResult(candidate, None)
+            for url_path in default_paths:
+                if candidate := self._check_for_hosted_carbon_txt(
+                    f"https://{domain}{url_path}", logs
+                ):
+                    return FinderResult(candidate, None)
 
-        # If we have not found a carbon.txt file at the root or in the
-        # .well-known directory, check for a CarbonTxt-Location HTTP header:
-        if candidate := self._check_for_http_header_delegation(domain, logs):
-            return FinderResult(candidate, "http")
+            # If we have not found a carbon.txt file at the root or in the
+            # .well-known directory, check for a CarbonTxt-Location HTTP header:
+            if candidate := self._check_for_http_header_delegation(domain, logs):
+                return FinderResult(candidate, "http")
+        except Exception as e:
+            # If an exception occurs, we still want to continue to test alternate domains, and ultimately
+            # raise an UnreachableCarbonTxtFile exception. However, we log the underlying error for
+            # tracability.
+
+            message = traceback.format_exception(e)
+            log_safely(f"Encountered an exception while attempting to resolve requested domain:\n{message}", logs)
+
+        #If all of the above fail, we check for an "alternate domain", if there is any:
+        alternate_domain = self._alternate_domain(domain)
+        if not checking_alternate and alternate_domain:
+            log_safely(f"Requested domain has a permitted alternate: {alternate_domain}. Falling back to check", logs)
+            try:
+                return self.resolve_domain(alternate_domain, logs, checking_alternate=True)
+            except UnreachableCarbonTxtFile:
+                # We want to raise the error for the actual domain requested, not the alternate.
+                pass
 
         # If none of the above yield a reachable carbon.txt file, raise an error.
         raise UnreachableCarbonTxtFile(
