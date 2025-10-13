@@ -93,7 +93,7 @@ class CarbonTxtParser:
             raise exceptions.NotParseableTOML(ex)
 
     def validate_as_carbon_txt(
-        self, parsed, logs=None
+        self, parsed, logs: typing.Optional[list] = None
     ) -> typing.Optional[schemas.CarbonTxtFile]:
         """
         Accept a parsed TOML object and return a CarbonTxtFile, validating that
@@ -103,7 +103,7 @@ class CarbonTxtParser:
         try:
             carb_txt_obj = schemas.CarbonTxtFile(**parsed)
             message = "Parsed TOML was recognised as valid Carbon.txt file.\n"
-            logs.append(message)
+            log_safely(message, logs)
             return carb_txt_obj
         except pydantic.ValidationError as ex:
             log_safely("Validation failed.", logs, level=logging.WARNING)

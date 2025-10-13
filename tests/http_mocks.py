@@ -14,6 +14,8 @@ The available mocks are as follows:
         (url with path to carbon.txt, returns valid TOML with 200 response)
     - mocked_carbon_txt_domain
         (domain only, valid TOML, 200 response)
+    - mocked_domain_with_www_fallback
+        (domain only, with a valid carbon.txt on the www. subdomain of the TLD returned)
     - mocked_http_delegating_carbon_txt_url
         (url with path, delegates to other domain with HTTP header, other domain
         returns valid TOML with 200 response)
@@ -75,6 +77,28 @@ def mocked_carbon_txt_domain(minimal_carbon_txt_org, httpx_mock) -> str:
             is_reusable=True,
             is_optional=True,
         )
+        # Add failing requests for subdomains too, in order to test subdomain resolution
+        httpx_mock.add_response(
+            method=method,
+            url=re.compile(f"https:\\/\\/.+\\.{domain}"),
+            status_code=404,
+            is_reusable=True,
+            is_optional=True,
+        )
+        httpx_mock.add_response(
+            method=method,
+            url=re.compile(f"https:\\/\\/.+\\.{domain}\\/carbon.txt"),
+            status_code=404,
+            is_reusable=True,
+            is_optional=True,
+        )
+        httpx_mock.add_response(
+            method=method,
+            url=re.compile(f"https:\\/\\/.+\\.{domain}\\/.well-known\\/carbon.txt"),
+            status_code=404,
+            is_reusable=True,
+            is_optional=True,
+        )
     return domain
 
 
@@ -85,6 +109,57 @@ def mocked_carbon_txt_url(mocked_carbon_txt_domain) -> str:
     the full URL to carbon.txt to the test
     """
     return f"https://{mocked_carbon_txt_domain}/carbon.txt"
+
+
+@pytest.fixture(
+    params=[
+        pytest.param(
+            "",
+            marks=pytest.mark.httpx_mock(
+                should_mock=lambda request: request.url.host.endswith(
+                    "example.com"
+                )
+            ),
+        )
+    ]
+)
+def mocked_domain_with_www_fallback(minimal_carbon_txt_org, httpx_mock) -> str:
+    """
+    Return a valid carbon.txt with a 200 response, and provide
+    the domain name only to the test
+    """
+    domain = "example.com"
+    for method in ["get", "head"]:
+        httpx_mock.add_response(
+            method=method,
+            url=f"https://www.{domain}/carbon.txt",
+            content=minimal_carbon_txt_org,
+            status_code=200,
+            is_reusable=True,
+            is_optional=True,
+        )
+        httpx_mock.add_response(
+            method=method,
+            url=f"https://{domain}",
+            status_code=404,
+            is_reusable=True,
+            is_optional=True,
+        )
+        httpx_mock.add_response(
+            method=method,
+            url=f"https://{domain}/carbon.txt",
+            status_code=404,
+            is_reusable=True,
+            is_optional=True,
+        )
+        httpx_mock.add_response(
+            method=method,
+            url=f"https://{domain}/.well-known/carbon.txt",
+            status_code=404,
+            is_reusable=True,
+            is_optional=True,
+        )
+    return domain
 
 
 @pytest.fixture(
