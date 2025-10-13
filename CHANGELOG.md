@@ -10,6 +10,12 @@ Fixed, Changed, Added, Removed, Fixed, Security
 
 ## Unreleased
 
+## [0.0.19]
+
+### Added
+
+ - Add special case fallback lookup for www. subdomains, as detailed in ADR 04
+
 ## [0.0.18]
 
 ### Added
