@@ -24,6 +24,15 @@ class NotParseableTOML(Exception):
     pass
 
 
+class NotValidCarbonTxtVersion(Exception):
+    """
+    Raised when the carbon.txt syntax version specified in the
+    file is not recognised
+    """
+
+    pass
+
+
 class NotParseableTOMLButHTML(Exception):
     """
     Raised when we have a parsed HTML string when we expected
