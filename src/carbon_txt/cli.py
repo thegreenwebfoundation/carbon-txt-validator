@@ -6,7 +6,7 @@ import sys
 from typing import Optional
 
 import django
-import environ
+import environ  # type: ignore
 import pydantic_core
 import rich
 import structlog

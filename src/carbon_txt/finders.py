@@ -164,8 +164,10 @@ class FileFinder:
             if response:
                 log_safely(f"New Carbon text file found at: {response.uri}", logs)
                 return response.uri
+            else:
+                return None
         except UnreachableCarbonTxtFile:
-            pass
+            return None
 
     def _check_for_dns_delegation(self, domain: str, logs=None) -> Optional[str]:
         """
@@ -175,6 +177,8 @@ class FileFinder:
         if uri_from_domain := self._lookup_dns(domain):
             log_safely(f"New lookup found for domain {domain}: {uri_from_domain}", logs)
             return self.resolve_domain_or_uri(uri_from_domain, logs).uri
+        else:
+            return None
 
     def _check_for_http_header_delegation(
         self, domain: str, logs=None
@@ -203,6 +207,11 @@ class FileFinder:
                     logger.error(
                         f"Invalid URL in 'CarbonTxt-Location' header: {header_url}"
                     )
+                    return None
+            else:
+                return None
+        else:
+            return None
 
     def fetch_carbon_txt_file(self, uri: str, logs=None) -> str:
         """
