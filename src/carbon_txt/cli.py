@@ -149,11 +149,17 @@ def validate_file(
 
 
 @app.command()
-def schema():
+def schema(version: str = schemas.LATEST_VERSION):
     """
     Generate a JSON Schema representation of a carbon.txt file for validation
     """
-    schema = schemas.CarbonTxtFile.model_json_schema()
+    model = schemas.VERSIONS.get(version)
+
+    if model is None:
+        err_console.print(f"No carbon.txt syntax version {version} found.")
+        raise typer.Exit(code=1)
+
+    schema = model.model_json_schema()
 
     err_console.print("JSON Schema for a carbon.txt file: \n")
 

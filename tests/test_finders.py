@@ -38,9 +38,7 @@ class TestFinder:
         result = finder.resolve_domain(mocked_dns_delegating_carbon_txt_domain)
 
         # We get back the URI of the carbon.txt file to lookup
-        assert (
-            result.uri == "https://managed-service.example.com/carbon.txt"
-        )
+        assert result.uri == "https://managed-service.example.com/carbon.txt"
 
         # We get back a result that is delegated using DNS
         assert result.delegation_method == "dns"
@@ -60,9 +58,7 @@ class TestFinder:
         result = finder.resolve_domain(mocked_http_delegating_carbon_txt_domain)
 
         # We get back the URI of the carbon.txt file to lookup
-        assert (
-            result.uri == "https://managed-service.example.com/carbon.txt"
-        )
+        assert result.uri == "https://managed-service.example.com/carbon.txt"
 
         # We get back a result that is delegated using HTTP
         assert result.delegation_method == "http"
@@ -158,9 +154,7 @@ class TestFinder:
         )
 
         # We get back the URI of the carbon.txt file from the DNS record
-        assert (
-            result.uri == "https://managed-service.example.com/carbon.txt"
-        )
+        assert result.uri == "https://managed-service.example.com/carbon.txt"
 
         # We get back a result that is delegated using DNS
         assert result.delegation_method == "dns"
@@ -210,10 +204,7 @@ class TestFinder:
         )
 
         # We get back the URI of the carbon.txt file at the second managed service
-        assert (
-            result.uri
-            == "https://second-managed-service.example.com/carbon.txt"
-        )
+        assert result.uri == "https://second-managed-service.example.com/carbon.txt"
 
         # We get back a result that is delegated using DNS
         # TODO: This needs to be thought through some more.
@@ -272,7 +263,9 @@ class TestFinder:
         for request in httpx_mock.get_requests():
             assert re.match(user_agent_re, request.headers["User-Agent"])
 
-    def test_looking_up_a_www_subdomain_unsuccesfully_falls_back_to_tld(self, mocked_carbon_txt_domain):
+    def test_looking_up_a_www_subdomain_unsuccesfully_falls_back_to_tld(
+        self, mocked_carbon_txt_domain
+    ):
         # Given a FileFinder and a TLD with a carbon.txt
         finder = FileFinder()
 
@@ -282,8 +275,9 @@ class TestFinder:
         # Then we get back the URI of the carbon.txt file at the TLD
         assert result.uri == f"https://{mocked_carbon_txt_domain}/carbon.txt"
 
-
-    def test_looking_up_a_tld_unsuccesfully_falls_back_to_www_subdomain(self, mocked_domain_with_www_fallback):
+    def test_looking_up_a_tld_unsuccesfully_falls_back_to_www_subdomain(
+        self, mocked_domain_with_www_fallback
+    ):
         # Given a FileFinder and a TLD whose www subdomain has a carbon.txt
         finder = FileFinder()
 
@@ -293,8 +287,9 @@ class TestFinder:
         # Then we get back the URI of the carbon.txt file at the www. subdomain
         assert result.uri == f"https://www.{mocked_domain_with_www_fallback}/carbon.txt"
 
-
-    def test_looking_up_a_tld_succesfully_does_not_fall_back(self, mocked_carbon_txt_domain, httpx_mock):
+    def test_looking_up_a_tld_succesfully_does_not_fall_back(
+        self, mocked_carbon_txt_domain, httpx_mock
+    ):
         # Given a FileFinder and a TLD with a carbon.txt
         finder = FileFinder()
 
@@ -305,9 +300,13 @@ class TestFinder:
         assert result.uri == f"https://{mocked_carbon_txt_domain}/carbon.txt"
 
         # And the www subdomain should not be checked
-        assert f"www.{mocked_carbon_txt_domain}" not in [str(r.url) for r in httpx_mock.get_requests()]
+        assert f"www.{mocked_carbon_txt_domain}" not in [
+            str(r.url) for r in httpx_mock.get_requests()
+        ]
 
-    def test_looking_up_a_www_subdomain_succesfully_does_not_fall_back(self, mocked_domain_with_www_fallback, httpx_mock):
+    def test_looking_up_a_www_subdomain_succesfully_does_not_fall_back(
+        self, mocked_domain_with_www_fallback, httpx_mock
+    ):
         # Given a FileFinder and a TLD whose www subdomain has a carbon.txt
         finder = FileFinder()
 
@@ -318,9 +317,13 @@ class TestFinder:
         assert result.uri == f"https://www.{mocked_domain_with_www_fallback}/carbon.txt"
 
         # And the TLD should not be checked
-        assert mocked_domain_with_www_fallback not in [str(r.url) for r in httpx_mock.get_requests()]
+        assert mocked_domain_with_www_fallback not in [
+            str(r.url) for r in httpx_mock.get_requests()
+        ]
 
-    def test_looking_up_other_subdomain_does_not_fallback(self, mocked_carbon_txt_domain, httpx_mock):
+    def test_looking_up_other_subdomain_does_not_fallback(
+        self, mocked_carbon_txt_domain, httpx_mock
+    ):
         # Given a FileFinder and a TLD whose www subdomain has a carbon.txt
         finder = FileFinder()
 
@@ -330,4 +333,6 @@ class TestFinder:
             finder.resolve_domain(f"other-subdomain.{mocked_carbon_txt_domain}")
 
         # And the TLD should not be checked
-        assert mocked_carbon_txt_domain not in [str(r.url) for r in httpx_mock.get_requests()]
+        assert mocked_carbon_txt_domain not in [
+            str(r.url) for r in httpx_mock.get_requests()
+        ]

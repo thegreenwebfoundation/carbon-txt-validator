@@ -124,3 +124,57 @@ def settings_with_active_csrd_greenweb_plugin(reset_plugin_registry, settings):
 @pytest.fixture()
 def settings_with_plugin_dir_set(reset_plugin_registry, settings):
     settings.CARBON_TXT_PLUGINS_DIR = "tests/test_plugins"
+
+
+@pytest.fixture()
+def version_0_2_carbon_txt_full():
+    with open("tests/fixtures/version_0.2/full.toml") as file:
+        return file.read()
+
+
+@pytest.fixture()
+def version_0_2_carbon_txt_no_disclosure_domain():
+    with open("tests/fixtures/version_0.2/no_disclosure_domain.toml") as file:
+        return file.read()
+
+
+@pytest.fixture()
+def version_0_2_carbon_txt_no_explicit_version():
+    with open("tests/fixtures/version_0.2/no_explicit_version.toml") as file:
+        return file.read()
+
+
+@pytest.fixture()
+def version_0_2_carbon_txt_no_upstreams():
+    with open("tests/fixtures/version_0.2/no_upstreams.toml") as file:
+        return file.read()
+
+
+@pytest.fixture()
+def version_0_3_carbon_txt_full():
+    with open("tests/fixtures/version_0.3/full.toml") as file:
+        return file.read()
+
+
+@pytest.fixture()
+def version_0_3_carbon_txt_no_last_updated():
+    with open("tests/fixtures/version_0.3/no_last_updated.toml") as file:
+        return file.read()
+
+
+@pytest.fixture()
+def version_0_3_carbon_txt_no_disclosure_domain():
+    with open("tests/fixtures/version_0.3/no_disclosure_domain.toml") as file:
+        return file.read()
+
+
+@pytest.fixture()
+def version_0_3_carbon_txt_no_disclosure_valid_until():
+    with open("tests/fixtures/version_0.3/no_disclosure_valid_until.toml") as file:
+        return file.read()
+
+
+@pytest.fixture()
+def version_0_3_carbon_txt_no_upstreams():
+    with open("tests/fixtures/version_0.3/no_upstreams.toml") as file:
+        return file.read()

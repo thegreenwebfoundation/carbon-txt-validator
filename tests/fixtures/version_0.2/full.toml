@@ -1,0 +1,11 @@
+version = "0.2"
+
+[org]
+disclosures = [
+    { doc_type='web-page', url='https://example.com/sustainability-policy', domain='thegreenwebfoundation.org' },
+]
+
+[upstream]
+services = [
+    { domain='upstream.com', service_type='block-storage'},
+]

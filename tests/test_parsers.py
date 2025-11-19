@@ -83,3 +83,60 @@ class TestParseCarbonTxt:
         with pytest.raises(NotParseableTOMLButHTML) as excinfo:
             parser.parse_toml(valid_html_not_found_page, logs=[])
             assert excinfo.type.__name__ == "NotParseableTOMLButHTML"
+
+    def test_parse_version_0_2(self, version_0_2_carbon_txt_full):
+        parsed = parser.parse_toml(version_0_2_carbon_txt_full, logs=[])
+        result = parser.validate_as_carbon_txt(parsed, logs=[])
+        assert result.version == "0.2"
+
+    def test_parse_version_0_2_no_disclosure_domain(
+        self, version_0_2_carbon_txt_no_disclosure_domain
+    ):
+        parsed = parser.parse_toml(version_0_2_carbon_txt_no_disclosure_domain, logs=[])
+        result = parser.validate_as_carbon_txt(parsed, logs=[])
+        assert result.version == "0.2"
+
+    def test_parse_version_0_2_no_explicit_version(
+        self, version_0_2_carbon_txt_no_explicit_version
+    ):
+        parsed = parser.parse_toml(version_0_2_carbon_txt_no_explicit_version, logs=[])
+        result = parser.validate_as_carbon_txt(parsed, logs=[])
+        assert result.version == "0.2"
+
+    def test_parse_version_0_2_no_upstreams(self, version_0_2_carbon_txt_no_upstreams):
+        parsed = parser.parse_toml(version_0_2_carbon_txt_no_upstreams, logs=[])
+        result = parser.validate_as_carbon_txt(parsed, logs=[])
+        assert result.version == "0.2"
+
+    def test_parse_version_0_3(self, version_0_3_carbon_txt_full):
+        parsed = parser.parse_toml(version_0_3_carbon_txt_full, logs=[])
+        result = parser.validate_as_carbon_txt(parsed, logs=[])
+        assert result.version == "0.3"
+
+    def test_parse_version_0_3_no_last_updated(
+        self, version_0_3_carbon_txt_no_last_updated
+    ):
+        parsed = parser.parse_toml(version_0_3_carbon_txt_no_last_updated, logs=[])
+        result = parser.validate_as_carbon_txt(parsed, logs=[])
+        assert result.version == "0.3"
+
+    def test_parse_version_0_3_no_disclosure_domain(
+        self, version_0_3_carbon_txt_no_disclosure_domain
+    ):
+        parsed = parser.parse_toml(version_0_3_carbon_txt_no_disclosure_domain, logs=[])
+        result = parser.validate_as_carbon_txt(parsed, logs=[])
+        assert result.version == "0.3"
+
+    def test_parse_version_0_3_no_disclosure_valid_until(
+        self, version_0_3_carbon_txt_no_disclosure_valid_until
+    ):
+        parsed = parser.parse_toml(
+            version_0_3_carbon_txt_no_disclosure_valid_until, logs=[]
+        )
+        result = parser.validate_as_carbon_txt(parsed, logs=[])
+        assert result.version == "0.3"
+
+    def test_parse_version_0_3_no_upstreams(self, version_0_3_carbon_txt_no_upstreams):
+        parsed = parser.parse_toml(version_0_3_carbon_txt_no_upstreams, logs=[])
+        result = parser.validate_as_carbon_txt(parsed, logs=[])
+        assert result.version == "0.3"

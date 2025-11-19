@@ -99,10 +99,11 @@ class CarbonTxtParser:
         Accept a parsed TOML object and return a CarbonTxtFile, validating that
         necessary keys are present and values are of the correct type.
         """
-
+        parser = schemas.VERSIONS[parsed.get("version", schemas.DEFAULT_VERSION)]
         try:
-            carb_txt_obj = schemas.CarbonTxtFile(**parsed)
-            message = "Parsed TOML was recognised as valid Carbon.txt file.\n"
+            carb_txt_obj = parser(**parsed)
+            version = carb_txt_obj.version
+            message = f"Parsed TOML was recognised as valid Carbon.txt file with syntax version {version}.\n"
             log_safely(message, logs)
             return carb_txt_obj
         except pydantic.ValidationError as ex:

@@ -1,5 +1,5 @@
 from .hookspecs import hookimpl
-from .schemas import Disclosure
+from .schemas import Disclosure0_2
 from .processors import GreenwebCSRDProcessor
 import logging
 from typing import Optional
@@ -24,7 +24,7 @@ plugin_name = "csrd_greenweb"
 
 @hookimpl
 def process_document(
-    document: Disclosure,
+    document: Disclosure0_2,
     logs: Optional[list],
 ):
     """
