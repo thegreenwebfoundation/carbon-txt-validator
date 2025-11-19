@@ -1,6 +1,6 @@
 from datetime import date
 from typing import Literal, Optional, List, Dict
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 
 # Modified semver regex, taken from
@@ -17,6 +17,8 @@ class Service(BaseModel):
     Green Web Platform
     """
 
+    model_config = ConfigDict(extra="forbid")
+
     domain: Optional[str]
     name: Optional[str] = None
     # TODO: python prefers snake_case.
@@ -32,6 +34,8 @@ class Disclosure0_2(BaseModel):
     be to be used to substantiate a claim like running on green energy, and so on.
     In the carbontxt version 0.2 syntax, disclosures do not have a valid_until date.
     """
+
+    model_config = ConfigDict(extra="forbid")
 
     domain: Optional[str] = None
     doc_type: Literal[
@@ -53,6 +57,8 @@ class Disclosure0_3(Disclosure0_2):
     version 0.2, plus an optional valid_until date.
     """
 
+    model_config = ConfigDict(extra="forbid")
+
     valid_until: Optional[date] = None
 
 
@@ -63,6 +69,7 @@ class Organisation[DisclosureType](BaseModel):
     if it is exclusively relying on services from upstream providers for its green claims.
     """
 
+    model_config = ConfigDict(extra="forbid")
     disclosures: List[DisclosureType] = Field(..., min_length=1)
 
 
@@ -71,6 +78,8 @@ class Upstream(BaseModel):
     Upstream refers to one or more hosted services that the Organisation
     is relying on to operate a digital service, like running a website, or application.
     """
+
+    model_config = ConfigDict(extra="forbid")
 
     # organisations that don't use third party providers could plausibly have an
     # empty upstream list. We also either accept providers as a single string representing
@@ -87,6 +96,8 @@ class CarbonTxtFile0_2(BaseModel):
     attribute, has no last_updated date, and does not provide a valid_until date for disclosures.
     """
 
+    model_config = ConfigDict(extra="forbid")
+
     version: Optional[str] = Field(pattern=VERSION_NUMBER_PATTERN, default="0.2")
     upstream: Optional[Upstream] = None
     org: Organisation[Disclosure0_2]
@@ -101,6 +112,8 @@ class CarbonTxtFile0_3(BaseModel):
     attribute, has an optional last_updated date, and has an optional valid_until
     date for disclosures.
     """
+
+    model_config = ConfigDict(extra="forbid")
 
     version: str = Field(pattern=VERSION_NUMBER_PATTERN)
     last_updated: Optional[date] = None
