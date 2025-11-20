@@ -57,7 +57,6 @@ class TestParseCarbonTxt:
         [
             "minimal_carbon_txt_org",
             "shorter_carbon_txt_string",
-            "multi_domain_carbon_txt_string",
         ],
     )
     def test_parse_to_carbon_txt_data_structure(self, carbon_txt_fixture, request):

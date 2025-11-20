@@ -1,5 +1,4 @@
 import pytest
-import pathlib
 
 import structlog
 
@@ -43,24 +42,6 @@ def shorter_carbon_txt_string():
         ]
     """  # noqa
     return short_string
-
-
-@pytest.fixture
-def multi_domain_carbon_txt_string():
-    """
-    A longer carbon.txt file where the org has multiple domains, and wants to serve the appropriate
-    data for each domain.
-    TODO: this might be better to not support this format
-    """
-    pth = pathlib.Path(__file__)
-
-    carbon_txt_path = pth.parent / "fixtures" / "carbon-txt-test.toml"
-
-    carbon_txt_string = None
-    with open(carbon_txt_path) as carb_file:
-        carbon_txt_string = carb_file.read()
-
-    return carbon_txt_string
 
 
 def minimal_carbon_txt_org_with_csrd_file():
