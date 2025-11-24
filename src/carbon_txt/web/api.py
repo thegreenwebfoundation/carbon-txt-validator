@@ -245,11 +245,27 @@ def validate_domain(
     summary="Retrieve JSON Schema",
     description="Get the JSON schema representation of carbon.txt file spec for validation",
 )
-def get_json_schema(request: HttpRequest) -> HttpResponse:
+def get_json_schema(
+    request: HttpRequest, version: str = schemas.LATEST_VERSION
+) -> HttpResponse:
     """
     Endpoint to get the JSON schema for a carbon.txt file.
+
+    Args:
+        request: The request object
+        version: The version of the schema to return, defaults to the latest.
+
+    Returns: A JSON schema representation of the carbon.txt syntax for the given version
     """
     # Get the JSON schema for a carbon.txt file
-    schema = schemas.CarbonTxtFile.model_json_schema()
+    model = schemas.VERSIONS.get(version)
 
-    return schema  # type: ignore
+    if model is not None:
+        schema = model.model_json_schema()
+        return schema  # type: ignore
+    else:
+        return ninja_api.create_response(
+            request,
+            {"message": f"No carbon.txt syntax version {version} found."},
+            status=503,
+        )

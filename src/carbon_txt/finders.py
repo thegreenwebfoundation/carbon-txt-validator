@@ -74,8 +74,6 @@ class FileFinder:
         """
         tldextract.update(fetch_now=True)
 
-
-
     def _parse_uri(self, uri: str) -> Optional[ParseResult]:
         """
         Return a parsed URI object if the URI is valid, otherwise return None
@@ -126,21 +124,21 @@ class FileFinder:
 
         return None
 
-    def _is_tld(self, domain : str) -> bool:
+    def _is_tld(self, domain: str) -> bool:
         """
         Tests if a given domain is a TLD
         """
         tld = tldextract.extract(domain).top_domain_under_public_suffix
         return domain == tld
 
-    def _is_www_subdomain(self, domain : str) -> bool:
+    def _is_www_subdomain(self, domain: str) -> bool:
         """
         Tests if a given domain is a www subdomain of a TLD
         """
         tld = tldextract.extract(domain).top_domain_under_public_suffix
         return domain == f"www.{tld}"
 
-    def _alternate_domain(self, domain : str) -> Optional[str]:
+    def _alternate_domain(self, domain: str) -> Optional[str]:
         """
         Returns the "alternate" variant for a domain, for which resolution should be attempted if no method succeeds for the original domain.
          . For TLDS, this is the www. subdomain,
@@ -166,8 +164,10 @@ class FileFinder:
             if response:
                 log_safely(f"New Carbon text file found at: {response.uri}", logs)
                 return response.uri
+            else:
+                return None
         except UnreachableCarbonTxtFile:
-            pass
+            return None
 
     def _check_for_dns_delegation(self, domain: str, logs=None) -> Optional[str]:
         """
@@ -177,6 +177,8 @@ class FileFinder:
         if uri_from_domain := self._lookup_dns(domain):
             log_safely(f"New lookup found for domain {domain}: {uri_from_domain}", logs)
             return self.resolve_domain_or_uri(uri_from_domain, logs).uri
+        else:
+            return None
 
     def _check_for_http_header_delegation(
         self, domain: str, logs=None
@@ -205,6 +207,11 @@ class FileFinder:
                     logger.error(
                         f"Invalid URL in 'CarbonTxt-Location' header: {header_url}"
                     )
+                    return None
+            else:
+                return None
+        else:
+            return None
 
     def fetch_carbon_txt_file(self, uri: str, logs=None) -> str:
         """
@@ -275,9 +282,9 @@ class FileFinder:
             if candidate := self._check_for_dns_delegation(domain, logs):
                 return FinderResult(candidate, "dns")
 
-        # If no DNS record exists, we look for a carbon.txt file at
-        # the root of the domain. If that isn't there try a fallback
-        # to one at the `.well-known` path:
+            # If no DNS record exists, we look for a carbon.txt file at
+            # the root of the domain. If that isn't there try a fallback
+            # to one at the `.well-known` path:
             default_paths = ["/carbon.txt", "/.well-known/carbon.txt"]
 
             for url_path in default_paths:
@@ -296,14 +303,22 @@ class FileFinder:
             # tracability.
 
             message = traceback.format_exception(e)
-            log_safely(f"Encountered an exception while attempting to resolve requested domain:\n{message}", logs)
+            log_safely(
+                f"Encountered an exception while attempting to resolve requested domain:\n{message}",
+                logs,
+            )
 
-        #If all of the above fail, we check for an "alternate domain", if there is any:
+        # If all of the above fail, we check for an "alternate domain", if there is any:
         alternate_domain = self._alternate_domain(domain)
         if not checking_alternate and alternate_domain:
-            log_safely(f"Requested domain has a permitted alternate: {alternate_domain}. Falling back to check", logs)
+            log_safely(
+                f"Requested domain has a permitted alternate: {alternate_domain}. Falling back to check",
+                logs,
+            )
             try:
-                return self.resolve_domain(alternate_domain, logs, checking_alternate=True)
+                return self.resolve_domain(
+                    alternate_domain, logs, checking_alternate=True
+                )
             except UnreachableCarbonTxtFile:
                 # We want to raise the error for the actual domain requested, not the alternate.
                 pass

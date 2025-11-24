@@ -55,9 +55,7 @@ from unittest.mock import MagicMock
         pytest.param(
             "",
             marks=pytest.mark.httpx_mock(
-                should_mock=lambda request: request.url.host.endswith(
-                    "example.com"
-                )
+                should_mock=lambda request: request.url.host.endswith("example.com")
             ),
         )
     ]
@@ -116,9 +114,7 @@ def mocked_carbon_txt_url(mocked_carbon_txt_domain) -> str:
         pytest.param(
             "",
             marks=pytest.mark.httpx_mock(
-                should_mock=lambda request: request.url.host.endswith(
-                    "example.com"
-                )
+                should_mock=lambda request: request.url.host.endswith("example.com")
             ),
         )
     ]
@@ -167,9 +163,7 @@ def mocked_domain_with_www_fallback(minimal_carbon_txt_org, httpx_mock) -> str:
         pytest.param(
             "",
             marks=pytest.mark.httpx_mock(
-                should_mock=lambda request: request.url.host.endswith(
-                    "example.com"
-                )
+                should_mock=lambda request: request.url.host.endswith("example.com")
             ),
         )
     ]
@@ -235,9 +229,7 @@ def mocked_http_delegating_carbon_txt_domain(minimal_carbon_txt_org, httpx_mock)
         pytest.param(
             "",
             marks=pytest.mark.httpx_mock(
-                should_mock=lambda request: request.url.host.endswith(
-                    "example.com"
-                )
+                should_mock=lambda request: request.url.host.endswith("example.com")
             ),
         )
     ]
@@ -268,9 +260,7 @@ def mocked_http_delegating_carbon_txt_url(minimal_carbon_txt_org, httpx_mock) ->
         pytest.param(
             "",
             marks=pytest.mark.httpx_mock(
-                should_mock=lambda request: request.url.host.endswith(
-                    "example.com"
-                ),
+                should_mock=lambda request: request.url.host.endswith("example.com"),
             ),
         )
     ]
@@ -325,9 +315,7 @@ def mocked_dns_delegating_carbon_txt_domain(
         pytest.param(
             "",
             marks=pytest.mark.httpx_mock(
-                should_mock=lambda request: request.url.host.endswith(
-                    "example.com"
-                ),
+                should_mock=lambda request: request.url.host.endswith("example.com"),
             ),
         )
     ]
@@ -386,9 +374,7 @@ def mocked_dns_delegating_carbon_txt_url(
         pytest.param(
             "",
             marks=pytest.mark.httpx_mock(
-                should_mock=lambda request: request.url.host.endswith(
-                    "example.com"
-                ),
+                should_mock=lambda request: request.url.host.endswith("example.com"),
             ),
         )
     ]
@@ -440,9 +426,7 @@ def mocked_404_carbon_txt_url(mocked_404_carbon_txt_domain) -> str:
         pytest.param(
             "",
             marks=pytest.mark.httpx_mock(
-                should_mock=lambda request: request.url.host.endswith(
-                    "example.com"
-                ),
+                should_mock=lambda request: request.url.host.endswith("example.com"),
             ),
         )
     ]
@@ -500,9 +484,7 @@ def mocked_carbon_txt_domain_with_file_and_dns_delegation(
         pytest.param(
             "",
             marks=pytest.mark.httpx_mock(
-                should_mock=lambda request: request.url.host.endswith(
-                    "example.com"
-                ),
+                should_mock=lambda request: request.url.host.endswith("example.com"),
             ),
         )
     ]
@@ -516,9 +498,7 @@ def mocked_carbon_txt_domain_with_file_and_http_delegation(
     Provide the domain name to the test.
     """
     domain = "delegating.example.com"
-    http_managed_service_url = (
-        "https://http-managed-service.example.com/carbon.txt"
-    )
+    http_managed_service_url = "https://http-managed-service.example.com/carbon.txt"
 
     for method in ["get", "head"]:
         httpx_mock.add_response(
@@ -563,9 +543,7 @@ def mocked_carbon_txt_domain_with_file_and_http_delegation(
         pytest.param(
             "",
             marks=pytest.mark.httpx_mock(
-                should_mock=lambda request: request.url.host.endswith(
-                    "example.com"
-                ),
+                should_mock=lambda request: request.url.host.endswith("example.com"),
             ),
         )
     ]
@@ -651,9 +629,7 @@ def mocked_carbon_txt_domain_with_recursive_delegation(
         pytest.param(
             "",
             marks=pytest.mark.httpx_mock(
-                should_mock=lambda request: request.url.host.endswith(
-                    "example.com"
-                ),
+                should_mock=lambda request: request.url.host.endswith("example.com"),
             ),
         )
     ]
@@ -683,9 +659,7 @@ def mocked_404_page_at_carbon_txt_path(httpx_mock, valid_html_not_found_page) ->
         pytest.param(
             "",
             marks=pytest.mark.httpx_mock(
-                should_mock=lambda request: request.url.host.endswith(
-                    "example.com"
-                ),
+                should_mock=lambda request: request.url.host.endswith("example.com"),
             ),
         )
     ]

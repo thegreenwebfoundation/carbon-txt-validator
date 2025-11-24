@@ -1,5 +1,5 @@
 from .hookspecs import hookimpl
-from .schemas import Disclosure
+from .schemas.common import Disclosure
 from .processors import GreenwebCSRDProcessor
 import logging
 from typing import Optional

@@ -13,7 +13,7 @@ https://docs.djangoproject.com/en/5.1/ref/settings/
 import os
 import pathlib
 
-import environ
+import environ  # type: ignore
 import sentry_sdk
 import structlog
 
