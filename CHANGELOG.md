@@ -10,6 +10,13 @@ Fixed, Changed, Added, Removed, Fixed, Security
 
 ## Unreleased
 
+## [0.0.20]
+
+### Added
+
+ - Support for carbon.txt Syntax v0.3, including version numbers, last_updated date and valid_until date for Disclosures
+ - Addition of "version" paremeter to schema endpoint and command in order to get the schema for a specific syntax version
+
 ## [0.0.19]
 
 ### Added
