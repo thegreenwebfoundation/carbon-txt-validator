@@ -159,3 +159,39 @@ def version_0_3_carbon_txt_no_disclosure_valid_until():
 def version_0_3_carbon_txt_no_upstreams():
     with open("tests/fixtures/version_0.3/no_upstreams.toml") as file:
         return file.read()
+
+
+@pytest.fixture()
+def version_0_4_carbon_txt_full():
+    with open("tests/fixtures/version_0.4/full.toml") as file:
+        return file.read()
+
+
+@pytest.fixture()
+def version_0_4_carbon_txt_no_last_updated():
+    with open("tests/fixtures/version_0.4/no_last_updated.toml") as file:
+        return file.read()
+
+
+@pytest.fixture()
+def version_0_4_carbon_txt_no_disclosure_domain():
+    with open("tests/fixtures/version_0.4/no_disclosure_domain.toml") as file:
+        return file.read()
+
+
+@pytest.fixture()
+def version_0_4_carbon_txt_no_disclosure_valid_until():
+    with open("tests/fixtures/version_0.4/no_disclosure_valid_until.toml") as file:
+        return file.read()
+
+
+@pytest.fixture()
+def version_0_4_carbon_txt_no_disclosure_title():
+    with open("tests/fixtures/version_0.4/no_disclosure_title.toml") as file:
+        return file.read()
+
+
+@pytest.fixture()
+def version_0_4_carbon_txt_no_upstreams():
+    with open("tests/fixtures/version_0.4/no_upstreams.toml") as file:
+        return file.read()
