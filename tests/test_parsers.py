@@ -139,3 +139,43 @@ class TestParseCarbonTxt:
         parsed = parser.parse_toml(version_0_3_carbon_txt_no_upstreams, logs=[])
         result = parser.validate_as_carbon_txt(parsed, logs=[])
         assert result.version == "0.3"
+
+    def test_parse_version_0_4(self, version_0_4_carbon_txt_full):
+        parsed = parser.parse_toml(version_0_4_carbon_txt_full, logs=[])
+        result = parser.validate_as_carbon_txt(parsed, logs=[])
+        assert result.version == "0.4"
+
+    def test_parse_version_0_4_no_last_updated(
+        self, version_0_4_carbon_txt_no_last_updated
+    ):
+        parsed = parser.parse_toml(version_0_4_carbon_txt_no_last_updated, logs=[])
+        result = parser.validate_as_carbon_txt(parsed, logs=[])
+        assert result.version == "0.4"
+
+    def test_parse_version_0_4_no_disclosure_domain(
+        self, version_0_4_carbon_txt_no_disclosure_domain
+    ):
+        parsed = parser.parse_toml(version_0_4_carbon_txt_no_disclosure_domain, logs=[])
+        result = parser.validate_as_carbon_txt(parsed, logs=[])
+        assert result.version == "0.4"
+
+    def test_parse_version_0_4_no_disclosure_valid_until(
+        self, version_0_4_carbon_txt_no_disclosure_valid_until
+    ):
+        parsed = parser.parse_toml(
+            version_0_4_carbon_txt_no_disclosure_valid_until, logs=[]
+        )
+        result = parser.validate_as_carbon_txt(parsed, logs=[])
+        assert result.version == "0.4"
+
+    def test_parse_version_0_4_no_disclosure_title(
+        self, version_0_4_carbon_txt_no_disclosure_title
+    ):
+        parsed = parser.parse_toml(version_0_4_carbon_txt_no_disclosure_title, logs=[])
+        result = parser.validate_as_carbon_txt(parsed, logs=[])
+        assert result.version == "0.4"
+
+    def test_parse_version_0_4_no_upstreams(self, version_0_4_carbon_txt_no_upstreams):
+        parsed = parser.parse_toml(version_0_4_carbon_txt_no_upstreams, logs=[])
+        result = parser.validate_as_carbon_txt(parsed, logs=[])
+        assert result.version == "0.4"
