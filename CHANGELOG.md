@@ -10,6 +10,12 @@ Fixed, Changed, Added, Removed, Fixed, Security
 
 ## Unreleased
 
+## [0.0.21]
+
+### Added
+
+ - Support for carbon.txt Syntax v0.4 - optional title attribute in disclosures
+
 ## [0.0.20]
 
 ### Added
