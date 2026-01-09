@@ -9,10 +9,18 @@ class ValidationLogEntry(models.Model):
     uptake of the carbon.txt stanard.
     """
 
+    class Source(models.TextChoices):
+        VALIDATOR_API = "validator_api"
+        PROVIDER_PORTAL = "provider_portal"
+        UNKNOWN = "unknown"
+
     timestamp: models.DateTimeField = models.DateTimeField(auto_now_add=True)
-    endpoint: models.CharField = models.CharField(max_length=255)
+    endpoint: models.CharField = models.CharField(max_length=255, null=True, blank=True)
     domain: models.CharField = models.CharField(
         max_length=255, blank=True, null=True
     )  # Length limit from RFC 1035
     url: models.TextField = models.TextField(blank=True, null=True)
     success: models.BooleanField = models.BooleanField(blank=True, null=True)
+    source: models.CharField = models.CharField(
+        choices=Source, default=Source.UNKNOWN, blank=False, null=False
+    )

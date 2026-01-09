@@ -27,9 +27,9 @@ class TestLogValidationMiddleware:
         self.logger = MagicMock(BoundLogger)
         self.db_log_instance = MagicMock(ValidationLogEntry)
         self.db_log_class = MagicMock(return_value=self.db_log_instance)
-
+        self.source = "test_source"
         self.middleware = LogValidationMiddleware(
-            self.get_response, self.logger, self.db_log_class
+            self.get_response, self.logger, self.db_log_class, self.source
         )
 
     @pytest.mark.parametrize("path", all_paths)
@@ -121,7 +121,7 @@ class TestLogValidationMiddleware:
             "validation_request", endpoint="/api/validate/file", success=True
         )
         self.db_log_class.assert_called_with(
-            endpoint="/api/validate/file", success=True
+            endpoint="/api/validate/file", success=True, source=self.source
         )
         self.db_log_instance.save.assert_called()
 
@@ -155,6 +155,7 @@ class TestLogValidationMiddleware:
             url="https://www.example.com/carbon.txt",
             domain="www.example.com",
             success=True,
+            source=self.source,
         )
         self.db_log_instance.save.assert_called()
 
@@ -188,6 +189,7 @@ class TestLogValidationMiddleware:
             endpoint="/api/validate/domain",
             url="https://www.example.com/carbon.txt",
             domain="www.example.com",
+            source=self.source,
             success=True,
         )
         self.db_log_instance.save.assert_called()
