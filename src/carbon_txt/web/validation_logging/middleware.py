@@ -18,13 +18,18 @@ class LogValidationMiddleware:
     """
 
     def __init__(
-        self, get_response: Callable, logger=None, log_model_class=ValidationLogEntry
+        self,
+        get_response: Callable,
+        logger=None,
+        log_model_class=ValidationLogEntry,
+        source=ValidationLogEntry.Source.VALIDATOR_API,
     ):
         if logger is None:
             logger = structlog.get_logger(__name__)
         self.get_response = get_response
         self.logger = logger
         self.log_model_class = log_model_class
+        self.source = source
 
     def __call__(self, request: HttpRequest) -> HttpResponse:
         response = self.get_response(request)
@@ -60,5 +65,8 @@ class LogValidationMiddleware:
             log_params["domain"] = urlparse(log_params["url"]).netloc
 
         self.logger.info("validation_request", **log_params)
+
+        log_params["source"] = self.source
+
         log_entry = self.log_model_class(**log_params)
         log_entry.save()
