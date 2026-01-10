@@ -35,7 +35,6 @@ jobs:
           options: |
             --inventory ./ansible/inventories/prod.yml
         env:
-          ANSIBLE_STDOUT_CALLBACK: yaml
           PYTHONDONTWRITEBYTECODE: 1
           CARBON_TXT_API_DATABASE_URL: ${{ secrets.CARBON_TXT_API_DATABASE_URL }}
           CARBON_TXT_API_SECRET_KEY: ${{ secrets.CARBON_TXT_API_SECRET_KEY }}
