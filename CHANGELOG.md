@@ -10,6 +10,13 @@ Fixed, Changed, Added, Removed, Fixed, Security
 
 ## Unreleased
 
+## [0.0.23]
+
+### Fixed
+
+ - The `source` column on the `ValidationLogEntry` table was missing a `max_length` which causes problems on MySQL databases - this adds it and rewrites the migration to add it to the db.
+
+
 ## [0.0.22]
 
 ### Added
