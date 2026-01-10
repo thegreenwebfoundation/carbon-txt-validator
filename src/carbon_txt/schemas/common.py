@@ -1,4 +1,4 @@
-from typing import Optional, List, Literal
+from typing import Optional, List, Literal, TypeVar, Generic
 
 from pydantic import BaseModel, ConfigDict, Field
 
@@ -27,7 +27,10 @@ class Service(BaseModel):
     service_type: Optional[List[str]] | str = None
 
 
-class Organisation[DisclosureType](BaseModel):
+DisclosureType = TypeVar("DisclosureType")
+
+
+class Organisation(BaseModel, Generic[DisclosureType]):
     """
     An Organisation is the entity making the claim to running its infrastructure
     on green energy. In the very least it should have some disclosures point to, even
