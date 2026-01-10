@@ -10,6 +10,12 @@ Fixed, Changed, Added, Removed, Fixed, Security
 
 ## Unreleased
 
+## [0.0.22]
+
+### Added
+
+ - Ability to specify a `source` for `ValidationLogEntry` records, enabling us to log validations in the GWF platform as well as the validator API.
+
 ## [0.0.21]
 
 ### Added
