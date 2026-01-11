@@ -10,6 +10,10 @@ Fixed, Changed, Added, Removed, Fixed, Security
 
 ## Unreleased
 
+### Fixed
+
+ - The version 0.3 and 0.4 syntax makes use of generic class types, and we used a syntax (PEP-695) for these which is only present in python 3.12 and above, breaking the library in python 3.11. We have fixed this, using the older, PEP-484 syntax, to restore compatibility
+
 ## [0.0.23]
 
 ### Fixed
