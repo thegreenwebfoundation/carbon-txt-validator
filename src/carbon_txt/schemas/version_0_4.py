@@ -18,6 +18,10 @@ class Disclosure(DisclosureV3):
 
     title: Optional[str] = None
 
+    @property
+    def toml_fields(_self):
+        return super().toml_fields + ["title"]
+
 
 class CarbonTxtFile(CarbonTxtFileV3):
     """

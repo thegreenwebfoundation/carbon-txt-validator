@@ -1,11 +1,17 @@
 from typing import Optional
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import ConfigDict, Field
 
-from .common import Disclosure, Organisation, Upstream, VERSION_NUMBER_PATTERN
+from .common import (
+    CarbonTxtFile as BaseCarbonTxtFile,
+    Disclosure,
+    Organisation,
+    Upstream,
+    VERSION_NUMBER_PATTERN,
+)
 
 
-class CarbonTxtFile(BaseModel):
+class CarbonTxtFile(BaseCarbonTxtFile):
     """
     A carbon.txt file is the data structure that acts as an index for supporting evidence
     for green claims made by a specific organisation. It is intended to links to
@@ -19,3 +25,7 @@ class CarbonTxtFile(BaseModel):
     version: Optional[str] = Field(pattern=VERSION_NUMBER_PATTERN, default="0.2")
     upstream: Optional[Upstream] = None
     org: Organisation[Disclosure]
+
+    @property
+    def toml_fields(_self):
+        return ["version", "org", "upstream"]
