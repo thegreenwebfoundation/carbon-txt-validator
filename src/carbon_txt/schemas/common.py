@@ -13,12 +13,26 @@ VERSION_NUMBER_PATTERN = r"^(?P<major>0|[1-9]\d*)\.(?P<minor>0|[1-9]\d*)(?:\.(?P
 class CarbonTxtModel(BaseModel):
     @property
     def toml_fields(_self):
+        """
+        To be overridden in subclasses - returns the names
+        of the fields to be serialized to TOML, in order.
+        """
         return []
 
     def toml_root(_self, **_kwargs):
+        """
+        To be optionally overridden in subclasses -
+        returns the tomlkit object to be used to
+        construct the serialization
+        """
         return table()
 
     def toml_tree(self, **kwargs):
+        """
+        Assembles the tomlkit object for this object's serialization,
+        recursively calling the same method on all properties.
+        """
+
         def toml_for_value(value):
             if isinstance(value, list):
                 arr = array()
@@ -38,15 +52,32 @@ class CarbonTxtModel(BaseModel):
         return doc
 
     def to_toml(self, **kwargs):
+        """
+        Return a TOML serialization of this object as a string.
+        Passes its kwargs to the toml_root and toml_tree methods
+        of all objects in the syntax tree.
+        """
         return dumps(self.toml_tree(**kwargs))
 
     def save_toml(self, path, **kwargs):
+        """
+        Writes out a TOML serialization of this object to the given filename.
+        Passes its kwargs to the toml_root and toml_tree methods
+        of all objects in the syntax tree.
+        """
         with open(path, "w") as file:
             return dump(self.toml_tree(**kwargs), file)
 
 
 class CarbonTxtFile(CarbonTxtModel):
     def toml_root(self, header_comment=None):
+        """
+        The root TOML object takes an optional header_comment kwargs
+        which allows us to specify a comment to be placed at the top
+        of the generated TOML. This is useful in situations where we
+        might generate multiple carbon.txt files for different domains
+        and need to keep track of which domain which file refers to.
+        """
         doc = document()
         if header_comment:
             doc.add(comment(header_comment))
