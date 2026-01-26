@@ -2,7 +2,7 @@ from typing import Optional, List, Literal, TypeVar, Generic
 
 from pydantic import BaseModel, ConfigDict, Field
 
-from tomlkit import comment, document, nl, table, dumps, inline_table, array
+from tomlkit import comment, document, nl, table, dumps, dump, inline_table, array
 
 # Modified semver regex, taken from
 # https://semver.org/#is-there-a-suggested-regular-expression-regex-to-check-a-semver-string,
@@ -15,22 +15,21 @@ class CarbonTxtModel(BaseModel):
     def toml_fields(_self):
         return []
 
-    @property
-    def toml_root(_self):
+    def toml_root(_self, **_kwargs):
         return table()
 
-    def toml_tree(self):
+    def toml_tree(self, **kwargs):
         def toml_for_value(value):
             if isinstance(value, list):
                 arr = array()
                 arr.extend([toml_for_value(item) for item in value])
                 return arr
             elif isinstance(value, CarbonTxtModel):
-                return value.toml_tree()
+                return value.toml_tree(**kwargs)
             else:
                 return value
 
-        doc = self.toml_root
+        doc = self.toml_root(**kwargs)
         for field in self.toml_fields:
             value = getattr(self, field)
             formatted_value = toml_for_value(value)
@@ -38,20 +37,20 @@ class CarbonTxtModel(BaseModel):
                 doc.add(field, formatted_value)
         return doc
 
-    def to_toml(self):
-        return dumps(self.toml_tree())
+    def to_toml(self, **kwargs):
+        return dumps(self.toml_tree(**kwargs))
+
+    def save_toml(self, path, **kwargs):
+        with open(path, "w") as file:
+            return dump(self.toml_tree(**kwargs), file)
 
 
 class CarbonTxtFile(CarbonTxtModel):
-    @property
-    def toml_root(self):
+    def toml_root(self, header_comment=None):
         doc = document()
-        doc.add(
-            comment(
-                "This is an automatically generated carbon.txt file! For further details see https://carbontxt.org"
-            )
-        )
-        doc.add(nl())
+        if header_comment:
+            doc.add(comment(header_comment))
+            doc.add(nl())
         return doc
 
 
@@ -73,8 +72,7 @@ class Service(CarbonTxtModel):
     # how do we support this?
     service_type: Optional[List[str]] | str = None
 
-    @property
-    def toml_root(_self):
+    def toml_root(_self, **_kwargs):
         return inline_table()
 
     @property
@@ -144,8 +142,7 @@ class Disclosure(CarbonTxtModel):
     url: str
     domain: Optional[str] = None
 
-    @property
-    def toml_root(_self):
+    def toml_root(_self, **_kwargs):
         return inline_table()
 
     @property
