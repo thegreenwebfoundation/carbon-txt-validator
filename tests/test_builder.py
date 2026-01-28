@@ -68,7 +68,7 @@ def test_version_is_respected():
     """
     Given a carbon.txt data dictionary with an explicit version number
     When I create a carbon.txt file from the dictionary
-    The version attribute is resspected
+    The version attribute is respected
     And the correct syntax class is used
     """
     data = {

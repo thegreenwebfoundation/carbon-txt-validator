@@ -34,7 +34,7 @@ def build_from_dict(data: dict) -> CarbonTxtFile:
     "version" attribute, or default to the latest version if not supplied.
     In addition, it will set the "last_updated" field to the current date if unspecified, and if the specified
     syntax version supports it. This can be omitteed by explicitly setting last_updated to None.
-    If the supplied data does not produce a valid CarbonTxt syntax tree, a ValidationError
+    If the supplied data does not produce a valid CarbonTxt syntax tree, a ValidationError is raised.
     """
 
     # We take a copy of the data dict so we can mutate it

@@ -27,7 +27,7 @@ A key idea behind carbon.txt is that it you shouldn't need to know where a carbo
 
 ```python
 
-validator.validate_domain("https://carbontxt.org")
+validator.validate_domain("carbontxt.org")
 #=> ValidationResult
 
 ```
