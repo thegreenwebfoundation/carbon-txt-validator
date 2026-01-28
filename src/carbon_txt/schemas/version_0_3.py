@@ -1,5 +1,5 @@
 from datetime import date
-from typing import Optional
+from typing import Optional, List
 
 from pydantic import ConfigDict, Field
 
@@ -29,7 +29,7 @@ class Disclosure(BaseDisclosure):
     valid_until: Optional[date] = None
 
     @property
-    def toml_fields(_self):
+    def toml_fields(self) -> List[str]:
         return super().toml_fields + ["valid_until"]
 
 
@@ -51,5 +51,5 @@ class CarbonTxtFile(BaseCarbonTxtFile):
     org: Organisation[Disclosure]
 
     @property
-    def toml_fields(_self):
+    def toml_fields(self) -> List[str]:
         return ["version", "last_updated", "org", "upstream"]

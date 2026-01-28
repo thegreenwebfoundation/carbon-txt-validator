@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, List
 
 from pydantic import ConfigDict, Field
 
@@ -27,5 +27,5 @@ class CarbonTxtFile(BaseCarbonTxtFile):
     org: Organisation[Disclosure]
 
     @property
-    def toml_fields(_self):
+    def toml_fields(self) -> List[str]:
         return ["version", "org", "upstream"]
