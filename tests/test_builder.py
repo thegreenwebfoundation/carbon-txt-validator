@@ -4,7 +4,7 @@ from datetime import date
 from pydantic import ValidationError
 
 from carbon_txt import build_from_dict
-from carbon_txt.schemas import LATEST_VERSION, VERSIONS
+from carbon_txt.schemas import LATEST_VERSION, VERSIONS, InvalidVersionError
 
 
 def test_disclosures_are_passed():
@@ -97,6 +97,17 @@ def test_latest_version_default():
     result = build_from_dict(data)
     assert result.version == LATEST_VERSION
     assert isinstance(result, VERSIONS[LATEST_VERSION])
+
+
+def test_invalid_version_raises_error():
+    data = {
+        "version": "0.1",
+        "org": {
+            "disclosures": [{"url": "https://example.com", "doc_type": "web-page"}]
+        },
+    }
+    with pytest.raises(InvalidVersionError):
+        build_from_dict(data)
 
 
 def test_last_updated_default():
