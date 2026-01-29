@@ -14,7 +14,11 @@ from tomlkit import (
     TOMLDocument,
 )
 
-from tomlkit.items import AbstractTable as TOMLTable, Item as TOMLItem
+from tomlkit.items import (
+    AbstractTable as TOMLTable,
+    Item as TOMLItem,
+    InlineTable as TOMLInlineTable,
+)
 
 # Modified semver regex, taken from
 # https://semver.org/#is-there-a-suggested-regular-expression-regex-to-check-a-semver-string,
@@ -52,6 +56,8 @@ class CarbonTxtModel(BaseModel):
                     result = toml_for_value(item)
                     if result:
                         arr.append(result)
+                        if isinstance(result, TOMLInlineTable):
+                            arr.append(nl())
                 return arr
             elif isinstance(value, CarbonTxtModel):
                 result = value.toml_tree(**kwargs)
