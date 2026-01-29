@@ -52,13 +52,16 @@ class CarbonTxtModel(BaseModel):
         def toml_for_value(value):
             if isinstance(value, list):
                 arr = array()
+                is_multiline = False
                 for item in value:
                     result = toml_for_value(item)
+                    if isinstance(result, TOMLInlineTable):
+                        # If the contents of the array are inline tables (eg disclosures, services), they are displayed on multiple lines.
+                        # If not (eg service_types of a service) they are not.
+                        is_multiline = True
                     if result:
-                        arr.append(result)
-                        if isinstance(result, TOMLInlineTable):
-                            arr.append(nl())
-                return arr
+                        arr.add_line(result)
+                return arr.multiline(is_multiline)
             elif isinstance(value, CarbonTxtModel):
                 result = value.toml_tree(**kwargs)
                 if isinstance(result, TOMLItem):
