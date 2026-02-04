@@ -65,11 +65,11 @@ validator.validate_contents(contents)
 
 ### Building carbon.txt files from python
 
-We can also create carbon.txt files programatically, using the `build_from_dict` helper function:
+We can also create carbon.txt files programatically, using the `build_carbontxt_file` helper function:
 
 ```python
 
-from carbon_txt import build_from_dict
+from carbon_txt import build_carbontxt_file
 
 data = {
     "org": {
@@ -82,7 +82,7 @@ data = {
     },
 }
 
-build_from_dict(data)
+build_carbontxt_file(data)
 #=> CarbonTxtFile
 ```
 
@@ -97,7 +97,7 @@ Any `CarbonTxtFile` object can be serialized as TOML, either by calling its `to_
 
 ```python
 
-from carbon_txt import build_from_dict
+from carbon_txt import build_carbontxt_file
 
 data = {
     "org": {
@@ -110,7 +110,7 @@ data = {
     },
 }
 
-file = build_from_dict(data)
+file = build_carbontxt_file(data)
 
 file.to_toml()
 #=> string with contents of TOML file

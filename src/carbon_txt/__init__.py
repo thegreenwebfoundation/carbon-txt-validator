@@ -1,1 +1,1 @@
-from .schemas import build_from_dict as build_from_dict
+from .schemas import build_carbontxt_file as build_carbontxt_file

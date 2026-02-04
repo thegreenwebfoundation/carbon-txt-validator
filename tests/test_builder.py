@@ -3,7 +3,7 @@ from datetime import date
 
 from pydantic import ValidationError
 
-from carbon_txt import build_from_dict
+from carbon_txt import build_carbontxt_file
 from carbon_txt.schemas import LATEST_VERSION, VERSIONS, InvalidVersionError
 
 
@@ -18,7 +18,7 @@ def test_disclosures_are_passed():
             "disclosures": [{"url": "https://www.example.com", "doc_type": "web-page"}]
         }
     }
-    result = build_from_dict(data)
+    result = build_carbontxt_file(data)
     assert result.org.disclosures[0].url == data["org"]["disclosures"][0]["url"]
     assert (
         result.org.disclosures[0].doc_type == data["org"]["disclosures"][0]["doc_type"]
@@ -41,7 +41,7 @@ def test_services_are_passed():
             ]
         },
     }
-    result = build_from_dict(data)
+    result = build_carbontxt_file(data)
     assert (
         result.upstream.services[0].domain == data["upstream"]["services"][0]["domain"]
     )
@@ -61,7 +61,7 @@ def test_validation_errors_are_raised():
         "org": {"disclosures": []},
     }
     with pytest.raises(ValidationError):
-        build_from_dict(data)
+        build_carbontxt_file(data)
 
 
 def test_version_is_respected():
@@ -77,7 +77,7 @@ def test_version_is_respected():
             "disclosures": [{"url": "https://www.example.com", "doc_type": "web-page"}]
         },
     }
-    result = build_from_dict(data)
+    result = build_carbontxt_file(data)
     assert result.version == data["version"]
     assert isinstance(result, VERSIONS[data["version"]])
 
@@ -94,7 +94,7 @@ def test_latest_version_default():
             "disclosures": [{"url": "https://www.example.com", "doc_type": "web-page"}]
         }
     }
-    result = build_from_dict(data)
+    result = build_carbontxt_file(data)
     assert result.version == LATEST_VERSION
     assert isinstance(result, VERSIONS[LATEST_VERSION])
 
@@ -107,7 +107,7 @@ def test_invalid_version_raises_error():
         },
     }
     with pytest.raises(InvalidVersionError):
-        build_from_dict(data)
+        build_carbontxt_file(data)
 
 
 def test_last_updated_default():
@@ -121,7 +121,7 @@ def test_last_updated_default():
             "disclosures": [{"url": "https://www.example.com", "doc_type": "web-page"}]
         }
     }
-    result = build_from_dict(data)
+    result = build_carbontxt_file(data)
     assert result.last_updated == date.today()
 
 
@@ -137,7 +137,7 @@ def test_last_updated_explicit_null():
             "disclosures": [{"url": "https://www.example.com", "doc_type": "web-page"}]
         },
     }
-    result = build_from_dict(data)
+    result = build_carbontxt_file(data)
     assert result.last_updated is None
 
 
@@ -153,5 +153,5 @@ def test_last_updated_explicit_date():
             "disclosures": [{"url": "https://www.example.com", "doc_type": "web-page"}]
         },
     }
-    result = build_from_dict(data)
+    result = build_carbontxt_file(data)
     assert result.last_updated == data["last_updated"]

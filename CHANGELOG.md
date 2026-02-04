@@ -11,7 +11,7 @@ Fixed, Changed, Added, Removed, Fixed, Security
 ## Unreleased
 
 ### Added
- - `build_from_dict` helper method to support programmatic creation of carbon.txt files.
+ - `build_carbontxt_file` helper method to support programmatic creation of carbon.txt files.
  - `save_toml` and `to_toml` methods on CarbonTxtFile for serialization of carbon.txt files.
  - Additional documentation on use of the carbon.txt validator as a python library
 

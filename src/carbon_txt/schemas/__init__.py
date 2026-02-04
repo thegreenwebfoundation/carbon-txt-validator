@@ -27,7 +27,7 @@ class InvalidVersionError(ValueError):
         super().__init__(f"'{version}' is not a valid carbon.txt syntax version")
 
 
-def build_from_dict(data: dict) -> CarbonTxtFile:
+def build_carbontxt_file(data: dict) -> CarbonTxtFile:
     """
     Helper method to build a carbon.txt syntax tree from a python dictionary describing its contents.
     This method will automatically pick the correct version of the carbon.txt syntax, based on the supplied

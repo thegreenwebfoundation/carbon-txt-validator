@@ -1,9 +1,9 @@
 from datetime import date
 
-from carbon_txt import build_from_dict
+from carbon_txt import build_carbontxt_file
 from carbon_txt.validators import CarbonTxtValidator
 
-file = build_from_dict(
+file = build_carbontxt_file(
     {
         "version": "0.4",
         "last_updated": date.fromisoformat("2025-01-01"),
