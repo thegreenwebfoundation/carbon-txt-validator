@@ -1,4 +1,4 @@
-from typing import Optional
+from typing import Optional, List
 
 from .common import Organisation
 from .version_0_3 import CarbonTxtFile as CarbonTxtFileV3, Disclosure as DisclosureV3
@@ -17,6 +17,10 @@ class Disclosure(DisclosureV3):
     __name__ = "Disclosure"
 
     title: Optional[str] = None
+
+    @property
+    def toml_fields(self) -> List[str]:
+        return super().toml_fields + ["title"]
 
 
 class CarbonTxtFile(CarbonTxtFileV3):

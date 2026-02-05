@@ -1,10 +1,15 @@
 from datetime import date
-from typing import Optional
+from typing import Optional, List
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import ConfigDict, Field
 
-from .common import Organisation, Upstream, VERSION_NUMBER_PATTERN
-from .common import Disclosure as BaseDisclosure
+from .common import (
+    CarbonTxtFile as BaseCarbonTxtFile,
+    Disclosure as BaseDisclosure,
+    Organisation,
+    Upstream,
+    VERSION_NUMBER_PATTERN,
+)
 
 
 class Disclosure(BaseDisclosure):
@@ -23,8 +28,12 @@ class Disclosure(BaseDisclosure):
 
     valid_until: Optional[date] = None
 
+    @property
+    def toml_fields(self) -> List[str]:
+        return super().toml_fields + ["valid_until"]
 
-class CarbonTxtFile(BaseModel):
+
+class CarbonTxtFile(BaseCarbonTxtFile):
     """
     A carbon.txt file is the data structure that acts as an index for supporting evidence
     for green claims made by a specific organisation. It is intended to links to
@@ -40,3 +49,7 @@ class CarbonTxtFile(BaseModel):
     last_updated: Optional[date] = None
     upstream: Optional[Upstream] = None
     org: Organisation[Disclosure]
+
+    @property
+    def toml_fields(self) -> List[str]:
+        return ["version", "last_updated", "org", "upstream"]
