@@ -146,7 +146,7 @@ def __(NoMatchingDatapointsError, form, mo, vals):
         ):
             parse_errors = vals[form.value["datapoint"]][0].__str__()
             error_message = f"""
-            Sorry, we couldn't find any values for {form.value['datapoint']} datapoint.
+            Sorry, we couldn't find any values for {form.value["datapoint"]} datapoint.
 
             Error was:
 

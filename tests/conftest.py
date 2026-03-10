@@ -195,3 +195,9 @@ def version_0_4_carbon_txt_no_disclosure_title():
 def version_0_4_carbon_txt_no_upstreams():
     with open("tests/fixtures/version_0.4/no_upstreams.toml") as file:
         return file.read()
+
+
+@pytest.fixture()
+def version_0_5_carbon_txt_full():
+    with open("tests/fixtures/version_0.5/full.toml") as file:
+        return file.read()
