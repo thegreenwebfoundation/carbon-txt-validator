@@ -44,7 +44,7 @@ def process_document(
             if http_client is None:
                 http_client = HTTPClient()
             processor = GreenwebAIModelCardProcessor(
-                card_url=document.url, http_client=http_client
+                card_url=document.url, http_client=http_client, logs=logs
             )
             results = processor.get_co2_eq_emissions()
             return {

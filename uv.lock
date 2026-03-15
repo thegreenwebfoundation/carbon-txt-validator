@@ -156,6 +156,7 @@ dependencies = [
     { name = "dnspython" },
     { name = "granian" },
     { name = "httpx" },
+    { name = "mistletoe" },
     { name = "pluggy" },
     { name = "pydantic-extra-types" },
     { name = "python-frontmatter" },
@@ -196,6 +197,7 @@ requires-dist = [
     { name = "dnspython", specifier = ">=2.7.0" },
     { name = "granian", specifier = ">=1.6.2" },
     { name = "httpx", specifier = ">=0.27.2" },
+    { name = "mistletoe", specifier = ">=1.5.1" },
     { name = "pluggy", specifier = ">=1.5.0" },
     { name = "pydantic-extra-types", specifier = ">=2.10.3" },
     { name = "python-frontmatter", specifier = ">=1.1.0" },
@@ -1111,6 +1113,15 @@ source = { registry = "https://pypi.org/simple" }
 sdist = { url = "https://files.pythonhosted.org/packages/d6/54/cfe61301667036ec958cb99bd3efefba235e65cdeb9c84d24a8293ba1d90/mdurl-0.1.2.tar.gz", hash = "sha256:bb413d29f5eea38f31dd4754dd7377d4465116fb207585f97bf925588687c1ba", size = 8729, upload-time = "2022-08-14T12:40:10.846Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/b3/38/89ba8ad64ae25be8de66a6d463314cf1eb366222074cfda9ee839c56a4b4/mdurl-0.1.2-py3-none-any.whl", hash = "sha256:84008a41e51615a49fc9966191ff91509e3c40b939176e643fd50a5c2196b8f8", size = 9979, upload-time = "2022-08-14T12:40:09.779Z" },
+]
+
+[[package]]
+name = "mistletoe"
+version = "1.5.1"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/31/ae/d33647e2a26a8899224f36afc5e7b7a670af30f1fd87231e9f07ca19d673/mistletoe-1.5.1.tar.gz", hash = "sha256:c5571ce6ca9cfdc7ce9151c3ae79acb418e067812000907616427197648030a3", size = 111769, upload-time = "2025-12-07T16:19:01.066Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/20/60/0980fefdc4d12c18c1bbab9d62852f27aded8839233c7b0a9827aaf395f5/mistletoe-1.5.1-py3-none-any.whl", hash = "sha256:d3e97664798261503f685f6a6281b092628367cf3128fc68a015a993b0c4feb3", size = 55331, upload-time = "2025-12-07T16:18:59.65Z" },
 ]
 
 [[package]]
