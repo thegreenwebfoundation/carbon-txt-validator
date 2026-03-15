@@ -64,9 +64,21 @@ class NoMatchingDatapointsError(ValueError):
         self.datapoint_short_code = datapoint_short_code
         self.datapoint_readable_label = datapoint_readable_label
 
+    @property
+    def message(self):
+        return self.args[0]  # ValueError stores the message in args
+
+    @property
+    def value(self):
+        return None
+
+    @property
+    def short_code(self):
+        return self.datapoint_short_code
+
     def __dict__(self):
         return {
-            "message": self.args[0],  # ValueError stores the message in args
+            "message": self.message,
             "datapoint_short_code": self.datapoint_short_code,
             "datapoint_readable_label": self.datapoint_readable_label,
         }
