@@ -5,7 +5,7 @@ SECRET_KEY="{{ secret_key }}"
 DATABASE_URL="{{ database_url }}"
 
 # We default to having this, to avoid needing to set it every time
-ACTIVE_CARBON_TXT_PLUGINS="carbon_txt.process_csrd_document"
+ACTIVE_CARBON_TXT_PLUGINS="carbon_txt.process_csrd_document,carbon_txt.process_ai_model_card"
 
 {% if sentry_dsn is defined %}
 SENTRY_DSN="{{ sentry_dsn }}"
