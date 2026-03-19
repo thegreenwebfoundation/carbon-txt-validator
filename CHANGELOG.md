@@ -10,6 +10,12 @@ Fixed, Changed, Added, Removed, Fixed, Security
 
 ## Unreleased
 
+## [0.0.26]
+
+### Added
+ - Syntax v0.5 with 'ai-model-card'
+ - Model card parser plugin
+
 ## [0.0.25]
 
 ### Added
