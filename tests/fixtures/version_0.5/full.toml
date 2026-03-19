@@ -1,0 +1,13 @@
+version = "0.5"
+last_updated = "2025-01-01"
+
+[org]
+disclosures = [
+    { doc_type='web-page', url='https://example.com/sustainability-policy', domain='thegreenwebfoundation.org', valid_until="2030-01-01", title="Sustainability policy" },
+    { doc_type='ai-model-card', url='https://example.com/model-card', domain='thegreenwebfoundation.org', valid_until="2030-01-01", title="Model card" },
+]
+
+[upstream]
+services = [
+    { domain='upstream.com', service_type='block-storage'},
+]

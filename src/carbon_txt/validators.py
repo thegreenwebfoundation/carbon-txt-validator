@@ -10,6 +10,7 @@ import pydantic_core
 import structlog
 
 from . import exceptions, finders, parsers_toml, schemas  # noqa
+from .http_client import HTTPClient
 from .plugins import module_from_path, pm
 
 parser = parsers_toml.CarbonTxtParser()
@@ -71,11 +72,13 @@ class CarbonTxtValidator:
             f"active_plugins {active_plugins}",
         )
 
-        self.file_finder = finders.FileFinder(
+        self.http_client = HTTPClient(
             http_timeout=http_timeout, http_user_agent=http_user_agent
         )
-        # make sure the plugins list is empty before we start
 
+        self.file_finder = finders.FileFinder(self.http_client)
+
+        # make sure the plugins list is empty before we start
         if plugins_dir is not None:
             self.plugins_dir = plugins_dir
             plugins_path = pathlib.Path(plugins_dir).resolve()
@@ -117,6 +120,7 @@ class CarbonTxtValidator:
                 document=supporting_document,
                 parsed_carbon_txt_file=validation_results,
                 logs=[],
+                http_client=self.http_client,
             )
             # exit early if we have no results from this plugins to add to our list
             if not plugin_results_for_document:

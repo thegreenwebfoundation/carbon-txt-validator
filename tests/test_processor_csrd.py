@@ -6,7 +6,7 @@ from arelle import (  # type: ignore
 )
 from structlog import get_logger
 
-from carbon_txt import processors  # type: ignore
+from carbon_txt.processors import csrd_document  # type: ignore
 
 logger = get_logger()
 
@@ -36,7 +36,7 @@ class TestCSRDProcessorValidate:  # noqa
         Test that we can fetch a remote CSRD report, and that it is not empty.
         """
 
-        arelle_wrapper = processors.ArelleProcessor(local_esrs_1_csrd_file)
+        arelle_wrapper = csrd_document.ArelleProcessor(local_esrs_1_csrd_file)
         res = arelle_wrapper.parsed_reports()
 
         assert res
@@ -49,7 +49,7 @@ class TestCSRDProcessorValidate:  # noqa
         """
         short_code = "PercentageOfRenewableSourcesInTotalEnergyConsumption"
 
-        csrd_processor = processors.GreenwebCSRDProcessor(
+        csrd_processor = csrd_document.GreenwebCSRDProcessor(
             report_url=local_esrs_1_csrd_file
         )
 
@@ -70,14 +70,14 @@ class TestCSRDProcessorValidate:  # noqa
         Test that we get a graceful failure when we try to pull datapoints
         from a report without the values
         """
-        csrd_processor = processors.GreenwebCSRDProcessor(
+        csrd_processor = csrd_document.GreenwebCSRDProcessor(
             report_url=local_esrs_1_csrd_file,
         )
         datapoint_code = "PercentageOfRenewableSourcesInTotalEnergyConsumption"
 
         res = csrd_processor.get_esrs_datapoint_values([datapoint_code])
         for item in res:
-            assert isinstance(item, processors.NoMatchingDatapointsError)
+            assert isinstance(item, csrd_document.NoMatchingDatapointsError)
 
     def test_safe_error_when_CSRD_unparsable(self):
         """
@@ -85,8 +85,8 @@ class TestCSRDProcessorValidate:  # noqa
         CSRD report.
         """
 
-        with pytest.raises(processors.NoLoadableCSRDFile):
-            processors.ArelleProcessor("https://www.example.com/no-csrd-report")
+        with pytest.raises(csrd_document.NoLoadableCSRDFile):
+            csrd_document.ArelleProcessor("https://www.example.com/no-csrd-report")
 
     def test_basic_validation_of_multiple_values_in_CSRD_report(
         self, local_esrs_1_csrd_file
@@ -95,7 +95,7 @@ class TestCSRDProcessorValidate:  # noqa
         Test that we can parse a remote CSRD report, and pull out values for specific datapoints.
         """
 
-        csrd_processor = processors.GreenwebCSRDProcessor(
+        csrd_processor = csrd_document.GreenwebCSRDProcessor(
             report_url=local_esrs_1_csrd_file
         )
 
@@ -148,7 +148,7 @@ class TestGreenwebCSRDProcessorEFRAGValidateAll:
 
         for file in xhtml_files:
             try:
-                processor = processors.GreenwebCSRDProcessor(report_url=str(file))
+                processor = csrd_document.GreenwebCSRDProcessor(report_url=str(file))
                 res = processor.get_esrs_datapoint_values(
                     ["PercentageOfRenewableSourcesInTotalEnergyConsumption"]
                 )

@@ -141,6 +141,17 @@ class Service(CarbonTxtModel):
 DisclosureType = TypeVar("DisclosureType")
 
 
+SpecificDisclosureDocType = Literal[
+    "web-page",
+    "annual-report",
+    "sustainability-page",
+    "certificate",
+    "csrd-report",
+]
+
+OtherDisclosureDocType = Literal["other"]
+
+
 class Organisation(CarbonTxtModel, Generic[DisclosureType]):
     """
     An Organisation is the entity making the claim to running its infrastructure
@@ -189,14 +200,7 @@ class Disclosure(CarbonTxtModel):
     __name__ = "Disclosure"
 
     model_config = ConfigDict(extra="forbid")
-    doc_type: Literal[
-        "web-page",
-        "annual-report",
-        "sustainability-page",
-        "certificate",
-        "csrd-report",
-        "other",
-    ]
+    doc_type: Literal[SpecificDisclosureDocType, OtherDisclosureDocType]
     url: str
     domain: Optional[str] = None
 

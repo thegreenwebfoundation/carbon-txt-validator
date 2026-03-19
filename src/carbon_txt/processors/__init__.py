@@ -1,0 +1,2 @@
+from .csrd_document import GreenwebCSRDProcessor as GreenwebCSRDProcessor
+from .ai_model_card import GreenwebAIModelCardProcessor as GreenwebAIModelCardProcessor

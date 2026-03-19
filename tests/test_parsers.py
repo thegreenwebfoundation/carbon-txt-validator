@@ -179,3 +179,8 @@ class TestParseCarbonTxt:
         parsed = parser.parse_toml(version_0_4_carbon_txt_no_upstreams, logs=[])
         result = parser.validate_as_carbon_txt(parsed, logs=[])
         assert result.version == "0.4"
+
+    def test_parse_version_0_5(self, version_0_5_carbon_txt_full):
+        parsed = parser.parse_toml(version_0_5_carbon_txt_full, logs=[])
+        result = parser.validate_as_carbon_txt(parsed, logs=[])
+        assert result.version == "0.5"

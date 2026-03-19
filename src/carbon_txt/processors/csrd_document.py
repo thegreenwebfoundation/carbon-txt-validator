@@ -7,7 +7,7 @@ from arelle.RuntimeOptions import RuntimeOptions  # type: ignore
 from pydantic import BaseModel
 
 import typing
-from .exceptions import NoMatchingDatapointsError, NoLoadableCSRDFile
+from ..exceptions import NoMatchingDatapointsError, NoLoadableCSRDFile
 
 import structlog
 
