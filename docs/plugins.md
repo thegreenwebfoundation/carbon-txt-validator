@@ -18,7 +18,7 @@ Some plugins are bundled into the main carbon.txt validator package, but others 
 
 ### `carbon-txt-greenweb-csrd` - the 'Green Web CSRD' plugin
 
-The CSRD plugin for the carbon.txt validator is one of the default plugins bundled in with the validator. The [source code for the plugin](https://github.com/thegreenwebfoundation/carbon-txt-validator/blob/main/src/carbon_txt/process_csrd_document.py) as is [the CSRD processor it uses to parse reports](https://github.com/thegreenwebfoundation/carbon-txt-validator/blob/main/src/carbon_txt/processors.py#L30). Under the hood, it uses [Arelle, a report parsing tool certified by the XBRL Foundation](https://arelle.readthedocs.io).
+The CSRD plugin for the carbon.txt validator is one of the default plugins bundled in with the validator. The [source code for the plugin](https://github.com/thegreenwebfoundation/carbon-txt-validator/blob/main/src/carbon_txt/process_csrd_document.py) as is [the CSRD processor it uses to parse reports](https://github.com/thegreenwebfoundation/carbon-txt-validator/blob/main/src/carbon_txt/processors/csrd_document.py). Under the hood, it uses [Arelle, a report parsing tool certified by the XBRL Foundation](https://arelle.readthedocs.io).
 
 ```{admonition} Info
 
@@ -33,6 +33,17 @@ This page shows how to use the validator to query these reports for specific kin
 ---
 ```
 
+### `carbon-txt-greenweb-ai-model-card` - the 'Green Web AI Model Card' plugin
+
+The AI model card plugin for the carbon.txt validator is one of the default plugins bundled in with the validator. The [source code for the plugin](https://github.com/thegreenwebfoundation/carbon-txt-validator/blob/main/src/carbon_txt/process_ai_model_card.py) as is [the processor it uses to parse reports](https://github.com/thegreenwebfoundation/carbon-txt-validator/blob/main/src/carbon_txt/processors/ai_model_card.py).
+
+```{admonition} Info
+
+#### What is an AI model card, and why is it relevant?
+
+[AI model cards](https://huggingface.co/docs/hub/model-cards) are an initiative which allows developers of AI models to share information about their use, parameters, training, and risks in a standardised, human  and machine readable format - markdown files with yaml frontmatter containing structured information. [The standard includes  a schema for reporting information about CO2 equivalent emissions](https://huggingface.co/docs/hub/model-cards-co2) incurred in training the model.
+---
+```
 
 ## External plugins
 
