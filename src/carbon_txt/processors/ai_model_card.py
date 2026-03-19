@@ -143,10 +143,10 @@ class GreenwebAIModelCardProcessor:
                     unit=None,
                 )
             )
-        try:
-            if "co2_eq_emissions" in data:
-                # The frontmatter has the co2_eq_emissions section
-                co2_data = data["co2_eq_emissions"]
+        if "co2_eq_emissions" in data:
+            # The frontmatter has the co2_eq_emissions section
+            co2_data = data["co2_eq_emissions"]
+            if isinstance(co2_data, dict):
                 for field in GreenwebAIModelCardProcessor.FIELDS:
                     if value := co2_data.get(field.short_code):
                         # The given field exists in the emissions data.
@@ -181,48 +181,49 @@ class GreenwebAIModelCardProcessor:
                     f.short_code for f in GreenwebAIModelCardProcessor.FIELDS
                 ]
                 if len(extra_fields) > 0:
+                    extra_fields_string = ",".join(extra_fields)
                     log_safely(
-                        f"Model card with url {self.card_url} contains extra, ignored, co2_eq_emissions fields: {",".join(extra_fields)}",
+                        f"Model card with url {self.card_url} contains extra, ignored, co2_eq_emissions fields: {extra_fields_string}",
                         self.logs,
                     )
-
             else:
-                content_type = response.headers.get("content-type")
-                if content_type in ("text/markdown", "text/plain"):
-                    # The file can be assumed to be a markdown model card, but has no co2_eq_emissions section
-                    log_safely(
-                        f"The model card at url {self.card_url} has no co2_eq_emissions section",
-                        self.logs,
-                    )
-                    datapoints.extend(
-                        self._error_on_all_fields(
-                            "This AI model card does not include a co2_eq_emissions section."
-                        )
-                    )
-                else:
-                    # The file cannot be assumed to be a markdown model card, and has no co2_eq_emissions section
-                    # We use an alternative error message here to ensure users know to link to the markdown source,
-                    # Not the rendered huggingface model page.
-                    log_safely(
-                        f"The document at url {self.card_url} is not a markdown format model card",
-                        self.logs,
-                    )
-                    datapoints.extend(
-                        self._error_on_all_fields(
-                            "This AI model card is not in markdown format. Please use the URL to the markdown source of the model card."
-                        )
-                    )
-        except AttributeError:
-            # The file has a co2_eq_emissions section, but it is not in the correct format (e.g, it just includes a float without an `emissions` key)
-            log_safely(
-                f"The document at url {self.card_url} has an incorrectly formatted co2_eq_emissions section",
-                self.logs,
-            )
-            datapoints.extend(
-                self._error_on_all_fields(
-                    "This AI model card has an incorrectly formatted co2_eq_emissions section."
+                # The file has a co2_eq_emissions section, but it is not in the correct format (e.g, it just includes a float without an `emissions` key)
+                log_safely(
+                    f"The document at url {self.card_url} has an incorrectly formatted co2_eq_emissions section",
+                    self.logs,
                 )
-            )
+                datapoints.extend(
+                    self._error_on_all_fields(
+                        "This AI model card has an incorrectly formatted co2_eq_emissions section."
+                    )
+                )
+        else:
+            # No co2_eq_emissions section was found. This can be for a couple of reasons:
+            content_type = response.headers.get("content-type", "")
+            if content_type.startswith(("text/markdown", "text/plain")):
+                # The file can be assumed to be a markdown model card, but has no co2_eq_emissions section
+                log_safely(
+                    f"The model card at url {self.card_url} has no co2_eq_emissions section",
+                    self.logs,
+                )
+                datapoints.extend(
+                    self._error_on_all_fields(
+                        "This AI model card does not include a co2_eq_emissions section."
+                    )
+                )
+            else:
+                # The file cannot be assumed to be a markdown model card, and therefore the frontmatter was empty.
+                # We use an alternative error message here to ensure users know to link to the markdown source,
+                # Not the rendered huggingface model page.
+                log_safely(
+                    f"The document at url {self.card_url} is not a markdown format model card",
+                    self.logs,
+                )
+                datapoints.extend(
+                    self._error_on_all_fields(
+                        "This AI model card is not in markdown format. Please use the URL to the markdown source of the model card."
+                    )
+                )
         return datapoints
 
     def get_h1_from_markdown(self, markdown: str) -> Optional[str]:
@@ -243,8 +244,9 @@ class GreenwebAIModelCardProcessor:
                 )
 
         doc = Document(markdown)
-        for element in doc.children:
-            if isinstance(element, Heading) and element.level == 1:
-                return _recursively_get_text(element)
+        if doc and doc.children:
+            for element in doc.children:
+                if isinstance(element, Heading) and element.level == 1:
+                    return _recursively_get_text(element)
 
         return None  # If no header is found

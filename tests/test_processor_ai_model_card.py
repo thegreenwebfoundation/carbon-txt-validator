@@ -20,6 +20,8 @@ def get_result(results, short_code):
 
 
 class TestGreenwebAIModelCardProcessor(unittest.TestCase):
+    # This needs to be a TestCase subclass, in order to access
+    # self.assertRaises in the http response code test method.
     @pytest.fixture(autouse=True)
     def setup_httpx_mock(self, httpx_mock):
         self.httpx_mock = httpx_mock

@@ -5,6 +5,11 @@ import httpx
 
 
 class HTTPClient:
+    """
+    This class wraps httpx, and ensures that we use the configured timeout and http user User-Agent,
+    everywhere that the validator makes HTTP requests.
+    """
+
     def __init__(
         self, http_timeout: float = 5.0, http_user_agent: Optional[str] = None
     ):
