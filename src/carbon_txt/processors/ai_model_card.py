@@ -127,7 +127,7 @@ class GreenwebAIModelCardProcessor:
         """
         Fetch and parse the co2 equivalent emissions data from the AI Model card.
         """
-        response = self.http_client.get(self.card_url)
+        response = self.http_client.get(self.card_url, follow_redirects=True)
         datapoints: list[AIModelCardResponse] = []
         response.raise_for_status()
         text = response.text
