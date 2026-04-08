@@ -3,7 +3,7 @@ name: Deploy latest version of API service to production
 on:
   push:
     branches:
-      - prod
+      - staging
 
 defaults:
   run:
@@ -12,7 +12,7 @@ defaults:
 
 jobs:
   deploy:
-    environment: prod
+    environment: staging
     timeout-minutes: 10
     runs-on: ubuntu-latest
 
@@ -28,7 +28,7 @@ jobs:
       - name: Run playbook
         uses: dawidd6/action-ansible-playbook@v2
         with:
-          playbook: ./ansible/playbooks/deploy.yml
+          playbook: ./ansible/playbooks/staging-deploy.yml
           directory: ./
           key: ${{secrets.SSH_PRIVATE_KEY}}
           inventory: |
@@ -41,4 +41,4 @@ jobs:
           CARBON_TXT_API_DJANGO_SETTINGS_MODULE: ${{ secrets.CARBON_TXT_API_DJANGO_SETTINGS_MODULE }}
           CARBON_TXT_API_SENTRY_DSN: ${{ secrets.CARBON_TXT_API_SENTRY_DSN }}
           CARBON_TXT_API_PORT: ${{ secrets.CARBON_TXT_API_PORT }}
-          CARBON_TXT_API_GIT_BRANCH: prod
+          CARBON_TXT_API_GIT_BRANCH: staging
