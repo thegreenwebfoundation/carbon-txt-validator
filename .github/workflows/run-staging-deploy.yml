@@ -1,9 +1,9 @@
-name: Deploy latest version of API service to production
+name: Deploy latest version of API service to staging
 
 on:
   push:
     branches:
-      - prod
+      - staging
 
 defaults:
   run:
@@ -12,7 +12,7 @@ defaults:
 
 jobs:
   deploy:
-    environment: prod
+    environment: staging
     timeout-minutes: 10
     runs-on: ubuntu-latest
 
@@ -41,6 +41,6 @@ jobs:
           CARBON_TXT_API_DJANGO_SETTINGS_MODULE: ${{ secrets.CARBON_TXT_API_DJANGO_SETTINGS_MODULE }}
           CARBON_TXT_API_SENTRY_DSN: ${{ secrets.CARBON_TXT_API_SENTRY_DSN }}
           CARBON_TXT_API_PORT: ${{ secrets.CARBON_TXT_API_PORT }}
-          CARBON_TXT_API_GIT_BRANCH: prod
-          CARBON_TXT_API_SERVICE_NAME: carbon_txt_api
-          CARBON_TXT_API_HOSTNAME: carbon-txt-api.greenweb.org
+          CARBON_TXT_API_GIT_BRANCH: staging
+          CARBON_TXT_API_SERVICE_NAME: staging_carbon_txt_api
+          CARBON_TXT_API_HOSTNAME: staging-carbon-txt-api.greenweb.org
