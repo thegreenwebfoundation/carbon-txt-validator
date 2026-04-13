@@ -18,9 +18,9 @@
     git_branch: "{{ lookup('env', 'CARBON_TXT_API_GIT_BRANCH') }}"
     # Sentry configuration
     sentry_dsn: "{{ lookup('env', 'CARBON_TXT_API_SENTRY_DSN') }}"
-    carbon_txt_hostname: "{{ lookup('env', 'CARBON_TXT_API_HOSTNAME' )}}"
+    carbon_txt_hostname: "{{ lookup('env', 'CARBON_TXT_API_HOSTNAME' ) | string }}"
     project_path: "/var/www/{{carbon_txt_hostname}}"
-    service_name: "{{ lookup('env', 'CARBON_TXT_API_SERVICE_NAME')}}"
+    service_name: "{{ lookup('env', 'CARBON_TXT_API_SERVICE_NAME') | string }}"
     sentry_trace_sample_rate: 1.0
     sentry_profile_sample_rate: 1.0
 
