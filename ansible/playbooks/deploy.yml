@@ -12,15 +12,16 @@
     service_restart: true
 
     # Environment variables for carbon.txt.api
-    secret_key: "{{ lookup('env', 'CARBON_TXT_API_SECRET_KEY') }}"
-    database_url: "{{ lookup('env', 'CARBON_TXT_API_DATABASE_URL') }}"
-    api_port: "{{ lookup('env', 'CARBON_TXT_API_PORT') }}"
-    git_branch: "{{ lookup('env', 'CARBON_TXT_API_GIT_BRANCH') }}"
+    secret_key: "{{ lookup('env', 'CARBON_TXT_API_SECRET_KEY') | string }}"
+    database_url: "{{ lookup('env', 'CARBON_TXT_API_DATABASE_URL') | string }}"
+    api_port: "{{ lookup('env', 'CARBON_TXT_API_PORT') | string }}"
+    git_branch: "{{ lookup('env', 'CARBON_TXT_API_GIT_BRANCH') | string }}"
     # Sentry configuration
-    sentry_dsn: "{{ lookup('env', 'CARBON_TXT_API_SENTRY_DSN') }}"
+    sentry_dsn: "{{ lookup('env', 'CARBON_TXT_API_SENTRY_DSN') | string }}"
     carbon_txt_hostname: "{{ lookup('env', 'CARBON_TXT_API_HOSTNAME' ) | string }}"
-    project_path: "/var/www/{{carbon_txt_hostname}}"
     service_name: "{{ lookup('env', 'CARBON_TXT_API_SERVICE_NAME') | string }}"
+    project_path: "/var/www/{{carbon_txt_hostname}}"
+    service_file_name: "{{ service_name }}.service"
     sentry_trace_sample_rate: 1.0
     sentry_profile_sample_rate: 1.0
 
@@ -86,7 +87,7 @@
     - name: Upload systemd service file for running carbon.txt.api
       ansible.builtin.template:
         src: systemd.carbon_txt_api.service.j2
-        dest: "/etc/systemd/system/{{service_name}}.service"
+        dest: "/etc/systemd/system/{{ service_file_name }}"
         mode: "0755"
         owner: "{{ service_user }}"
         group: "{{ service_user }}"
@@ -105,13 +106,13 @@
 
     - name: Show state of services
       ansible.builtin.debug:
-        var: ansible_facts.services["{{service_name}}.service"]
+        var: ansible_facts.services[service_file_name]
       tags: [systemd-check]
 
     - name: Trigger restart for app with systemd
       ansible.builtin.systemd:
-        name: "{{service_name}}.service"
+        name: "{{service_file_name}}"
         state: restarted
       become: true
-      when: service_restart is true
+      when: service_restart | bool
       tags: [systemd-service]
