@@ -8,7 +8,6 @@
   remote_user: deploy
 
   vars:
-    project_path: /var/www/carbon-txt-api.greenweb.org
     service_user: deploy
     service_restart: true
 
@@ -19,6 +18,9 @@
     git_branch: "{{ lookup('env', 'CARBON_TXT_API_GIT_BRANCH') }}"
     # Sentry configuration
     sentry_dsn: "{{ lookup('env', 'CARBON_TXT_API_SENTRY_DSN') }}"
+    carbon_txt_hostname: "{{ lookup('env', 'CARBON_TXT_API_HOSTNAME' )}}"
+    project_path: "/var/www/{{carbon_txt_hostname}}"
+    service_name: "{{ lookup('env', 'CARBON_TXT_API_SERVICE_NAME')}}"
     sentry_trace_sample_rate: 1.0
     sentry_profile_sample_rate: 1.0
 
@@ -33,7 +35,6 @@
       when: lookup('env', item) | trim == ''
       loop:
         - CARBON_TXT_API_SECRET_KEY
-        - CARBON_TXT_API_SENTRY_DSN
         - CARBON_TXT_API_DATABASE_URL
         - CARBON_TXT_API_PORT
       tags: [pre-flight]
@@ -85,7 +86,7 @@
     - name: Upload systemd service file for running carbon.txt.api
       ansible.builtin.template:
         src: systemd.carbon_txt_api.service.j2
-        dest: "/etc/systemd/system/carbon_txt_api.service"
+        dest: "/etc/systemd/system/{{service_name}}.service"
         mode: "0755"
         owner: "{{ service_user }}"
         group: "{{ service_user }}"
@@ -104,12 +105,12 @@
 
     - name: Show state of services
       ansible.builtin.debug:
-        var: ansible_facts.services["carbon_txt_api.service"]
+        var: ansible_facts.services["{{service_name}}.service"]
       tags: [systemd-check]
 
     - name: Trigger restart for app with systemd
       ansible.builtin.systemd:
-        name: "carbon_txt_api.service"
+        name: "{{service_name}}.service"
         state: restarted
       become: true
       when: service_restart is true

@@ -42,3 +42,5 @@ jobs:
           CARBON_TXT_API_SENTRY_DSN: ${{ secrets.CARBON_TXT_API_SENTRY_DSN }}
           CARBON_TXT_API_PORT: ${{ secrets.CARBON_TXT_API_PORT }}
           CARBON_TXT_API_GIT_BRANCH: staging
+          CARBON_TXT_API_SERVICE_NAME: staging_carbon_txt_api
+          CARBON_TXT_API_HOSTNAME: staging-carbon-txt-api.greenweb.org
