@@ -62,6 +62,29 @@ class TestFinder:
         # We get back a result that is delegated using HTTP
         assert result.delegation_method == "http"
 
+    def test_looking_up_domain_with_delegation_using_http_and_redirect(
+        self, mocked_http_delegating_carbon_txt_domain_with_redirect
+    ):
+        """
+        Looking up a domain that has a "CarbonTxt-Location" HTTP header and
+        returns a 30x status code for the carbon.txt URI
+        should delegate us to the correct URL in that header,
+        """
+        finder = FileFinder()
+
+        # Given a domain
+
+        # When we pass a domain
+        result = finder.resolve_domain(
+            mocked_http_delegating_carbon_txt_domain_with_redirect
+        )
+
+        # We get back the URI of the carbon.txt file to lookup
+        assert result.uri == "https://managed-service.example.com/carbon.txt"
+
+        # We get back a result that is delegated using HTTP
+        assert result.delegation_method == "http"
+
     def test_looking_up_uri_simple(self, mocked_carbon_txt_url):
         """Looking up a domain with a carbon.txt file"""
 
