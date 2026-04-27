@@ -22,6 +22,9 @@ The available mocks are as follows:
     - mocked_http_delegating_carbon_txt_domain
         (domain only, delegates to other domain with HTTP header, other domain
         returns valid TOML with 200 response)
+    - mocked_http_delegating_carbon_txt_domain_with_redirect
+        (domain only, delegates to other domain with HTTP header, sending a 301 response,
+        other domain returns valid TOML with 200 response)
     - mocked_dns_delegating_carbon_txt_url
         (url with path, redirects to other domain wtih DNS TXT record, other domain
         returns valid TOML with 200 response)
@@ -187,15 +190,6 @@ def mocked_http_delegating_carbon_txt_domain(minimal_carbon_txt_org, httpx_mock)
         )
         httpx_mock.add_response(
             method=method,
-            url=f"https://{domain}/carbon.txt",
-            status_code=404,
-            content="",
-            headers={"CarbonTxt-Location": managed_service_url},
-            is_reusable=True,
-            is_optional=True,
-        )
-        httpx_mock.add_response(
-            method=method,
             url=f"https://{domain}/.well-known/carbon.txt",
             status_code=404,
             content="",
@@ -207,6 +201,65 @@ def mocked_http_delegating_carbon_txt_domain(minimal_carbon_txt_org, httpx_mock)
             method=method,
             url=re.compile(f"https?://{domain}"),
             status_code=200,
+            content="",
+            headers={"CarbonTxt-Location": managed_service_url},
+            is_reusable=True,
+            is_optional=True,
+        )
+    for method in ["get", "head"]:
+        httpx_mock.add_response(
+            method=method,
+            url=managed_service_url,
+            status_code=200,
+            content=minimal_carbon_txt_org,
+            is_reusable=True,
+            is_optional=True,
+        )
+    return domain
+
+
+@pytest.fixture(
+    params=[
+        pytest.param(
+            "",
+            marks=pytest.mark.httpx_mock(
+                should_mock=lambda request: request.url.host.endswith("example.com")
+            ),
+        )
+    ]
+)
+def mocked_http_delegating_carbon_txt_domain_with_redirect(
+    minimal_carbon_txt_org, httpx_mock
+) -> str:
+    """
+    Return a domain which delegates carbon.txt using an HTTP header,
+    Ensure the delegated URL responds with a valid carbon.txt and a 200 response.
+    """
+    domain = "delegating.example.com"
+    managed_service_url = "https://managed-service.example.com/carbon.txt"
+    for method in ["get", "head"]:
+        httpx_mock.add_response(
+            method=method,
+            url=f"https://{domain}/carbon.txt",
+            status_code=301,
+            content="",
+            headers={"CarbonTxt-Location": managed_service_url},
+            is_reusable=True,
+            is_optional=True,
+        )
+        httpx_mock.add_response(
+            method=method,
+            url=f"https://{domain}/.well-known/carbon.txt",
+            status_code=301,
+            content="",
+            headers={"CarbonTxt-Location": managed_service_url},
+            is_reusable=True,
+            is_optional=True,
+        )
+        httpx_mock.add_response(
+            method=method,
+            url=re.compile(f"https?://{domain}"),
+            status_code=301,
             content="",
             headers={"CarbonTxt-Location": managed_service_url},
             is_reusable=True,

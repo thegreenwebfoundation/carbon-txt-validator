@@ -349,7 +349,7 @@ class FileFinder:
                 f"Could not connect to {parsed_uri.geturl()}."
             )
 
-        if response.status_code > 399:
+        if response.status_code > 299:
             raise UnreachableCarbonTxtFile(
                 f"HTTP error {response.status_code} when connecting to {parsed_uri.geturl()}"
             )
