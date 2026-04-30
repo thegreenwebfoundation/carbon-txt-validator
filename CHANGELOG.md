@@ -10,6 +10,13 @@ Fixed, Changed, Added, Removed, Fixed, Security
 
 ## Unreleased
 
+## [0.0.27]
+
+### Fixed
+
+ - A couple of incompatibilities with python 3.11 crept in as our CI wasn't actually testing with the correct python version. This broke compatibility when
+   upgrading the dependency in the admin portal. We've fixed both the CI config and the underlying bugs in this release.
+
 ## [0.0.26]
 
 ### Added
