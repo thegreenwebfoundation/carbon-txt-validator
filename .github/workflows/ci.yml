@@ -46,7 +46,7 @@ jobs:
         with:
           python-version: ${{ matrix.python-version }}
 
-      - name: Pin to selected version:
+      - name: Pin to selected version
         run: uv python pin ${{ matrix.python-version }}
 
       - name: Install tooling for managing dependencies
