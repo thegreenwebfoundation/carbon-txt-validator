@@ -1,4 +1,4 @@
-from typing import Literal
+from typing import Literal, TypeAlias
 
 from .common import (
     Organisation,
@@ -8,7 +8,7 @@ from .common import (
 from .version_0_4 import CarbonTxtFile as CarbonTxtFileV4, Disclosure as DisclosureV4
 
 
-type SpecificDisclosureDocType = Literal[SpecificDisclosureDocTypeV4, "ai-model-card"]
+SpecificDisclosureDocType : TypeAlias = Literal[SpecificDisclosureDocTypeV4, "ai-model-card"]
 
 
 class Disclosure(DisclosureV4):
