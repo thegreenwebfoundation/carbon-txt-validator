@@ -1,5 +1,5 @@
 import logging
-from typing import Callable, Optional
+from typing import Callable, Optional, TypeAlias
 
 import frontmatter
 from mistletoe import Document
@@ -50,7 +50,7 @@ class FieldSpec(BaseModel):
     unit: str | None
 
 
-type AIModelCardResponse = DataPoint | NoMatchingDatapointsError
+AIModelCardResponse : TypeAlias = DataPoint | NoMatchingDatapointsError
 
 
 class GreenwebAIModelCardProcessor:
