@@ -44,6 +44,9 @@ env = environ.Env(
     ACTIVE_CARBON_TXT_PLUGINS=(list, []),
     DEFAULT_CARBON_TXT_PLUGINS=(list, DEFAULT_CARBON_TXT_PLUGINS),
     DATABASE_URL=(str, DEFAULT_DATABASE_URL),
+    GWF_SHARED_SECRET=(str, os.getenv("GWF_SHARED_SECRET")),
+    API_KEY_INTROSPECTION_URL=(str, os.getenv("API_KEY_INTROSPECTION_URL")),
+    REQUIRE_API_KEY=(bool, False),
 )
 
 # fetch environment variables from .env file
@@ -75,6 +78,10 @@ if env("SECRET_KEY") == DEFAULT_SECRET_KEY:
 
 # SECURITY WARNING: keep the secret key used in production secret!
 SECRET_KEY = env("SECRET_KEY")
+
+GWF_SHARED_SECRET = env("GWF_SHARED_SECRET")
+API_KEY_INTROSPECTION_URL = env("API_KEY_INTROSPECTION_URL")
+REQUIRE_API_KEY = env("REQUIRE_API_KEY")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env("DEBUG")
