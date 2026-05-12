@@ -6,7 +6,7 @@ from ninja import NinjaAPI, Schema
 import structlog
 
 from .. import exceptions, finders, schemas, validators  # noqa
-from .api_key_auth import APIKeyHeaderAuth, APIKeyQueryAuth
+from .api_key_auth import APIKeyHeaderAuth
 
 file_finder = finders.FileFinder()
 
@@ -23,7 +23,7 @@ ninja_api = NinjaAPI(
             "termsOfService": "https://thegreenwebfoundation.org/terms/",
         }
     },
-    auth=[APIKeyHeaderAuth(), APIKeyQueryAuth()],
+    auth=[APIKeyHeaderAuth()],
     title="Carbon.txt Validator API",
     description="This is the API for validating carbon.txt files. ",
 )
