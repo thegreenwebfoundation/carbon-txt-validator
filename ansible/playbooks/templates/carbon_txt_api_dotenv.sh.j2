@@ -3,7 +3,9 @@
 
 SECRET_KEY="{{ secret_key }}"
 DATABASE_URL="{{ database_url }}"
-
+GWF_SHARED_SECRET="{{ gwf_shared_secret }}"
+API_KEY_INTROSPECTION_URL="{{ api_key_introspection_url }}"
+REQUIRE_API_KEY="{{ require_api_key }}"
 # We default to having this, to avoid needing to set it every time
 ACTIVE_CARBON_TXT_PLUGINS="carbon_txt.process_csrd_document,carbon_txt.process_ai_model_card"
 
