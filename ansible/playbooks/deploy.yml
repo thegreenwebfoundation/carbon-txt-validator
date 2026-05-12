@@ -13,6 +13,9 @@
 
     # Environment variables for carbon.txt.api
     secret_key: "{{ lookup('env', 'CARBON_TXT_API_SECRET_KEY') | string }}"
+    gwf_shared_secret: "{{ lookup('env', 'CARBON_TXT_GWF_SHARED_SECRET') | string }}"
+    api_key_introspection_url: "{{ lookup('env', 'CARBON_TXT_API_KEY_INTROSPECTION_URL') | string }}"
+    require_api_key: "{{ lookup('env', 'CARBON_TXT_REQUIRE_API_KEY') | string }}"
     database_url: "{{ lookup('env', 'CARBON_TXT_API_DATABASE_URL') | string }}"
     api_port: "{{ lookup('env', 'CARBON_TXT_API_PORT') | string }}"
     git_branch: "{{ lookup('env', 'CARBON_TXT_API_GIT_BRANCH') | string }}"
