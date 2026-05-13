@@ -25,7 +25,6 @@ def introspect_key(key: str | None) -> dict | None:
             )
             resp.raise_for_status()
             body = resp.json()
-            logger.exception(body)
             if body["active"]:
                 return body
 
