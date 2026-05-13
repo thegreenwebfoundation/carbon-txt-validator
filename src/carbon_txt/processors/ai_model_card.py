@@ -50,7 +50,7 @@ class FieldSpec(BaseModel):
     unit: str | None
 
 
-AIModelCardResponse : TypeAlias = DataPoint | NoMatchingDatapointsError
+AIModelCardResponse: TypeAlias = DataPoint | NoMatchingDatapointsError
 
 
 class GreenwebAIModelCardProcessor:

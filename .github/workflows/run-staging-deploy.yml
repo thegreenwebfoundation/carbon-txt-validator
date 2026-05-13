@@ -44,3 +44,6 @@ jobs:
           CARBON_TXT_API_GIT_BRANCH: staging
           CARBON_TXT_API_SERVICE_NAME: staging_carbon_txt_api
           CARBON_TXT_API_HOSTNAME: staging-carbon-txt-api.greenweb.org
+          CARBON_TXT_GWF_SHARED_SECRET: ${{ secrets.CARBON_TXT_GWF_SHARED_SECRET }}
+          CARBON_TXT_API_KEY_INTROSPECTION_URL: ${{ secrets.CARBON_TXT_API_KEY_INTROSPECTION_URL }}
+          CARBON_TXT_REQUIRE_API_KEY: ${{ secrets.CARBON_TXT_REQUIRE_API_KEY }}
