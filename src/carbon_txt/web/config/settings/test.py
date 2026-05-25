@@ -37,3 +37,5 @@ LOGGING["loggers"] = {  # type: ignore # noqa
     #         # "level": "ERROR",
     #     },
 }
+
+REQUIRE_API_KEY = False # Override when testing

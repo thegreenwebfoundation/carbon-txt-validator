@@ -47,6 +47,7 @@ env = environ.Env(
     GWF_SHARED_SECRET=(str, os.getenv("GWF_SHARED_SECRET")),
     API_KEY_INTROSPECTION_URL=(str, os.getenv("API_KEY_INTROSPECTION_URL")),
     REQUIRE_API_KEY=(bool, False),
+    THROTTLE_REQUESTS_PER_SECOND=(int, 2),
 )
 
 # fetch environment variables from .env file
@@ -82,6 +83,7 @@ SECRET_KEY = env("SECRET_KEY")
 GWF_SHARED_SECRET = env("GWF_SHARED_SECRET")
 API_KEY_INTROSPECTION_URL = env("API_KEY_INTROSPECTION_URL")
 REQUIRE_API_KEY = env("REQUIRE_API_KEY")
+THROTTLE_REQUESTS_PER_SECOND = env("THROTTLE_REQUESTS_PER_SECOND")
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = env("DEBUG")
