@@ -118,6 +118,7 @@ def test_authorized_request_with_invalid_key_in_header_not_allowed_when_auth_req
     assert request.headers["X-GWF-Shared-Secret"] == mock_settings.GWF_SHARED_SECRET
     assert body["token"] == api_key
 
+
 def test_authorized_request_with_key_with_invalid_format_in_header_not_allowed_when_auth_required(
     mocker, httpx_mock, live_server, mocked_carbon_txt_url
 ):
@@ -133,7 +134,9 @@ def test_authorized_request_with_key_with_invalid_format_in_header_not_allowed_w
     mock_settings.GWF_SHARED_SECRET = "def456"
 
     httpx_mock.add_response(
-        url=mock_settings.API_KEY_INTROSPECTION_URL, json={"active": True}, is_optional=True
+        url=mock_settings.API_KEY_INTROSPECTION_URL,
+        json={"active": True},
+        is_optional=True,
     )
 
     # When I make a request with a malformattedtoken in the request headers
@@ -168,7 +171,9 @@ def test_authorized_request_with_error_on_introspection_not_allowed_when_auth_re
 
     # AND the introspection API returns an error response
     httpx_mock.add_response(
-        url=mock_settings.API_KEY_INTROSPECTION_URL, json={"details": "An error message"}, status_code=500
+        url=mock_settings.API_KEY_INTROSPECTION_URL,
+        json={"details": "An error message"},
+        status_code=500,
     )
 
     # When I make a request with a token in the request headers

@@ -3,6 +3,7 @@ from typing import Callable
 from urllib.parse import urlparse
 
 import structlog
+from django.conf import settings
 from django.http import HttpRequest, HttpResponse
 
 from carbon_txt.web.validation_logging.models import ValidationLogEntry
@@ -63,6 +64,9 @@ class LogValidationMiddleware:
             log_params["domain"] = request_json["domain"]
         elif "url" in request_json:
             log_params["domain"] = urlparse(log_params["url"]).netloc
+
+        if settings.REQUIRE_API_KEY and request.auth and "username" in request.auth:
+            log_params["username"] = request.auth["username"]
 
         self.logger.info("validation_request", **log_params)
 
