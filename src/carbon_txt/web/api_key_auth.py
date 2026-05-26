@@ -30,17 +30,23 @@ def introspect_key(key: str | None) -> dict | None:
 
         except httpx.HTTPStatusError as ex:
             # A non-200 respoonse from the introspection API
-            logger.error(f"Introspection returned {ex.response.status_code} for key prefix {prefix}: {ex}")
+            logger.error(
+                f"Introspection returned {ex.response.status_code} for key prefix {prefix}: {ex}"
+            )
         except httpx.HTTPError as ex:
             # A lower-level network error
-            logger.error(f"Network error contacting introspection endpoint for key prefix {prefix}: {ex}")
+            logger.error(
+                f"Network error contacting introspection endpoint for key prefix {prefix}: {ex}"
+            )
         except KeyError as ex:
             # The request returned JSON without an "active" key
-            logger.error(f"Malformed introspection response for key prefix {prefix}: {ex}")
+            logger.error(
+                f"Malformed introspection response for key prefix {prefix}: {ex}"
+            )
         except ValueError:
             # This is raised in the call to key.split - GWF keys are in the
             # format gwf_xxxxxx.xxxxx.. - so this isn't a real one.
-            logger.exception(f"Malformed API key provided: \"{key[0:10]}...\"")
+            logger.exception(f'Malformed API key provided: "{key[0:10]}..."')
         except Exception as ex:
             # Anything else that might go wrong - we err on the side of caution.
             logger.exception(

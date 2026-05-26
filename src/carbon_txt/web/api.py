@@ -7,6 +7,8 @@ import structlog
 
 from .. import exceptions, finders, schemas, validators  # noqa
 from .api_key_auth import APIKeyHeaderAuth
+from .throttling import AuthRateThrottleWithInternalOverride
+
 
 file_finder = finders.FileFinder()
 
@@ -24,6 +26,11 @@ ninja_api = NinjaAPI(
         }
     },
     auth=[APIKeyHeaderAuth()],
+    throttle=[
+        AuthRateThrottleWithInternalOverride(
+            f"{settings.THROTTLE_REQUESTS_PER_SECOND}/s"
+        )
+    ],
     title="Carbon.txt Validator API",
     description="This is the API for validating carbon.txt files. ",
 )

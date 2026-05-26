@@ -24,3 +24,4 @@ class ValidationLogEntry(models.Model):
     source: models.CharField = models.CharField(
         choices=Source, default=Source.UNKNOWN, blank=False, null=False, max_length=255
     )
+    username: models.TextField = models.TextField(blank=True, null=True)
