@@ -17,6 +17,8 @@ import environ  # type: ignore
 import sentry_sdk
 import structlog
 
+from corsheaders.defaults import default_headers
+
 from carbon_txt.exceptions import InsecureKeyException
 
 # looking for the LOGGING config? See carbon_txt.log_config, for the
@@ -106,9 +108,9 @@ INSTALLED_APPS = [
 ]
 
 MIDDLEWARE = [
+    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.security.SecurityMiddleware",
     "django.contrib.sessions.middleware.SessionMiddleware",
-    "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
@@ -166,6 +168,15 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
+
+# CORS
+# for docs see:
+# https://github.com/adamchainz/django-cors-headers
+CORS_ALLOW_HEADERS = list(default_headers) + [
+    "X-Api-Key"
+]
+
+CORS_ALLOW_ALL_ORIGINS = True
 
 # Internationalization
 # https://docs.djangoproject.com/en/5.1/topics/i18n/
