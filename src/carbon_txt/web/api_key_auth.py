@@ -1,6 +1,7 @@
 import httpx
 from django.conf import settings
 from django.http import HttpRequest
+from ninja.errors import HttpError
 from ninja.security import APIKeyHeader
 from structlog import get_logger
 
@@ -58,5 +59,8 @@ def introspect_key(key: str | None) -> dict | None:
 class APIKeyHeaderAuth(APIKeyHeader):
     param_name = "X-Api-Key"
 
-    def authenticate(self, request: HttpRequest, key: str) -> dict | None:
-        return introspect_key(key)
+    def authenticate(self, request: HttpRequest, key: str) -> dict:
+        if response := introspect_key(key):
+            return response
+        else:
+            raise HttpError(401, "A valid API key is required for this request.")
