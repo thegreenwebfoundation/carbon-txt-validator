@@ -17,7 +17,7 @@ The `carbon-txt` validator has grown to support three distinct use cases:
 Historically, all three were bundled into a single install target. This meant that a user who only wanted to validate `carbon.txt` syntax from the command line would still pull in Django (~30 MB), Granian (~16 MB), Arelle (~24 MB), NumPy (~21 MB), lxml (~20 MB), Pillow (~13 MB), and all their transitive dependencies. The total installed footprint exceeded **300 MB** even for the simplest use case.
 
 This created friction for:
-- CI pipelines that only need to validate files
+- Data Pipelines that only need to validate files
 - Embedded/library consumers who want a small dependency tree
 - Deployment environments where disk space or security audit surface matters
 
@@ -130,7 +130,7 @@ carbon-txt serve --django-settings myproject.settings
 
 ### What becomes easier
 
-- **Smaller CI pipelines**: Core validation runs in ~22 MB instead of 300+ MB
+- **Smaller Data pipelines**: Core validation pulls in ~22 MB instead of 300+ MB
 - **Faster installs**: Fewer compiled dependencies to fetch and link
 - **Reduced security audit surface**: Production deployments don't include Django or Arelle unless needed
 - **Clearer dependency intent**: `requirements.txt` or `pyproject.toml` dependencies communicate which features are used
