@@ -185,6 +185,7 @@ web = [
 [package.dev-dependencies]
 dev = [
     { name = "ansible" },
+    { name = "carbon-txt", extra = ["all"] },
     { name = "django-stubs", extra = ["compatible-mypy"] },
     { name = "furo" },
     { name = "ipdb" },
@@ -229,6 +230,7 @@ provides-extras = ["csrd", "web", "all"]
 [package.metadata.requires-dev]
 dev = [
     { name = "ansible", specifier = ">=11.5.0" },
+    { name = "carbon-txt", extras = ["all"] },
     { name = "django-stubs", extras = ["compatible-mypy"], specifier = ">=5.1.1" },
     { name = "furo", specifier = ">=2024.8.6" },
     { name = "ipdb", specifier = ">=0.13.13" },

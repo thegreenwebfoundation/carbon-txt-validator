@@ -50,6 +50,7 @@ build-backend = "hatchling.build"
 
 [dependency-groups]
 dev = [
+    "carbon-txt[all]",
     "ipdb>=0.13.13",
     "mypy>=1.12.0",
     "pytest-django>=4.9.0",
