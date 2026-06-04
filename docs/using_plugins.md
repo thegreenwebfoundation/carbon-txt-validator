@@ -6,7 +6,20 @@
 
 By default, the carbon.txt validator does not run with any plugins activated.
 
-You can run the validator as a *server*, which exposes its functionality over an API. Running the command below
+You can run the validator as a *server*, which exposes its functionality over an API. 
+
+```{admonition} Requires the [web] extra
+:class: important
+
+The `serve` command requires Django, which is part of the `[web]` extra. Install it first:
+
+```shell
+pip install "carbon-txt[web]"
+```
+
+```
+
+Running the command below:
 
 ```text
 carbon-txt serve
@@ -81,6 +94,17 @@ Should return output, that (once formatted) similar to the JSON below:
 
 
 ### Usage with core plugins - extending functionality with the Greenweb CSRD plugin
+
+```{admonition} Requires the [csrd] extra
+:class: important
+
+Processing CSRD reports requires Arelle, which is part of the `[csrd]` extra. The web server additionally requires the `[web]` extra. For both, use:
+
+```shell
+pip install "carbon-txt[csrd,web]"
+```
+
+```
 
 ```{admonition} Info
 :class: info

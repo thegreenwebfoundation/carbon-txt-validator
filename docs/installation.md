@@ -1,8 +1,67 @@
 # Installation
 
-The carbon-txt validator project uses the Pyproject format to track software library dependencies, so should work with most python tools for managing dependencies, like `pip`.
+The carbon-txt validator project uses the Pyproject format to track software library dependencies, so should work with most python tools for managing dependencies, like `pip` or `uv`.
 
-## The supported approach - using `uv` and `just`
+## Optional dependency extras
+
+The validator is split into optional extras so you only install what you need:
+
+| Install target | What is included | Use case |
+|---------------|------------------|---------|
+| `carbon-txt` | Core library, CLI, and AI model card plugin (~22 MB) | Validating files, building tools |
+| `carbon-txt[csrd]` | Core + Arelle for XBRL/CSRD parsing (~107 MB) | Processing CSRD sustainability reports |
+| `carbon-txt[web]` | Core + Django + Granian web server (~152 MB) | Running the validation API |
+| `carbon-txt[all]` | Everything above | Development or full deployments |
+
+### Installing with `pip`
+
+```shell
+# Core only — CLI validation tool
+python -m pip install carbon-txt
+
+# With web server support
+python -m pip install "carbon-txt[web]"
+
+# With CSRD report processing
+python -m pip install "carbon-txt[csrd]"
+
+# Everything
+python -m pip install "carbon-txt[all]"
+```
+
+### Installing with `uv`
+
+`uv` is the recommended tool for managing dependencies, and the one we actively support.
+
+Add carbon-txt to a project:
+
+```shell
+# Core only
+uv add carbon-txt
+
+# With web server support
+uv add "carbon-txt[web]"
+
+# With CSRD report processing
+uv add "carbon-txt[csrd]"
+
+# Everything
+uv add "carbon-txt[all]"
+```
+
+Run without adding to a project:
+
+```shell
+# Core commands: validate, schema, plugins
+uv tool run carbon-txt validate ./path/to/file
+
+# Serve (requires the [web] extra)
+uv tool run --with "carbon-txt[web]" carbon-txt serve
+```
+
+## The supported approach for development - using `uv` and `just`
+
+The supported, 'golden path' for development is to use `uv` for managing dependencies, and `just` for automating common tasks.
 
 With that in mind, the supported, 'golden path' approach is to use the `uv` tool from Astral for managing dependencies, and `just` for automating common tasks.
 
