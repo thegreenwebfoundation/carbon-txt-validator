@@ -1,9 +1,4 @@
 import datetime
-from arelle import (  # type: ignore
-    ModelXbrl,
-)
-from arelle.api.Session import Session  # type: ignore
-from arelle.RuntimeOptions import RuntimeOptions  # type: ignore
 from pydantic import BaseModel
 
 import typing
@@ -12,6 +7,37 @@ from ..exceptions import NoMatchingDatapointsError, NoLoadableCSRDFile
 import structlog
 
 logger = structlog.getLogger(__name__)
+
+
+# Guarded arelle imports - these are only available when the 'csrd' extra is installed
+try:
+    from arelle import (  # type: ignore
+        ModelXbrl,
+    )
+    from arelle.api.Session import Session  # type: ignore
+    from arelle.RuntimeOptions import RuntimeOptions  # type: ignore
+
+    ARELLE_AVAILABLE = True
+except ImportError:
+    ARELLE_AVAILABLE = False
+    ModelXbrl = None  # type: ignore
+    Session = None  # type: ignore
+    RuntimeOptions = None  # type: ignore
+
+
+class ArelleNotInstalledError(ImportError):
+    """Raised when arelle is required but not installed."""
+
+    pass
+
+
+def _require_arelle():
+    """Check that arelle is installed, raising a helpful error if not."""
+    if not ARELLE_AVAILABLE:
+        raise ArelleNotInstalledError(
+            "The CSRD processor requires the 'csrd' extra to be installed. "
+            "Install it with: uv pip install 'carbon-txt[csrd]'"
+        )
 
 
 class DataPoint(BaseModel):
@@ -46,7 +72,7 @@ class ArelleProcessor:
     """
 
     report_url: str
-    xbrls: list[ModelXbrl.ModelXbrl]
+    xbrls: list
 
     def __init__(self, report_url: str) -> None:
         """
@@ -59,6 +85,7 @@ class ArelleProcessor:
             report_url (str): The URL of the report to process
 
         """
+        _require_arelle()
 
         self.report_url = report_url
 
@@ -85,12 +112,12 @@ class ArelleProcessor:
                 )
             session.close()
 
-    def parsed_reports(self) -> list[ModelXbrl.ModelXbrl]:
+    def parsed_reports(self) -> list:
         """
         Return the parsed reports from the Arelle session. for querying.
 
         Returns:
-            list[ModelXbrl.ModelXbrl]: A list of parsed reports from the Arelle session.
+            list: A list of parsed reports from the Arelle session.
 
         """
         return self.xbrls
@@ -266,4 +293,6 @@ class GreenwebCSRDProcessor:
         return document_results
 
 
-assert isinstance(GreenwebCSRDProcessor(), CSRDProcessorProtocol)
+# Protocol assertion only runs when arelle is available
+if ARELLE_AVAILABLE:
+    assert isinstance(GreenwebCSRDProcessor(), CSRDProcessorProtocol)
