@@ -1,10 +1,10 @@
 import datetime
-from pydantic import BaseModel
-
 import typing
-from ..exceptions import NoMatchingDatapointsError, NoLoadableCSRDFile
 
 import structlog
+from pydantic import BaseModel
+
+from ..exceptions import NoLoadableCSRDFile, NoMatchingDatapointsError
 
 logger = structlog.getLogger(__name__)
 
@@ -72,7 +72,7 @@ class ArelleProcessor:
     """
 
     report_url: str
-    xbrls: list
+    xbrls: list["ModelXbrl.ModelXbrl"]
 
     def __init__(self, report_url: str) -> None:
         """
@@ -112,12 +112,12 @@ class ArelleProcessor:
                 )
             session.close()
 
-    def parsed_reports(self) -> list:
+    def parsed_reports(self) -> list["ModelXbrl.ModelXbrl"]:
         """
         Return the parsed reports from the Arelle session. for querying.
 
         Returns:
-            list: A list of parsed reports from the Arelle session.
+            list[ModelXbrl.ModelXbrl]: A list of parsed reports from the Arelle session.
 
         """
         return self.xbrls
