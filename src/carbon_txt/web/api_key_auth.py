@@ -26,7 +26,7 @@ def introspect_key(key: str | None) -> dict | None:
             )
             resp.raise_for_status()
             body = resp.json()
-            if body["active"]:
+            if body["active"] and body["service"] == settings.CARBON_TXT_AUTH_SERVICE_NAME:
                 return body
 
         except httpx.HTTPStatusError as ex:

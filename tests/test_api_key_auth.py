@@ -56,9 +56,10 @@ def test_authorized_request_with_valid_key_in_header_allowed_when_auth_required(
     mock_settings.REQUIRE_API_KEY = True
     mock_settings.API_KEY_INTROSPECTION_URL = "http://example.com/introspect"
     mock_settings.GWF_SHARED_SECRET = "def456"
+    mock_settings.CARBON_TXT_AUTH_SERVICE_NAME="carbon_txt"
 
     httpx_mock.add_response(
-        url=mock_settings.API_KEY_INTROSPECTION_URL, json={"active": True}
+            url=mock_settings.API_KEY_INTROSPECTION_URL, json={"active": True, "service": "carbon_txt"}
     )
 
     # WHEN I make a request with an authorized token in the request headers
@@ -100,6 +101,44 @@ def test_authorized_request_with_invalid_key_in_header_not_allowed_when_auth_req
     )
 
     # When I make a request with an unauthorized token in the request headers
+    api_key = "gwf_abc123.def456"
+    api_url = f"{live_server.url}/api/validate/url"
+    data = {"url": mocked_carbon_txt_url}
+    headers = {"X-Api-Key": api_key}
+    res = httpx.post(
+        api_url, json=data, headers=headers, follow_redirects=True, timeout=None
+    )
+
+    request = httpx_mock.get_requests()[0]
+    body = json.loads(request.content)
+
+    # THEN I receive un unauthorized response
+    assert res.status_code == 401
+
+    # AND the introspection API is called correctly
+    assert request.headers["X-GWF-Shared-Secret"] == mock_settings.GWF_SHARED_SECRET
+    assert body["token"] == api_key
+
+
+def test_authorized_request_with_valid_key_for_wrong_service_in_header_not_allowed_when_auth_required(
+    mocker, httpx_mock, live_server, mocked_carbon_txt_url
+):
+    """
+    When API key auth is switched on, authorized requests
+    with an invalid API key in the request headers are not allowed.
+    """
+
+    # GIVEN API key auth is switched on
+    mock_settings = mocker.patch("carbon_txt.web.api_key_auth.settings")
+    mock_settings.REQUIRE_API_KEY = True
+    mock_settings.API_KEY_INTROSPECTION_URL = "http://example.com/introspect"
+    mock_settings.GWF_SHARED_SECRET = "def456"
+
+    httpx_mock.add_response(
+        url=mock_settings.API_KEY_INTROSPECTION_URL, json={"active": True, "service": "greencheck"}
+    )
+
+    # When I make a request with an authorized token for a different service in the request headers
     api_key = "gwf_abc123.def456"
     api_url = f"{live_server.url}/api/validate/url"
     data = {"url": mocked_carbon_txt_url}
