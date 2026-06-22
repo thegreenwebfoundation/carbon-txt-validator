@@ -8,8 +8,9 @@ The validator is split into optional extras so you only install what you need:
 
 | Install target | What is included | Use case |
 |---------------|------------------|---------|
-| `carbon-txt` | Core library, CLI, and AI model card plugin (~22 MB) | Validating files, building tools |
+| `carbon-txt` | Core library, CLI, and AI model card plugin (~15.6 MB) | Validating files, building tools |
 | `carbon-txt[csrd]` | Core + Arelle for XBRL/CSRD parsing (~107 MB) | Processing CSRD sustainability reports |
+| `carbon-txt[ai_model_cards]` | Core + misteltoe / frontmatter for YAML parsing (~6.4 MB) | Processing AI model cards |
 | `carbon-txt[web]` | Core + Django + Granian web server (~152 MB) | Running the validation API |
 | `carbon-txt[all]` | Everything above | Development or full deployments |
 
@@ -24,6 +25,9 @@ python -m pip install "carbon-txt[web]"
 
 # With CSRD report processing
 python -m pip install "carbon-txt[csrd]"
+
+# With AI model card processing
+python -m pip install "carbon-txt[ai_model_cards]"
 
 # Everything
 python -m pip install "carbon-txt[all]"
@@ -44,6 +48,9 @@ uv add "carbon-txt[web]"
 
 # With CSRD report processing
 uv add "carbon-txt[csrd]"
+
+# With AI model card processing
+uv add "carbon-txt[ai_model_cards]"
 
 # Everything
 uv add "carbon-txt[all]"

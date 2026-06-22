@@ -54,6 +54,11 @@ def check_core_negative():
             "GreenwebCSRDProcessor should not be importable from processors without [csrd]"
         )
 
+    if _module_available("carbon_txt.processors.ai_model_card"):
+        errors.append(
+            "GreenwebAIModelCardProcessor should not be importable from processors without [ai_model_card]"
+        )
+
     if _module_available("django"):
         errors.append("Django should not be importable without [web]")
 
@@ -78,6 +83,28 @@ def check_csrd():
         errors.append("Core validator broken with CSRD extra")
 
     return errors
+
+
+def check_ai_model_cards():
+    """Verify AI model cards extra is installed and functional."""
+    errors = []
+
+    if not _module_available("carbon_txt.processors.ai_model_card"):
+        errors.append("AI Model Card processor not available")
+
+    if not _module_available("mistletoe"):
+        errors.append("mistletoe not available")
+
+    if not _module_available("frontmatter"):
+        errors.append("frontmatter not available")
+
+    # Core should still work
+    if not _module_available("carbon_txt.validators"):
+        errors.append("Core validator broken with CSRD extra")
+
+    return errors
+
+
 
 
 def check_web():
@@ -113,7 +140,7 @@ def main():
     )
     parser.add_argument(
         "--variant",
-        choices=["core", "csrd", "web", "all"],
+        choices=["core", "csrd", "ai_model_cards", "web", "all"],
         default="all",
         help="Which variant to check (default: all)",
     )
@@ -146,6 +173,17 @@ def main():
     if args.variant in ("csrd", "all"):
         print("Checking CSRD variant...")
         errors = check_csrd()
+        if errors:
+            print(f"  FAIL: {len(errors)} error(s)")
+            for err in errors:
+                print(f"    - {err}")
+            all_errors.extend(errors)
+        else:
+            print("  PASS")
+
+    if args.variant in ("ai_model_cards", "all"):
+        print("Checking AI model card variant...")
+        errors = check_ai_model_cards()
         if errors:
             print(f"  FAIL: {len(errors)} error(s)")
             for err in errors:

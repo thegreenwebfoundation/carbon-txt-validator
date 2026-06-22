@@ -47,7 +47,13 @@ This page shows how to use the validator to query these reports for specific kin
 
 ### `carbon-txt-greenweb-ai-model-card` - the 'Green Web AI Model Card' plugin
 
-The AI model card plugin for the carbon.txt validator is one of the default plugins bundled in with the validator. The [source code for the plugin](https://github.com/thegreenwebfoundation/carbon-txt-validator/blob/main/src/carbon_txt/process_ai_model_card.py) as is [the processor it uses to parse reports](https://github.com/thegreenwebfoundation/carbon-txt-validator/blob/main/src/carbon_txt/processors/ai_model_card.py).
+The AI model card plugin for the carbon.txt validator is bundled with the validator, but **requires the `[ai_model_cards]` extra** to be installed:
+
+```shell
+pip install "carbon-txt[ai_model_cards]"
+```
+
+The [source code for the plugin](https://github.com/thegreenwebfoundation/carbon-txt-validator/blob/main/src/carbon_txt/process_ai_model_card.py) as is [the processor it uses to parse reports](https://github.com/thegreenwebfoundation/carbon-txt-validator/blob/main/src/carbon_txt/processors/ai_model_card.py).
 
 ```{admonition} Info
 

@@ -1,1 +1,0 @@
-from .ai_model_card import GreenwebAIModelCardProcessor as GreenwebAIModelCardProcessor
