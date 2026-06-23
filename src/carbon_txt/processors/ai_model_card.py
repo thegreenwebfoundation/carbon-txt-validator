@@ -1,9 +1,6 @@
 import logging
 from typing import Callable, Optional, TypeAlias
 
-import frontmatter
-from mistletoe import Document
-from mistletoe.block_token import Heading
 from pydantic import BaseModel
 from structlog import get_logger
 
@@ -13,6 +10,30 @@ from ..http_client import HTTPClient
 
 logger = get_logger()
 
+
+try: #Guarded imports for the "ai_model_cards" optional dependency group
+    import frontmatter
+    from mistletoe import Document
+    from mistletoe.block_token import Heading
+    OPTIONAL_DEPENDENCIES_AVAILABLE = True
+except ImportError:
+    Document = None
+    Heading = None
+    frontmatter = None
+    OPTIONAL_DEPENDENCIES_AVAILABLE = False
+
+class OptionalDependenciesNotInstalledError(ImportError):
+    """Raised when the ai_model_cards optional dependencies are not installed"""
+
+    pass
+
+def _require_optional_dependencies():
+    """Check the optional dependencies are installed, and if not raise a helpful error message."""
+    if not OPTIONAL_DEPENDENCIES_AVAILABLE:
+        raise OptionalDependenciesNotInstalledError(
+            "The AI model card processor requires the 'ai_model_cards extra to be installed"
+            "Install it with : uv pip install 'carbon-txt[ai_model_cards]'"
+        )
 
 def log_safely(log_message: str, logs: Optional[list], level=logging.INFO):
     """
@@ -101,6 +122,9 @@ class GreenwebAIModelCardProcessor:
         logs: Optional[list[str]] = None,
         http_client: Optional[HTTPClient] = None,
     ):
+
+        _require_optional_dependencies()
+
         if http_client is None:
             http_client = HTTPClient()
 

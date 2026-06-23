@@ -4,7 +4,7 @@ import unittest
 import pytest
 from httpx import HTTPError
 
-from carbon_txt.processors import GreenwebAIModelCardProcessor
+from carbon_txt.processors.ai_model_card import GreenwebAIModelCardProcessor
 
 
 def model_card_fixture(filename):

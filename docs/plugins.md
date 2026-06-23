@@ -18,7 +18,19 @@ Some plugins are bundled into the main carbon.txt validator package, but others 
 
 ### `carbon-txt-greenweb-csrd` - the 'Green Web CSRD' plugin
 
-The CSRD plugin for the carbon.txt validator is one of the default plugins bundled in with the validator. The [source code for the plugin](https://github.com/thegreenwebfoundation/carbon-txt-validator/blob/main/src/carbon_txt/process_csrd_document.py) as is [the CSRD processor it uses to parse reports](https://github.com/thegreenwebfoundation/carbon-txt-validator/blob/main/src/carbon_txt/processors/csrd_document.py). Under the hood, it uses [Arelle, a report parsing tool certified by the XBRL Foundation](https://arelle.readthedocs.io).
+The CSRD plugin for the carbon.txt validator is bundled with the validator, but **requires the `[csrd]` extra** to be installed:
+
+```shell
+pip install "carbon-txt[csrd]"
+```
+
+The [source code for the plugin](https://github.com/thegreenwebfoundation/carbon-txt-validator/blob/main/src/carbon_txt/process_csrd_document.py) and [the CSRD processor it uses to parse reports](https://github.com/thegreenwebfoundation/carbon-txt-validator/blob/main/src/carbon_txt/processors/csrd_document.py) are both part of the package. Under the hood, it uses [Arelle, a report parsing tool certified by the XBRL Foundation](https://arelle.readthedocs.io).
+
+When importing the `GreenwebCSRDProcessor` directly, use:
+
+```python
+from carbon_txt.processors.csrd_document import GreenwebCSRDProcessor
+```
 
 ```{admonition} Info
 
@@ -35,7 +47,13 @@ This page shows how to use the validator to query these reports for specific kin
 
 ### `carbon-txt-greenweb-ai-model-card` - the 'Green Web AI Model Card' plugin
 
-The AI model card plugin for the carbon.txt validator is one of the default plugins bundled in with the validator. The [source code for the plugin](https://github.com/thegreenwebfoundation/carbon-txt-validator/blob/main/src/carbon_txt/process_ai_model_card.py) as is [the processor it uses to parse reports](https://github.com/thegreenwebfoundation/carbon-txt-validator/blob/main/src/carbon_txt/processors/ai_model_card.py).
+The AI model card plugin for the carbon.txt validator is bundled with the validator, but **requires the `[ai_model_cards]` extra** to be installed:
+
+```shell
+pip install "carbon-txt[ai_model_cards]"
+```
+
+The [source code for the plugin](https://github.com/thegreenwebfoundation/carbon-txt-validator/blob/main/src/carbon_txt/process_ai_model_card.py) as is [the processor it uses to parse reports](https://github.com/thegreenwebfoundation/carbon-txt-validator/blob/main/src/carbon_txt/processors/ai_model_card.py).
 
 ```{admonition} Info
 

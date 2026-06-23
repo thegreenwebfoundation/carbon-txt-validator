@@ -50,7 +50,7 @@ jobs:
         run: uv python pin ${{ matrix.python-version }}
 
       - name: Install tooling for managing dependencies
-        run: uv sync
+        run: uv sync --all-extras
 
       - name: Run tests
         run: just ci
