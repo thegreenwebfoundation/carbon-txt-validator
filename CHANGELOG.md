@@ -10,6 +10,8 @@ Fixed, Changed, Added, Removed, Fixed, Security
 
 ## Unreleased
 
+## [0.0.28]
+
 ### Added
 
 - ADR-05 documenting the decision and tradeoffs for splitting optional dependencies into extras `[csrd]` and `[web]`.
