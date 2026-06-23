@@ -1,6 +1,5 @@
 from .hookspecs import hookimpl
 from .http_client import HTTPClient
-from .processors import GreenwebAIModelCardProcessor
 from .schemas.version_0_5 import Disclosure
 import logging
 from typing import Optional
@@ -22,6 +21,13 @@ def log_safely(log_message: str, logs: Optional[list], level=logging.INFO):
 
 plugin_name = "ai-model-card_greenweb"
 
+#Guarded import - the AI model card processor requires the 'ai_model_cards' extra
+try:
+    from .processors.ai_model_card import GreenwebAIModelCardProcessor
+    AI_MODEL_CARD_PROCESSOR_AVAILABLE = True
+except ImportError:
+    AI_MODEL_CARD_PROCESSOR_AVAILABLE = False
+    GreenwebAIModelCardProcessor = None # type: ignore
 
 @hookimpl
 def process_document(
@@ -36,6 +42,14 @@ def process_document(
         logs=logs,
     )
     if document.doc_type == "ai-model-card":
+        if not AI_MODEL_CARD_PROCESSOR_AVAILABLE:
+            log_safely(
+                f"{plugin_name}: AI model card found but the 'ai_model_cards' extra is not installed. "
+                f"Install it with: uv pip install 'carbon-txt[ai_model_cards]'",
+                logs=logs,
+                level=logging.WARNING,
+            )
+            return {"logs": logs}
         log_safely(
             f"{__name__}: AI model card found. Processing document: {document}",
             logs=logs,

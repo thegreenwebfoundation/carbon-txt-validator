@@ -197,8 +197,20 @@ cat ./path-to-file.com | carbon-txt validate file
 
 #### Using the carbon.txt validator as a server
 
-Finally, almost all of the functions of the carbon.txt validator are available over an HTTP API too. Run `carbon-txt serve` to start an API server, with OpenAPI compliant documentation of each endpoint:
+Finally, almost all of the functions of the carbon.txt validator are available over an HTTP API too.
 
+```{admonition} Requires the [web] extra
+:class: important
+
+The `serve` command requires the `[web]` extra to be installed. Install it with:
+
+```shell
+pip install "carbon-txt[web]"
+```
+
+```
+
+Run `carbon-txt serve` to start an API server, with OpenAPI compliant documentation of each endpoint:
 
 ```shell
 carbon-txt serve

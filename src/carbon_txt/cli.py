@@ -5,14 +5,10 @@ import subprocess
 import sys
 from typing import Optional
 
-import django
-import environ  # type: ignore
 import pydantic_core
 import rich
 import structlog
 import typer
-from django.core.management import execute_from_command_line
-from django.conf import settings
 
 from . import exceptions, log_config, schemas, validators  # noqa
 
@@ -31,6 +27,25 @@ app.add_typer(
 err_console = rich.console.Console(stderr=True)
 
 
+def _plugins_from_env() -> tuple[Optional[list[str]], Optional[str]]:
+    """
+    Read plugin configuration from environment variables.
+    Returns a tuple of (active_plugins, plugins_dir).
+    """
+    active_plugins = None
+    plugins_dir = None
+
+    active_plugins_raw = os.environ.get("ACTIVE_CARBON_TXT_PLUGINS", "").strip()
+    if active_plugins_raw:
+        active_plugins = [p.strip() for p in active_plugins_raw.split(",") if p.strip()]
+
+    plugins_dir = os.environ.get("CARBON_TXT_PLUGINS_DIR", None)
+    if plugins_dir:
+        plugins_dir = plugins_dir.strip() or None
+
+    return active_plugins, plugins_dir
+
+
 def create_validator(
     plugins_dir: Optional[str], active_plugins: Optional[list[str]]
 ) -> validators.CarbonTxtValidator:
@@ -38,19 +53,13 @@ def create_validator(
     Return a CarbonTxtValidator instance with the given `plugins_dir` and `active_plugins` values set
     from environment variables if not provided via the function arguments.
     """
-    # we can't rely on values in the django settings module being set at this point.
-    # We might also want to run multiple plugins. So, we need to parse a string
-    # like "my_plugin,my_other_plugin" into a list two strings
-    env = environ.Env(
-        ACTIVE_CARBON_TXT_PLUGINS=(list, []),
-        CARBON_TXT_PLUGINS_DIR=(str, None),
-    )
+    env_active_plugins, env_plugins_dir = _plugins_from_env()
 
     if not active_plugins:
-        active_plugins = env("ACTIVE_CARBON_TXT_PLUGINS")
+        active_plugins = env_active_plugins
 
     if not plugins_dir:
-        plugins_dir = env("CARBON_TXT_PLUGINS_DIR")
+        plugins_dir = env_plugins_dir
 
     validator = validators.CarbonTxtValidator(
         plugins_dir=plugins_dir, active_plugins=active_plugins
@@ -170,15 +179,31 @@ def schema(version: str = schemas.LATEST_VERSION):
     raise typer.Exit(code=0)
 
 
+def _check_web_deps():
+    """Check that the 'web' extra dependencies are installed."""
+    try:
+        import django
+        from django.core.management import execute_from_command_line
+        from django.conf import settings
+        import environ  # type: ignore
+    except ImportError:
+        rich.print("[bold red]The 'web' extra is not installed.[/bold red]")
+        print("Install it with: uv pip install 'carbon-txt[web]'")
+        raise typer.Exit(code=1)
+    return django, settings, execute_from_command_line, environ
+
+
 def configure_django(
     settings_module: str = "carbon_txt.web.config.settings.development",
     plugins_dir: Optional[str] = None,
 ):
     """Configure Django settings programmatically"""
+    django, settings, _, _ = _check_web_deps()
     if plugins_dir is not None:
         os.environ.setdefault("CARBON_TXT_PLUGINS_DIR", plugins_dir)
     os.environ.setdefault("DJANGO_SETTINGS_MODULE", settings_module)
     django.setup()
+    return settings
 
 
 @app.command()
@@ -201,6 +226,9 @@ def serve(
     ),
 ):
     """Run the carbon.txt validator web server"""
+
+    # Check web deps and get django components
+    django, settings, execute_from_command_line, _ = _check_web_deps()
 
     try:
         # override the prod / non prod switch if a custom settings module is provided

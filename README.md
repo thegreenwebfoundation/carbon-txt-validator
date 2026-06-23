@@ -55,15 +55,37 @@ Please see the [dedicated documentation site for the validator](https://carbon-t
 
 # Installation
 
-> [!TIP]
-> See more detailed [guidance on installation on the dedicated valiator docs site](https://carbon-txt-validator.readthedocs.io/en/latest/installation.html).
+> [!TIP]> See more detailed [guidance on installation on the dedicated valiator docs site](https://carbon-txt-validator.readthedocs.io/en/latest/installation.html).
+
+The carbon.txt validator is split into optional extras so you only install what you need:
+
+| Install target | Use case |
+|---------------|---------|
+| `carbon-txt` | Core library and CLI (~22 MB) |
+| `carbon-txt[web]` | Core + Django web server |
+| `carbon-txt[csrd]` | Core + Arelle for CSRD report processing |
+| `carbon-txt[ai_model_cards]` | Core + mistletoe/frontmatter for AI model card processing |
+| `carbon-txt[all]` | Everything |
 
 ## Using `pip`
 
 You can install the latest release of the carbon.txt validator using pip. we assume that the carbon.txt validator is run inside a virtual environment. [Learn more about virtual environments with Python](https://realpython.com/python-virtual-environments-a-primer/).
 
-```
+```shell
+# Core only: CLI validation tool
 python -m pip install carbon-txt
+
+# With web server support
+python -m pip install "carbon-txt[web]"
+
+# With CSRD report processing
+python -m pip install "carbon-txt[csrd]"
+
+# With AI model card processing
+python -m pip install "carbon-txt[ai_model_cards]"
+
+# Everything
+python -m pip install "carbon-txt[all]"
 ```
 
 
@@ -75,8 +97,21 @@ project, and the one we actively support.
 
 Add carbon-txt to a project with `uv add`:
 
-```
+```shell
+# Core only
 uv add carbon-txt
+
+# With web server support
+uv add "carbon-txt[web]"
+
+# With CSRD report processing
+uv add "carbon-txt[csrd]"
+
+# With AI model card processing
+uv add "carbon-txt[ai_model_cards]"
+
+# Everything
+uv add "carbon-txt[all]"
 ```
 
 You can now run the command line tool with `uv run carbon-txt`
@@ -85,15 +120,15 @@ You can now run the command line tool with `uv run carbon-txt`
 
 If you have uv installed, you can run the command line tool like so:
 
-```
-# check a file
+```shell
+# Core validation commands (validate, schema, plugins)
 uv tool run carbon-txt validate ./path/to/file
 
-# run a server
-uv tool run carbon-txt serve
+# Run a server (requires the [web] extra)
+uv tool run --with "carbon-txt[web]" carbon-txt serve
 ```
 
-This will download the latest published version from [Pypi](https://pypi.org/) and run the corresponding CLI command
+This will download the latest published version from [Pypi](https://pypi.org/) and run the corresponding CLI command.
 
 Further details are in the [dedicated docs on read the docs for the validator](https://carbon-txt-validator.readthedocs.io/en/latest/index.html)
 

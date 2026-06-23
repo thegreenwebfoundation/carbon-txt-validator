@@ -10,6 +10,24 @@ Fixed, Changed, Added, Removed, Fixed, Security
 
 ## Unreleased
 
+### Added
+
+- ADR-05 documenting the decision and tradeoffs for splitting optional dependencies into extras `[csrd]` and `[web]`.
+- `scripts/verify_extras.py` for manual verification of each install variant (core, `[csrd]`, `[web]`, `[all]`).
+
+### Changed
+
+- **BREAKING**: Dependencies have been split into optional extras. The base `carbon-txt` package now installs only core dependencies (~22 MB). The web server (`carbon-txt serve`) requires the `[web]` extra, CSRD report processing requires the `[csrd]` extra, and AI model card parsing require the `[ai_model_cards]` extra.
+- **BREAKING**: `GreenwebCSRDProcessor` is no longer exported from `carbon_txt.processors`. Import it directly from `carbon_txt.processors.csrd_document` instead.
+- **BREAKING**: `GreenwebAIModelCardProcessor` is no longer exported from `carbon_txt.processors`. Import it directly from `carbon_txt.processors.ai_model_card` instead.
+- Replaced `django-environ` with `os.environ` in the core CLI for reading plugin configuration, removing the Django dependency from the core install.
+- Migrated `[tool.uv] dev-dependencies` to the modern `[dependency-groups] dev` format (PEP 735).
+- Moved `django-stubs[compatible-mypy]` from the `[web]` extra into the `dev` dependency group.
+
+### Fixed
+
+- `docs/conf.py` path resolution bug when building documentation outside the project root.
+
 ## [0.0.27]
 
 ### Fixed

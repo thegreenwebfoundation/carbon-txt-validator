@@ -8,6 +8,19 @@ For convenience, the carbon.txt validator has a `serve` command that
 spins up the default bundled Django server. This is fine for development, but
 for production, we also bundle in Granian, a more performant server.
 
+```{admonition} Requires the [web] extra
+:class: important
+
+Running the validator as a server requires Django and Granian, which are part
+of the `[web]` extra. For a full deployment including CSRD processing, install
+everything with the `[all]` extra:
+
+```shell
+pip install "carbon-txt[all]"
+```
+
+```
+
 For local hosting you might run the development server like so:
 
 ```shell

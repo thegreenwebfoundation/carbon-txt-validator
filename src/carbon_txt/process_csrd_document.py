@@ -1,11 +1,10 @@
-from .hookspecs import hookimpl
-from .schemas.common import Disclosure
-from .processors import GreenwebCSRDProcessor
 import logging
 from typing import Optional
 
-
 from structlog import get_logger
+
+from .hookspecs import hookimpl
+from .schemas.common import Disclosure
 
 logger = get_logger()
 
@@ -20,6 +19,15 @@ def log_safely(log_message: str, logs: Optional[list], level=logging.INFO):
 
 
 plugin_name = "csrd_greenweb"
+
+# Guarded import - the CSRD processor requires the 'csrd' extra
+try:
+    from .processors.csrd_document import GreenwebCSRDProcessor
+
+    CSRD_PROCESSOR_AVAILABLE = True
+except ImportError:
+    CSRD_PROCESSOR_AVAILABLE = False
+    GreenwebCSRDProcessor = None  # type: ignore
 
 
 @hookimpl
@@ -37,6 +45,15 @@ def process_document(
     )
 
     if document.doc_type == "csrd-report":
+        if not CSRD_PROCESSOR_AVAILABLE:
+            log_safely(
+                f"{plugin_name}: CSRD Report found but the 'csrd' extra is not installed. "
+                f"Install it with: uv pip install 'carbon-txt[csrd]'",
+                logs=logs,
+                level=logging.WARNING,
+            )
+            return {"logs": logs}
+
         log_safely(
             f"{__name__}: CSRD Report found. Processing report with Arelle: {document}",
             logs=logs,

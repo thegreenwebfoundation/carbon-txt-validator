@@ -35,12 +35,16 @@ It also uses a `local_config` file - this can be used to add extra configuration
 # written to /var/www/carbon-txt-api.greenweb.org/run_carbon_txt_api.sh
 
 # Inject any extra libraries needed for database connectivity here, eg mysqlclient;
-/path/to/bin/uv tool --with mysqlclient run carbon-txt@latest serve \
---django-settings local_config \
---port <PORT> \
---host <HOST> \
---server granian \
---migrate
+# The [all] extra installs both the web server (Django + Granian) and the CSRD processor (Arelle).
+/path/to/bin/uv tool run \
+    --with mysqlclient \
+    --with "carbon-txt[all]" \
+    carbon-txt serve \
+    --django-settings local_config \
+    --port <PORT> \
+    --host <HOST> \
+    --server granian \
+    --migrate
 ```
 
 The local config file is templated out into the the same directory as where the command is run from. and the same directory as the environment variables file:
