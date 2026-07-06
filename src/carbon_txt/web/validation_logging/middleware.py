@@ -65,6 +65,10 @@ class LogValidationMiddleware:
         elif "url" in request_json:
             log_params["domain"] = urlparse(log_params["url"]).netloc
 
+        if data := response_json.get("data"):
+            if version := data.get("version"):
+                log_params["version"] = version
+
         if settings.REQUIRE_API_KEY and request.auth and "username" in request.auth:
             log_params["username"] = request.auth["username"]
 

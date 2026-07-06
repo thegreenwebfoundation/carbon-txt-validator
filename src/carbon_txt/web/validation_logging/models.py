@@ -21,6 +21,7 @@ class ValidationLogEntry(models.Model):
     )  # Length limit from RFC 1035
     url: models.TextField = models.TextField(blank=True, null=True)
     success: models.BooleanField = models.BooleanField(blank=True, null=True)
+    version: models.TextField = models.TextField(blank=True, null=True)
     source: models.CharField = models.CharField(
         choices=Source, default=Source.UNKNOWN, blank=False, null=False, max_length=255
     )
