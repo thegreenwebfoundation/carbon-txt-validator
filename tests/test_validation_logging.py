@@ -193,3 +193,40 @@ class TestLogValidationMiddleware:
             success=True,
         )
         self.db_log_instance.save.assert_called()
+
+    def test_validate_domain_requests_logged_with_carbon_txt_version(self):
+        """
+        Domain validation reequests are logged, including the domain requested
+        and the resolved URL returned from the validator.
+
+        """
+
+        # Given a valid request for a URL validation, for a carbon.txt with a version set
+        self.setup(
+            path="/api/validate/domain",
+            request={"domain": "www.example.com"},
+            response={"success": True, "url": "https://www.example.com/carbon.txt", "data": { "version": "0.5" }},
+        )
+
+        # When the request is made
+        self.middleware(self.request)
+
+        # A validation request is logged, to the system log and to the database, with the
+        # endpoint details, the success status of the validation. the domain, the url and the version.
+        self.logger.info.assert_called_with(
+            "validation_request",
+            endpoint="/api/validate/domain",
+            url="https://www.example.com/carbon.txt",
+            domain="www.example.com",
+            success=True,
+            version="0.5",
+        )
+        self.db_log_class.assert_called_with(
+            endpoint="/api/validate/domain",
+            url="https://www.example.com/carbon.txt",
+            domain="www.example.com",
+            source=self.source,
+            success=True,
+            version="0.5",
+        )
+        self.db_log_instance.save.assert_called()
