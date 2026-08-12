@@ -30,7 +30,7 @@ def local_esrs_2_csrd_file():
     return str(file_path)
 
 
-class TestCSRDProcessorValidate:  # noqa
+class TestCSRDProcessorValidate:
     def test_basic_fetch_of_CSRD_reports(self, local_esrs_1_csrd_file):
         """
         Test that we can fetch a remote CSRD report, and that it is not empty.

@@ -1,8 +1,9 @@
-from typing import Generic, Optional, List
+from typing import Generic
 
 from .common import DocTypeT, Organisation
 from .version_0_2 import DisclosureDocType
-from .version_0_3 import CarbonTxtFile as CarbonTxtFileV3, Disclosure as DisclosureV3
+from .version_0_3 import CarbonTxtFile as CarbonTxtFileV3
+from .version_0_3 import Disclosure as DisclosureV3
 
 
 class Disclosure(DisclosureV3[DocTypeT], Generic[DocTypeT]):
@@ -17,10 +18,10 @@ class Disclosure(DisclosureV3[DocTypeT], Generic[DocTypeT]):
     # name in the generated JSON schema
     __name__ = "Disclosure"
 
-    title: Optional[str] = None
+    title: str | None = None
 
     @property
-    def toml_fields(self) -> List[str]:
+    def toml_fields(self) -> list[str]:
         return super().toml_fields + ["title"]
 
 

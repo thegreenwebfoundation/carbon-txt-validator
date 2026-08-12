@@ -1,4 +1,4 @@
-from .base import *  # noqa
+from .base import *
 
 ALLOWED_HOSTS = ["127.0.0.1", "localhost", ".localhost", ".greenweb.org"]
 

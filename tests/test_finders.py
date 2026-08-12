@@ -1,6 +1,7 @@
 import pytest
-from carbon_txt.finders import FileFinder  # type: ignore
+
 from carbon_txt.exceptions import UnreachableCarbonTxtFile  # type: ignore
+from carbon_txt.finders import FileFinder  # type: ignore
 
 
 class TestFinder:

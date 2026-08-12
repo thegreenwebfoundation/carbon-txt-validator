@@ -1,14 +1,18 @@
-from typing import Optional, List, Literal
+from typing import Literal
 
 from pydantic import Field
 
 from .common import (
-    CarbonTxtFile as BaseCarbonTxtFile,
-    Disclosure as BaseDisclosure,
+    VERSION_NUMBER_PATTERN,
     Organisation,
     OtherDisclosureDocType,
     Upstream,
-    VERSION_NUMBER_PATTERN,
+)
+from .common import (
+    CarbonTxtFile as BaseCarbonTxtFile,
+)
+from .common import (
+    Disclosure as BaseDisclosure,
 )
 
 SpecificDisclosureDocType = Literal[
@@ -34,10 +38,10 @@ class CarbonTxtFile(BaseCarbonTxtFile):
     attribute, has no last_updated date, and does not provide a valid_until date for disclosures.
     """
 
-    version: Optional[str] = Field(pattern=VERSION_NUMBER_PATTERN, default="0.2")
-    upstream: Optional[Upstream] = None
+    version: str | None = Field(pattern=VERSION_NUMBER_PATTERN, default="0.2")
+    upstream: Upstream | None = None
     org: Organisation[Disclosure]
 
     @property
-    def toml_fields(self) -> List[str]:
+    def toml_fields(self) -> list[str]:
         return ["version", "org", "upstream"]

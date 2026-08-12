@@ -1,9 +1,8 @@
-from carbon_txt.hookspecs import hookimpl  # type: ignore
-
 import logging
-from typing import Optional
 
 from structlog import get_logger
+
+from carbon_txt.hookspecs import hookimpl  # type: ignore
 
 logger = get_logger("test_plugin")
 
@@ -11,7 +10,7 @@ logger = get_logger("test_plugin")
 plugin_name = "test_plugin"
 
 
-def log_safely(log_message: str, logs: Optional[list], level=logging.INFO):
+def log_safely(log_message: str, logs: list | None, level=logging.INFO):
     """
     Log a message, and append it to a list of logs
     """

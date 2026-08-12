@@ -6,12 +6,8 @@ from .version_0_3 import CarbonTxtFile as CarbonTxtFile0_3
 from .version_0_4 import CarbonTxtFile as CarbonTxtFile0_4
 from .version_0_5 import CarbonTxtFile as CarbonTxtFile0_5
 
-
 CarbonTxtFile = (
-    CarbonTxtFile0_2
-    | CarbonTxtFile0_3
-    | CarbonTxtFile0_4
-    | CarbonTxtFile0_5
+    CarbonTxtFile0_2 | CarbonTxtFile0_3 | CarbonTxtFile0_4 | CarbonTxtFile0_5
 )
 CarbonTxtFileType = (
     type[CarbonTxtFile0_2]
@@ -20,7 +16,7 @@ CarbonTxtFileType = (
     | type[CarbonTxtFile0_5]
 )
 
-VERSIONS: Dict[str, CarbonTxtFileType] = {
+VERSIONS: dict[str, CarbonTxtFileType] = {
     "0.2": CarbonTxtFile0_2,
     "0.3": CarbonTxtFile0_3,
     "0.4": CarbonTxtFile0_4,
@@ -56,7 +52,7 @@ def build_carbontxt_file(data: dict) -> CarbonTxtFile:
 
     version = data["version"]
 
-    if version not in VERSIONS.keys():
+    if version not in VERSIONS:
         raise InvalidVersionError(version)
 
     FileClass = VERSIONS[version]

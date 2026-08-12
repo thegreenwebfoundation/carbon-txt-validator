@@ -1,17 +1,20 @@
 from datetime import date
-from typing import Generic, Optional, List
+from typing import Generic
 
 from pydantic import Field
 
 from .common import (
-    Disclosure as BaseDisclosure,
+    VERSION_NUMBER_PATTERN,
     DocTypeT,
-    CarbonTxtFile as BaseCarbonTxtFile,
     Organisation,
     Upstream,
-    VERSION_NUMBER_PATTERN,
 )
-
+from .common import (
+    CarbonTxtFile as BaseCarbonTxtFile,
+)
+from .common import (
+    Disclosure as BaseDisclosure,
+)
 from .version_0_2 import DisclosureDocType as DisclosureDocType
 
 
@@ -27,10 +30,10 @@ class Disclosure(BaseDisclosure[DocTypeT], Generic[DocTypeT]):
     # name in the generated JSON schema
     __name__ = "Disclosure"
 
-    valid_until: Optional[date] = None
+    valid_until: date | None = None
 
     @property
-    def toml_fields(self) -> List[str]:
+    def toml_fields(self) -> list[str]:
         return super().toml_fields + ["valid_until"]
 
 
@@ -45,10 +48,10 @@ class CarbonTxtFile(BaseCarbonTxtFile):
     """
 
     version: str = Field(pattern=VERSION_NUMBER_PATTERN)
-    last_updated: Optional[date] = None
-    upstream: Optional[Upstream] = None
+    last_updated: date | None = None
+    upstream: Upstream | None = None
     org: Organisation[Disclosure[DisclosureDocType]]
 
     @property
-    def toml_fields(self) -> List[str]:
+    def toml_fields(self) -> list[str]:
         return ["version", "last_updated", "org", "upstream"]

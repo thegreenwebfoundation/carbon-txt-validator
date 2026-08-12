@@ -1,5 +1,5 @@
 import json
-from typing import Callable
+from collections.abc import Callable
 from urllib.parse import urlparse
 
 import structlog

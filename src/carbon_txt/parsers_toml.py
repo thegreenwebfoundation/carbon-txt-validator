@@ -1,8 +1,8 @@
-import logging
-import typing
 import html.parser
-import pydantic
+import logging
 import tomllib as toml
+
+import pydantic
 from structlog import get_logger
 
 from . import exceptions, schemas
@@ -49,11 +49,11 @@ def is_valid_html(html_string, logs=None):
         return True
 
     except Exception as ex:
-        log_safely(f"HTML parsing failed: {str(ex)}", logs, level=logging.WARNING)
+        log_safely(f"HTML parsing failed: {ex!s}", logs, level=logging.WARNING)
         return False
 
 
-def log_safely(log_message: str, logs: typing.Optional[list], level=logging.INFO):
+def log_safely(log_message: str, logs: list | None, level=logging.INFO):
     """
     Log a message, and append it to a list of logs
     """
@@ -93,8 +93,8 @@ class CarbonTxtParser:
             raise exceptions.NotParseableTOML(ex)
 
     def validate_as_carbon_txt(
-        self, parsed, logs: typing.Optional[list] = None
-    ) -> typing.Optional[schemas.CarbonTxtFile]:
+        self, parsed, logs: list | None = None
+    ) -> schemas.CarbonTxtFile | None:
         """
         Accept a parsed TOML object and return a CarbonTxtFile, validating that
         necessary keys are present and values are of the correct type.

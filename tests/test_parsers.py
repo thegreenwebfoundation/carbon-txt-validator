@@ -1,6 +1,7 @@
-from carbon_txt.parsers_toml import CarbonTxtParser
-from carbon_txt.exceptions import NotParseableTOMLButHTML
 import pytest
+
+from carbon_txt.exceptions import NotParseableTOMLButHTML
+from carbon_txt.parsers_toml import CarbonTxtParser
 
 parser = CarbonTxtParser()
 

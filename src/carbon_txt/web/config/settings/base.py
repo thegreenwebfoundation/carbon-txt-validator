@@ -16,7 +16,6 @@ import pathlib
 import environ  # type: ignore
 import sentry_sdk
 import structlog
-
 from corsheaders.defaults import default_headers
 
 from carbon_txt.exceptions import InsecureKeyException

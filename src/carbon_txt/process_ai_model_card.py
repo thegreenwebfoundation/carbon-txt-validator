@@ -1,16 +1,15 @@
+import logging
+
+from structlog import get_logger
+
 from .hookspecs import hookimpl
 from .http_client import HTTPClient
 from .schemas.version_0_5 import Disclosure
-import logging
-from typing import Optional
-
-
-from structlog import get_logger
 
 logger = get_logger()
 
 
-def log_safely(log_message: str, logs: Optional[list], level=logging.INFO):
+def log_safely(log_message: str, logs: list | None, level=logging.INFO):
     """
     Log a message, and append it to a list of logs
     """
@@ -33,7 +32,7 @@ except ImportError:
 
 @hookimpl
 def process_document(
-    document: Disclosure, logs: Optional[list], http_client: Optional[HTTPClient] = None
+    document: Disclosure, logs: list | None, http_client: HTTPClient | None = None
 ):
     """
     Listen for documents linked in the carbon.txt file that are AI Model Cards,

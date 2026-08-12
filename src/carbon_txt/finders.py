@@ -1,23 +1,21 @@
-from dataclasses import dataclass
+import logging
 import pathlib
+import re
+import traceback
+from dataclasses import dataclass
 from pathlib import Path
 from typing import Literal, Optional
 from urllib.parse import ParseResult, urlparse
-import re
-import traceback
 
-import tldextract
 import dns.resolver
 import httpx
 import rich  # noqa
-from .exceptions import UnreachableCarbonTxtFile
-
-from . import parsers_toml
-from .http_client import HTTPClient
-
+import tldextract
 from structlog import get_logger
 
-import logging
+from . import parsers_toml
+from .exceptions import UnreachableCarbonTxtFile
+from .http_client import HTTPClient
 
 logger = get_logger()
 
@@ -38,7 +36,7 @@ class FinderResult:
     delegation_method: DelegationMethod = None
 
 
-def log_safely(log_message: str, logs: Optional[list], level=logging.INFO):
+def log_safely(log_message: str, logs: list | None, level=logging.INFO):
     """
     Log a message, and append it to a list of logs
     """
@@ -53,7 +51,7 @@ class FileFinder:
     a carbon.txt file from.
     """
 
-    def __init__(self, http_client: Optional[HTTPClient] = None):
+    def __init__(self, http_client: HTTPClient | None = None):
         if http_client is None:
             http_client = HTTPClient()
         self.http_client = http_client
@@ -66,7 +64,7 @@ class FileFinder:
         """
         tldextract.update(fetch_now=True)
 
-    def _parse_uri(self, uri: str) -> Optional[ParseResult]:
+    def _parse_uri(self, uri: str) -> ParseResult | None:
         """
         Return a parsed URI object if the URI is valid, otherwise return None
         """
@@ -77,7 +75,7 @@ class FileFinder:
 
         return None
 
-    def _lookup_dns(self, domain: str) -> Optional[str]:
+    def _lookup_dns(self, domain: str) -> str | None:
         """
         Try a DNS TXT record lookup for the given domain,
         returning the delegated carbon.txt URI if found
@@ -126,7 +124,7 @@ class FileFinder:
         tld = tldextract.extract(domain).top_domain_under_public_suffix
         return domain == f"www.{tld}"
 
-    def _alternate_domain(self, domain: str) -> Optional[str]:
+    def _alternate_domain(self, domain: str) -> str | None:
         """
         Returns the "alternate" variant for a domain, for which resolution should be attempted if no method succeeds for the original domain.
          . For TLDS, this is the www. subdomain,
@@ -140,7 +138,7 @@ class FileFinder:
         else:
             return None
 
-    def _check_for_hosted_carbon_txt(self, url, logs=None) -> Optional[str]:
+    def _check_for_hosted_carbon_txt(self, url, logs=None) -> str | None:
         """
         Check for a hosted carbon.txt file at the given URL, and returns the URL if present
         """
@@ -157,7 +155,7 @@ class FileFinder:
         except UnreachableCarbonTxtFile:
             return None
 
-    def _check_for_dns_delegation(self, domain: str, logs=None) -> Optional[str]:
+    def _check_for_dns_delegation(self, domain: str, logs=None) -> str | None:
         """
         Check for a 'carbon-txt-location' DNS TXT record, and return the URL in the record if present
         """
@@ -168,9 +166,7 @@ class FileFinder:
         else:
             return None
 
-    def _check_for_http_header_delegation(
-        self, domain: str, logs=None
-    ) -> Optional[str]:
+    def _check_for_http_header_delegation(self, domain: str, logs=None) -> str | None:
         """
         Check for a 'CarbonTxt-Location' header in the response, and return the URL in the header if present
         """
@@ -239,7 +235,7 @@ class FileFinder:
             return self.resolve_domain(domain_or_uri, logs)
 
     def resolve_domain(
-        self, domain: str, logs: Optional[list] = None, checking_alternate: bool = False
+        self, domain: str, logs: list | None = None, checking_alternate: bool = False
     ) -> FinderResult:
         """
         Accepts a domain, and returns a URI to fetch a carbon.txt file from.

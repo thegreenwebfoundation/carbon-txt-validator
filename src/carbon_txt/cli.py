@@ -1,9 +1,7 @@
 import json
-
 import os
 import subprocess
 import sys
-from typing import Optional
 
 import pydantic_core
 import rich
@@ -27,7 +25,7 @@ app.add_typer(
 err_console = rich.console.Console(stderr=True)
 
 
-def _plugins_from_env() -> tuple[Optional[list[str]], Optional[str]]:
+def _plugins_from_env() -> tuple[list[str] | None, str | None]:
     """
     Read plugin configuration from environment variables.
     Returns a tuple of (active_plugins, plugins_dir).
@@ -47,7 +45,7 @@ def _plugins_from_env() -> tuple[Optional[list[str]], Optional[str]]:
 
 
 def create_validator(
-    plugins_dir: Optional[str], active_plugins: Optional[list[str]]
+    plugins_dir: str | None, active_plugins: list[str] | None
 ) -> validators.CarbonTxtValidator:
     """
     Return a CarbonTxtValidator instance with the given `plugins_dir` and `active_plugins` values set
@@ -183,9 +181,9 @@ def _check_web_deps():
     """Check that the 'web' extra dependencies are installed."""
     try:
         import django
-        from django.core.management import execute_from_command_line
-        from django.conf import settings
         import environ  # type: ignore
+        from django.conf import settings
+        from django.core.management import execute_from_command_line
     except ImportError:
         rich.print("[bold red]The 'web' extra is not installed.[/bold red]")
         print("Install it with: uv pip install 'carbon-txt[web]'")
@@ -195,7 +193,7 @@ def _check_web_deps():
 
 def configure_django(
     settings_module: str = "carbon_txt.web.config.settings.development",
-    plugins_dir: Optional[str] = None,
+    plugins_dir: str | None = None,
 ):
     """Configure Django settings programmatically"""
     django, settings, _, _ = _check_web_deps()
@@ -299,11 +297,9 @@ def serve(
     except Exception as e:
         rich.print(f"An error occurred: {e}")
         rich.print(
-            (
-                "Please consider raising an issue at: "
-                "https://github.com/thegreenwebfoundation/carbon-txt-validator/issues/new, "
-                "with steps to reproduce this error"
-            )
+            "Please consider raising an issue at: "
+            "https://github.com/thegreenwebfoundation/carbon-txt-validator/issues/new, "
+            "with steps to reproduce this error"
         )
         raise typer.Exit(code=1)
 

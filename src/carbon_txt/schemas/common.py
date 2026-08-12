@@ -1,24 +1,26 @@
-from typing import Annotated, Optional, List, Literal, TypeAlias, TypeVar, Generic
+from typing import Annotated, Generic, Literal, TypeAlias, TypeVar
 
 from pydantic import AfterValidator, BaseModel, ConfigDict, Field, HttpUrl
 from pydantic_extra_types.domain import DomainStr
-
 from tomlkit import (
+    TOMLDocument,
+    array,
     comment,
     document,
+    dump,
+    dumps,
+    inline_table,
     nl,
     table,
-    dumps,
-    dump,
-    inline_table,
-    array,
-    TOMLDocument,
 )
-
 from tomlkit.items import (
     AbstractTable as TOMLTable,
-    Item as TOMLItem,
+)
+from tomlkit.items import (
     InlineTable as TOMLInlineTable,
+)
+from tomlkit.items import (
+    Item as TOMLItem,
 )
 
 # Modified semver regex, taken from
@@ -45,7 +47,7 @@ class CarbonTxtModel(BaseModel):
     model_config = ConfigDict(extra="forbid")
 
     @property
-    def toml_fields(self) -> List[str]:
+    def toml_fields(self) -> list[str]:
         """
         To be overridden in subclasses - returns the names
         of the fields to be serialized to TOML, in order.
@@ -137,19 +139,19 @@ class Service(CarbonTxtModel):
     Green Web Platform
     """
 
-    domain: Optional[DomainStr]
-    name: Optional[str] = None
+    domain: DomainStr | None
+    name: str | None = None
     # TODO: python prefers snake_case.
     # javascript prefers camelCase
     # but kebab-case is arguable more common in URLS
     # how do we support this?
-    service_type: Optional[List[str]] | str = None
+    service_type: list[str] | None | str = None
 
     def toml_root(self, **_kwargs) -> TOMLDocument | TOMLTable:
         return inline_table()
 
     @property
-    def toml_fields(self) -> List[str]:
+    def toml_fields(self) -> list[str]:
         return ["name", "domain", "service_type"]
 
 
@@ -170,10 +172,10 @@ class Organisation(CarbonTxtModel, Generic[DisclosureType]):
     # name in the generated JSON schema
     __name__ = "Organisation"
 
-    disclosures: List[DisclosureType] = Field(..., min_length=1)
+    disclosures: list[DisclosureType] = Field(..., min_length=1)
 
     @property
-    def toml_fields(self) -> List[str]:
+    def toml_fields(self) -> list[str]:
         return ["disclosures"]
 
 
@@ -186,10 +188,10 @@ class Upstream(CarbonTxtModel):
     # organisations that don't use third party providers could plausibly have an
     # empty upstream list. We also either accept providers as a single string representing
     # a domain, or a dictionary containing the fields defined in the Provider model
-    services: Optional[List[Service | str]] = None
+    services: list[Service | str] | None = None
 
     @property
-    def toml_fields(self) -> List[str]:
+    def toml_fields(self) -> list[str]:
         return ["services"]
 
 
@@ -205,11 +207,11 @@ class Disclosure(CarbonTxtModel, Generic[DocTypeT]):
 
     doc_type: DocTypeT
     url: HttpUrlStr
-    domain: Optional[DomainStr] = None
+    domain: DomainStr | None = None
 
     def toml_root(self, **_kwargs) -> TOMLDocument | TOMLTable:
         return inline_table()
 
     @property
-    def toml_fields(self) -> List[str]:
+    def toml_fields(self) -> list[str]:
         return ["doc_type", "url", "domain"]

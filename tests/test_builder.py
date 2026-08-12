@@ -1,6 +1,6 @@
-import pytest
 from datetime import date
 
+import pytest
 from pydantic import ValidationError
 
 from carbon_txt import build_carbontxt_file

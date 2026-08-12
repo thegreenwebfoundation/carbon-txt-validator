@@ -2,7 +2,6 @@ from pathlib import Path
 
 import httpx
 import pytest
-
 from structlog import get_logger
 
 logger = get_logger()

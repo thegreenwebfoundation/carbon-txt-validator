@@ -1,12 +1,11 @@
 from typing import Generic, Literal, TypeAlias
 
 from .common import DocTypeT, Organisation, OtherDisclosureDocType
-
 from .version_0_2 import (
     SpecificDisclosureDocType as SpecificDisclosureDocTypeV2,
 )
-from .version_0_4 import CarbonTxtFile as CarbonTxtFileV4, Disclosure as DisclosureV4
-
+from .version_0_4 import CarbonTxtFile as CarbonTxtFileV4
+from .version_0_4 import Disclosure as DisclosureV4
 
 SpecificDisclosureDocType: TypeAlias = Literal[
     SpecificDisclosureDocTypeV2, "ai-model-card", OtherDisclosureDocType

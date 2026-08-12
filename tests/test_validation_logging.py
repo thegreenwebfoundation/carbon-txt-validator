@@ -1,7 +1,7 @@
 import json
-import pytest
 from unittest.mock import MagicMock
 
+import pytest
 from django.http import HttpRequest, HttpResponse
 from structlog.stdlib import BoundLogger
 

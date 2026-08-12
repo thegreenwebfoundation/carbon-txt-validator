@@ -1,5 +1,4 @@
 import logging
-from typing import Optional
 
 from structlog import get_logger
 
@@ -9,7 +8,7 @@ from .schemas.common import Disclosure
 logger = get_logger()
 
 
-def log_safely(log_message: str, logs: Optional[list], level=logging.INFO):
+def log_safely(log_message: str, logs: list | None, level=logging.INFO):
     """
     Log a message, and append it to a list of logs
     """
@@ -33,7 +32,7 @@ except ImportError:
 @hookimpl
 def process_document(
     document: Disclosure,
-    logs: Optional[list],
+    logs: list | None,
 ):
     """
     Listen for documents linked in the carbon.txt file that are iXBRL CSRD reports,

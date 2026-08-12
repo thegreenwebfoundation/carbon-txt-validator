@@ -1,6 +1,5 @@
 import importlib
 import types
-import typing
 
 import pluggy
 
@@ -21,7 +20,7 @@ pm.add_hookspecs(hookspecs)
 pm.load_setuptools_entrypoints("carbon_txt")
 
 # TODO: add default plugins here when we have them (i.e. for parsing CSRD reports, etc)
-DEFAULT_PLUGINS: typing.List[str] = []
+DEFAULT_PLUGINS: list[str] = []
 
 for plugin in DEFAULT_PLUGINS:
     mod = importlib.import_module(plugin)
