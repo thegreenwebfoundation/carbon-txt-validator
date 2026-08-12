@@ -1,10 +1,11 @@
-from typing import Optional, List
+from typing import Generic, Optional, List
 
-from .common import Organisation
+from .common import DocTypeT, Organisation
+from .version_0_2 import DisclosureDocType
 from .version_0_3 import CarbonTxtFile as CarbonTxtFileV3, Disclosure as DisclosureV3
 
 
-class Disclosure(DisclosureV3):
+class Disclosure(DisclosureV3[DocTypeT], Generic[DocTypeT]):
     """
     Disclosures are essentially supporting documentation shared by an organisation than can
     be to be used to substantiate a claim like running on green energy, and so on.
@@ -32,4 +33,4 @@ class CarbonTxtFile(CarbonTxtFileV3):
     attribute for disclosures.
     """
 
-    org: Organisation[Disclosure]
+    org: Organisation[Disclosure[DisclosureDocType]]

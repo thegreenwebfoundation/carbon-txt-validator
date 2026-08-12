@@ -1,14 +1,28 @@
-from typing import Optional, List
+from typing import Optional, List, Literal
 
-from pydantic import ConfigDict, Field
+from pydantic import Field
 
 from .common import (
     CarbonTxtFile as BaseCarbonTxtFile,
-    Disclosure,
+    Disclosure as BaseDisclosure,
     Organisation,
+    OtherDisclosureDocType,
     Upstream,
     VERSION_NUMBER_PATTERN,
 )
+
+SpecificDisclosureDocType = Literal[
+    "web-page",
+    "annual-report",
+    "sustainability-page",
+    "certificate",
+    "csrd-report",
+]
+
+
+DisclosureDocType = Literal[SpecificDisclosureDocType, OtherDisclosureDocType]
+
+Disclosure = BaseDisclosure[DisclosureDocType]
 
 
 class CarbonTxtFile(BaseCarbonTxtFile):
@@ -19,8 +33,6 @@ class CarbonTxtFile(BaseCarbonTxtFile):
     This class represents the version 0.2 syntax, which optionally includes the version
     attribute, has no last_updated date, and does not provide a valid_until date for disclosures.
     """
-
-    model_config = ConfigDict(extra="forbid")
 
     version: Optional[str] = Field(pattern=VERSION_NUMBER_PATTERN, default="0.2")
     upstream: Optional[Upstream] = None

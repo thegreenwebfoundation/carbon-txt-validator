@@ -1,6 +1,7 @@
-from typing import Optional, List, Literal, TypeVar, Generic
+from typing import Annotated, Optional, List, Literal, TypeAlias, TypeVar, Generic
 
-from pydantic import BaseModel, ConfigDict, Field
+from pydantic import AfterValidator, BaseModel, ConfigDict, Field, HttpUrl
+from pydantic_extra_types.domain import DomainStr
 
 from tomlkit import (
     comment,
@@ -26,7 +27,23 @@ from tomlkit.items import (
 VERSION_NUMBER_PATTERN = r"^(?P<major>0|[1-9]\d*)\.(?P<minor>0|[1-9]\d*)(?:\.(?P<patch>0|[1-9]\d*))?(?:-(?P<prerelease>(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*)(?:\.(?:0|[1-9]\d*|\d*[a-zA-Z-][0-9a-zA-Z-]*))*))?(?:\+(?P<buildmetadata>[0-9a-zA-Z-]+(?:\.[0-9a-zA-Z-]+)*))?$"
 
 
+def validate_http_url(value: str) -> str:
+    """
+    An annotation for string fields which validates that they are HTTP(s) URLs.
+    We can't use HttpUrl directly as the field type as that changes the type of the value.
+    Returning `value` here ensures that the field remains a string, even though it's validated
+    as an HTTP URL.
+    """
+    HttpUrl(value)
+    return value
+
+
+HttpUrlStr: TypeAlias = Annotated[str, AfterValidator(validate_http_url)]
+
+
 class CarbonTxtModel(BaseModel):
+    model_config = ConfigDict(extra="forbid")
+
     @property
     def toml_fields(self) -> List[str]:
         """
@@ -120,9 +137,7 @@ class Service(CarbonTxtModel):
     Green Web Platform
     """
 
-    model_config = ConfigDict(extra="forbid")
-
-    domain: Optional[str]
+    domain: Optional[DomainStr]
     name: Optional[str] = None
     # TODO: python prefers snake_case.
     # javascript prefers camelCase
@@ -139,17 +154,9 @@ class Service(CarbonTxtModel):
 
 
 DisclosureType = TypeVar("DisclosureType")
-
-
-SpecificDisclosureDocType = Literal[
-    "web-page",
-    "annual-report",
-    "sustainability-page",
-    "certificate",
-    "csrd-report",
-]
-
 OtherDisclosureDocType = Literal["other"]
+
+DocTypeT = TypeVar("DocTypeT", bound=str)
 
 
 class Organisation(CarbonTxtModel, Generic[DisclosureType]):
@@ -163,7 +170,6 @@ class Organisation(CarbonTxtModel, Generic[DisclosureType]):
     # name in the generated JSON schema
     __name__ = "Organisation"
 
-    model_config = ConfigDict(extra="forbid")
     disclosures: List[DisclosureType] = Field(..., min_length=1)
 
     @property
@@ -177,8 +183,6 @@ class Upstream(CarbonTxtModel):
     is relying on to operate a digital service, like running a website, or application.
     """
 
-    model_config = ConfigDict(extra="forbid")
-
     # organisations that don't use third party providers could plausibly have an
     # empty upstream list. We also either accept providers as a single string representing
     # a domain, or a dictionary containing the fields defined in the Provider model
@@ -189,7 +193,7 @@ class Upstream(CarbonTxtModel):
         return ["services"]
 
 
-class Disclosure(CarbonTxtModel):
+class Disclosure(CarbonTxtModel, Generic[DocTypeT]):
     """
     Disclosures are essentially supporting documentation shared by an organisation than can
     be to be used to substantiate a claim like running on green energy, and so on.
@@ -199,10 +203,9 @@ class Disclosure(CarbonTxtModel):
     # name in the generated JSON schema
     __name__ = "Disclosure"
 
-    model_config = ConfigDict(extra="forbid")
-    doc_type: Literal[SpecificDisclosureDocType, OtherDisclosureDocType]
-    url: str
-    domain: Optional[str] = None
+    doc_type: DocTypeT
+    url: HttpUrlStr
+    domain: Optional[DomainStr] = None
 
     def toml_root(self, **_kwargs) -> TOMLDocument | TOMLTable:
         return inline_table()

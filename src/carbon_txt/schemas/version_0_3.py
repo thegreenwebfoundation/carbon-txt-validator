@@ -1,18 +1,21 @@
 from datetime import date
-from typing import Optional, List
+from typing import Generic, Optional, List
 
-from pydantic import ConfigDict, Field
+from pydantic import Field
 
 from .common import (
-    CarbonTxtFile as BaseCarbonTxtFile,
     Disclosure as BaseDisclosure,
+    DocTypeT,
+    CarbonTxtFile as BaseCarbonTxtFile,
     Organisation,
     Upstream,
     VERSION_NUMBER_PATTERN,
 )
 
+from .version_0_2 import DisclosureDocType as DisclosureDocType
 
-class Disclosure(BaseDisclosure):
+
+class Disclosure(BaseDisclosure[DocTypeT], Generic[DocTypeT]):
     """
     Disclosures are essentially supporting documentation shared by an organisation than can
     be to be used to substantiate a claim like running on green energy, and so on.
@@ -23,8 +26,6 @@ class Disclosure(BaseDisclosure):
     # __name__ must be overridden so that Pydantic uses the correct type
     # name in the generated JSON schema
     __name__ = "Disclosure"
-
-    model_config = ConfigDict(extra="forbid")
 
     valid_until: Optional[date] = None
 
@@ -43,12 +44,10 @@ class CarbonTxtFile(BaseCarbonTxtFile):
     date for disclosures.
     """
 
-    model_config = ConfigDict(extra="forbid")
-
     version: str = Field(pattern=VERSION_NUMBER_PATTERN)
     last_updated: Optional[date] = None
     upstream: Optional[Upstream] = None
-    org: Organisation[Disclosure]
+    org: Organisation[Disclosure[DisclosureDocType]]
 
     @property
     def toml_fields(self) -> List[str]:
