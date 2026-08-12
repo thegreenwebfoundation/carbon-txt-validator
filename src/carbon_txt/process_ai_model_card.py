@@ -21,13 +21,15 @@ def log_safely(log_message: str, logs: Optional[list], level=logging.INFO):
 
 plugin_name = "ai-model-card_greenweb"
 
-#Guarded import - the AI model card processor requires the 'ai_model_cards' extra
+# Guarded import - the AI model card processor requires the 'ai_model_cards' extra
 try:
     from .processors.ai_model_card import GreenwebAIModelCardProcessor
+
     AI_MODEL_CARD_PROCESSOR_AVAILABLE = True
 except ImportError:
     AI_MODEL_CARD_PROCESSOR_AVAILABLE = False
-    GreenwebAIModelCardProcessor = None # type: ignore
+    GreenwebAIModelCardProcessor = None  # type: ignore
+
 
 @hookimpl
 def process_document(

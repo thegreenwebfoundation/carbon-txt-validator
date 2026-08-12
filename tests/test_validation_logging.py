@@ -205,7 +205,11 @@ class TestLogValidationMiddleware:
         self.setup(
             path="/api/validate/domain",
             request={"domain": "www.example.com"},
-            response={"success": True, "url": "https://www.example.com/carbon.txt", "data": { "version": "0.5" }},
+            response={
+                "success": True,
+                "url": "https://www.example.com/carbon.txt",
+                "data": {"version": "0.5"},
+            },
         )
 
         # When the request is made

@@ -105,8 +105,6 @@ def check_ai_model_cards():
     return errors
 
 
-
-
 def check_web():
     """Verify Web extra is installed and functional."""
     errors = []

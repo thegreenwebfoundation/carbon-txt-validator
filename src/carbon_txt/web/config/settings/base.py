@@ -174,9 +174,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # CORS
 # for docs see:
 # https://github.com/adamchainz/django-cors-headers
-CORS_ALLOW_HEADERS = list(default_headers) + [
-    "X-Api-Key"
-]
+CORS_ALLOW_HEADERS = list(default_headers) + ["X-Api-Key"]
 
 CORS_ALLOW_ALL_ORIGINS = True
 

@@ -4,15 +4,14 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('validation_logging', '0002_validationlogentry_source_and_more'),
+        ("validation_logging", "0002_validationlogentry_source_and_more"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='validationlogentry',
-            name='username',
+            model_name="validationlogentry",
+            name="username",
             field=models.TextField(blank=True, null=True),
         ),
     ]

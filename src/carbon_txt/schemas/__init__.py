@@ -8,7 +8,10 @@ from .version_0_5 import CarbonTxtFile as CarbonTxtFile0_5
 
 
 CarbonTxtFile = (
-    CarbonTxtFile0_2 | CarbonTxtFile0_3 | CarbonTxtFile0_4 | CarbonTxtFile0_5
+    CarbonTxtFile0_2
+    | CarbonTxtFile0_3
+    | CarbonTxtFile0_4
+    | CarbonTxtFile0_5
 )
 CarbonTxtFileType = (
     type[CarbonTxtFile0_2]
