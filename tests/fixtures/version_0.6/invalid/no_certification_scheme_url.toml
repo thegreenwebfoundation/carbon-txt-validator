@@ -1,0 +1,18 @@
+version = '0.6'
+last_updated = '2026-01-01'
+
+[org]
+certification_schemes = [
+  { id='blue-angel', title='The Blue Angel certification scheme', description='We are certified by Blue Angel'}
+]
+
+disclosures = [
+    { doc_type='web-page', url='https://example.com/sustainability-policy', domain='thegreenwebfoundation.org', valid_until='2030-01-01', title='Sustainability policy', description='Our sustainability policy' },
+    { doc_type='measurement-data', url='https://example.com/dist.json',  domain='thegreenwebfoundation.org', valid_until='2030-01-01', title='DIST format impact measurement data', certification_schemes=['blue-angel'], description='our measurement data' },
+    { doc_type='ai-model-card', url='https://example.com/model-card', domain='thegreenwebfoundation.org', valid_until='2030-01-01', title='Model card', description='AI model card for a model we use upstream.' },
+]
+
+[upstream]
+services = [
+    { domain='upstream.com', service_type='block-storage' },
+]
