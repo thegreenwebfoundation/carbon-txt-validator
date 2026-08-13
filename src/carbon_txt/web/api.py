@@ -253,6 +253,7 @@ def validate_domain(
     summary="Retrieve JSON Schema",
     description="Get the JSON schema representation of carbon.txt file spec for validation",
     auth=None,
+    throttle=[],
 )
 def get_json_schema(
     request: HttpRequest, version: str = schemas.LATEST_VERSION
