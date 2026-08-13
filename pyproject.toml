@@ -29,6 +29,7 @@ csrd = [
     "arelle-release>=2.44.2",
 ]
 web = [
+    "django~=5.2.16",
     "django-cors-headers>=4.9.0",
     "django-environ>=0.14.0",
     "django-ninja>=1.6.2",
