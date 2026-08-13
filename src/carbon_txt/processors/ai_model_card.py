@@ -1,5 +1,6 @@
 import logging
-from typing import Callable, Optional, TypeAlias
+from collections.abc import Callable
+from typing import ClassVar, TypeAlias
 
 from pydantic import BaseModel
 from structlog import get_logger
@@ -7,14 +8,14 @@ from structlog import get_logger
 from ..exceptions import NoMatchingDatapointsError
 from ..http_client import HTTPClient
 
-
 logger = get_logger()
 
 
-try: #Guarded imports for the "ai_model_cards" optional dependency group
+try:  # Guarded imports for the "ai_model_cards" optional dependency group
     import frontmatter
     from mistletoe import Document
     from mistletoe.block_token import Heading
+
     OPTIONAL_DEPENDENCIES_AVAILABLE = True
 except ImportError:
     Document = None
@@ -22,10 +23,10 @@ except ImportError:
     frontmatter = None
     OPTIONAL_DEPENDENCIES_AVAILABLE = False
 
+
 class OptionalDependenciesNotInstalledError(ImportError):
     """Raised when the ai_model_cards optional dependencies are not installed"""
 
-    pass
 
 def _require_optional_dependencies():
     """Check the optional dependencies are installed, and if not raise a helpful error message."""
@@ -35,7 +36,8 @@ def _require_optional_dependencies():
             "Install it with : uv pip install 'carbon-txt[ai_model_cards]'"
         )
 
-def log_safely(log_message: str, logs: Optional[list], level=logging.INFO):
+
+def log_safely(log_message: str, logs: list | None, level=logging.INFO):
     """
     Log a message, and append it to a list of logs
     """
@@ -83,7 +85,7 @@ class GreenwebAIModelCardProcessor:
     with an error message.
     """
 
-    FIELDS = [
+    FIELDS: ClassVar[list[FieldSpec]] = [
         FieldSpec(
             short_code="emissions",
             format=float,
@@ -119,10 +121,9 @@ class GreenwebAIModelCardProcessor:
     def __init__(
         self,
         card_url: str,
-        logs: Optional[list[str]] = None,
-        http_client: Optional[HTTPClient] = None,
+        logs: list[str] | None = None,
+        http_client: HTTPClient | None = None,
     ):
-
         _require_optional_dependencies()
 
         if http_client is None:
@@ -250,7 +251,7 @@ class GreenwebAIModelCardProcessor:
                 )
         return datapoints
 
-    def get_h1_from_markdown(self, markdown: str) -> Optional[str]:
+    def get_h1_from_markdown(self, markdown: str) -> str | None:
         """
         Get the first top level heading from the document.
         Returns None if parsing fails.

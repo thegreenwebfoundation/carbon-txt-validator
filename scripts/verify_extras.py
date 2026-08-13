@@ -24,7 +24,7 @@ import sys
 
 def _module_available(name: str) -> bool:
     """Check if a module is available without importing it."""
-    spec = importlib.util.find_spec(name)
+    spec = importlib.util.find_spec(name)  # type: ignore
     return spec is not None
 
 
@@ -103,8 +103,6 @@ def check_ai_model_cards():
         errors.append("Core validator broken with CSRD extra")
 
     return errors
-
-
 
 
 def check_web():

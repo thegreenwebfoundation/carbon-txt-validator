@@ -26,7 +26,10 @@ def introspect_key(key: str | None) -> dict | None:
             )
             resp.raise_for_status()
             body = resp.json()
-            if body["active"] and body["service"] == settings.CARBON_TXT_AUTH_SERVICE_NAME:
+            if (
+                body["active"]
+                and body["service"] == settings.CARBON_TXT_AUTH_SERVICE_NAME
+            ):
                 return body
 
         except httpx.HTTPStatusError as ex:
@@ -51,7 +54,7 @@ def introspect_key(key: str | None) -> dict | None:
         except Exception as ex:
             # Anything else that might go wrong - we err on the side of caution.
             logger.exception(
-                f"Unexpected error authorizing key with prefix {prefix}: {ex}"
+                f"Unexpected error authorizing key with prefix {prefix}: {ex}"  # noqa
             )
     return None
 

@@ -1,8 +1,8 @@
 import logging
 import logging.config
-import structlog
-
 from typing import Any
+
+import structlog
 
 # to get logging working consistently the Django webserver and the CLI
 # we need to configure both:
@@ -41,8 +41,7 @@ class RemoveAttributesProcessor:
     ) -> dict[str, Any]:
         if logger is not None and logger.name in self.loggers:
             for attribute in self.attributes:
-                if attribute in event_dict:
-                    del event_dict[attribute]
+                event_dict.pop(attribute, None)
         return event_dict
 
 

@@ -1,19 +1,19 @@
-from .base import *  # noqa
+from .base import *
 
 INTERNAL_IPS = ["127.0.0.1"]
-ALLOWED_HOSTS.extend(["127.0.0.1", "localhost"])  # noqa
+ALLOWED_HOSTS.extend(["127.0.0.1", "localhost"])
 
 WSGI_APPLICATION = "carbon_txt.web.config.wsgi.application"
 ROOT_URLCONF = "carbon_txt.web.config.urls"
 
-LOGGING["handlers"]["console"] = {  # type: ignore # noqa
+LOGGING["handlers"]["console"] = {  # type: ignore
     "class": "logging.StreamHandler",
     # "formatter": "key_value",
     "formatter": "plain_console",
     # "formatter": "json_formatter",
 }
 
-LOGGING["loggers"] = {  # type: ignore # noqa
+LOGGING["loggers"] = {  # type: ignore
     "root": {
         "handlers": ["console"],
         # make test logs much more quiet. Set this to INFO and specific loggers
@@ -38,4 +38,4 @@ LOGGING["loggers"] = {  # type: ignore # noqa
     #     },
 }
 
-REQUIRE_API_KEY = False # Override when testing
+REQUIRE_API_KEY = False  # Override when testing

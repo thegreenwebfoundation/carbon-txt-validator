@@ -1,5 +1,4 @@
 import pytest
-
 import structlog
 
 logger = structlog.get_logger()
@@ -20,7 +19,7 @@ def minimal_carbon_txt_org():
         disclosures = [
             { domain='used-in-tests.carbontxt.org', doc_type = 'sustainability-page', url = 'https://used-in-tests.carbontxt.org/our-climate-record'}
         ]
-    """  # noqa
+    """
 
 
 @pytest.fixture
@@ -40,7 +39,7 @@ def shorter_carbon_txt_string():
         disclosures = [
             { domain='www.hillbob.de', doc_type = 'sustainability-page', url = 'https://www.hillbob.de/klimaneutral'}
         ]
-    """  # noqa
+    """
     return short_string
 
 
@@ -56,7 +55,7 @@ def minimal_carbon_txt_org_with_csrd_file():
         disclosures = [
             { domain='used-in-tests.carbontxt.org', doc_type = 'csrd-report', url = 'https://used-in-tests.carbontxt.org/esrs-e1-efrag-2026-12-31-en.xhtml'}
         ]
-    """  # noqa
+    """
 
 
 @pytest.fixture
@@ -84,7 +83,7 @@ def reset_plugin_registry():
     because the plugin framework we have doesn't reset on each test, and
     if we set up a plugin in one test, it can still be active in the next.
     """
-    from carbon_txt.plugins import pm  # noqa
+    from carbon_txt.plugins import pm
 
     modules = pm.get_plugins()
     logger.debug(f"\n current modules: {modules}")

@@ -28,8 +28,6 @@ except ImportError:
 class ArelleNotInstalledError(ImportError):
     """Raised when arelle is required but not installed."""
 
-    pass
-
 
 def _require_arelle():
     """Check that arelle is installed, raising a helpful error if not."""
@@ -213,9 +211,9 @@ class GreenwebCSRDProcessor:
     kinds of data to look for (i.e. the datapoints in the ESRS we care about), are enumerated in `esrs_datapoints`.
     """
 
-    report_url: typing.Optional[str] = None
-    arelle_processor: typing.Optional[ArelleProcessor] = None
-    esrs_datapoints: dict[str, str] = {
+    report_url: str | None = None
+    arelle_processor: ArelleProcessor | None = None
+    esrs_datapoints: typing.ClassVar[dict[str, str]] = {
         "esrs:PercentageOfRenewableSourcesInTotalEnergyConsumption": "E1-5 AR 34 Percentage of renewable sources in total energy consumption",
         "esrs:PercentageOfEnergyConsumptionFromNuclearSourcesInTotalEnergyConsumption": "E1-5 AR 34 Percentage of nuclear in total energy consumption",
         "esrs:EnergyConsumptionRelatedToOwnOperations": "E1-5 37 Total energy consumption related to own operations",
@@ -229,8 +227,8 @@ class GreenwebCSRDProcessor:
 
     def __init__(
         self,
-        report_url: typing.Optional[str] = None,
-        arelle_processor: typing.Optional[ArelleProcessor] = None,
+        report_url: str | None = None,
+        arelle_processor: ArelleProcessor | None = None,
     ) -> None:
         """
         Instantiate the GreenwebCSRDProcessor.
@@ -267,7 +265,7 @@ class GreenwebCSRDProcessor:
         return [name.replace("esrs:", "") for name in qualified_names]
 
     def get_esrs_datapoint_values(
-        self, datapoint_codes: typing.List[str]
+        self, datapoint_codes: list[str]
     ) -> list[DataPoint | NoMatchingDatapointsError]:
         """
         Accept a list of datapoint codes, and return either:

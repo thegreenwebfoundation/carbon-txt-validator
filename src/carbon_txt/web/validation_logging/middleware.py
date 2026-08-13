@@ -1,5 +1,5 @@
 import json
-from typing import Callable
+from collections.abc import Callable
 from urllib.parse import urlparse
 
 import structlog
@@ -39,7 +39,7 @@ class LogValidationMiddleware:
             try:
                 self.log_validation(request, response)
             except Exception as ex:
-                self.logger.exception(f"Validation logging failed with exception: {ex}")
+                self.logger.exception(f"Validation logging failed with exception: {ex}")  # noqa
         return response
 
     def log_validation(self, request: HttpRequest, response: HttpResponse):
@@ -65,7 +65,7 @@ class LogValidationMiddleware:
         elif "url" in request_json:
             log_params["domain"] = urlparse(log_params["url"]).netloc
 
-        if data := response_json.get("data"):
+        if data := response_json.get("data"):  # noqa
             if version := data.get("version"):
                 log_params["version"] = version
 

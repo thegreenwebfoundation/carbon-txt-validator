@@ -45,9 +45,10 @@ in the live_server that pytest-django provides.
 
 """
 
-import pytest
 import re
 from unittest.mock import MagicMock
+
+import pytest
 
 
 # These annotations ensure that httpx_mock does not mock any *other* HTTP requests:

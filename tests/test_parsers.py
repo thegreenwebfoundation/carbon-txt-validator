@@ -1,6 +1,7 @@
-from carbon_txt.parsers_toml import CarbonTxtParser
-from carbon_txt.exceptions import NotParseableTOMLButHTML
 import pytest
+
+from carbon_txt.exceptions import NotParseableTOMLButHTML
+from carbon_txt.parsers_toml import CarbonTxtParser
 
 parser = CarbonTxtParser()
 
@@ -60,8 +61,6 @@ class TestParseCarbonTxt:
         ],
     )
     def test_parse_to_carbon_txt_data_structure(self, carbon_txt_fixture, request):
-        """ """
-
         # request is a magic pytest fixture that can be used to access other fixtures
         carbon_txt_content = request.getfixturevalue(carbon_txt_fixture)
         parsed = parser.parse_toml(carbon_txt_content, logs=[])

@@ -1,6 +1,8 @@
-from carbon_txt import validators  # type: ignore
-import pytest
 import pathlib
+
+import pytest
+
+from carbon_txt import validators  # type: ignore
 
 
 class TestCarbonTxtValidator:

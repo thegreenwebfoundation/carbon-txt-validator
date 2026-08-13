@@ -1,14 +1,32 @@
-from typing import Optional, List
+from typing import Literal
 
-from pydantic import ConfigDict, Field
+from pydantic import Field
 
 from .common import (
-    CarbonTxtFile as BaseCarbonTxtFile,
-    Disclosure,
-    Organisation,
-    Upstream,
     VERSION_NUMBER_PATTERN,
+    Organisation,
+    OtherDisclosureDocType,
+    Upstream,
 )
+from .common import (
+    CarbonTxtFile as BaseCarbonTxtFile,
+)
+from .common import (
+    Disclosure as BaseDisclosure,
+)
+
+SpecificDisclosureDocType = Literal[
+    "web-page",
+    "annual-report",
+    "sustainability-page",
+    "certificate",
+    "csrd-report",
+]
+
+
+DisclosureDocType = Literal[SpecificDisclosureDocType, OtherDisclosureDocType]
+
+Disclosure = BaseDisclosure[DisclosureDocType]
 
 
 class CarbonTxtFile(BaseCarbonTxtFile):
@@ -20,12 +38,10 @@ class CarbonTxtFile(BaseCarbonTxtFile):
     attribute, has no last_updated date, and does not provide a valid_until date for disclosures.
     """
 
-    model_config = ConfigDict(extra="forbid")
-
-    version: Optional[str] = Field(pattern=VERSION_NUMBER_PATTERN, default="0.2")
-    upstream: Optional[Upstream] = None
+    version: str | None = Field(pattern=VERSION_NUMBER_PATTERN, default="0.2")
+    upstream: Upstream | None = None
     org: Organisation[Disclosure]
 
     @property
-    def toml_fields(self) -> List[str]:
+    def toml_fields(self) -> list[str]:
         return ["version", "org", "upstream"]
