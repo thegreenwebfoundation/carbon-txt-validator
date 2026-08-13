@@ -14,10 +14,6 @@ class Disclosure(DisclosureV3[DocTypeT], Generic[DocTypeT]):
     version 0.3, plus an optional title string.
     """
 
-    # __name__ must be overridden so that Pydantic uses the correct type
-    # name in the generated JSON schema
-    __name__ = "Disclosure"
-
     title: str | None = None
 
     @property

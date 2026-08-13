@@ -24,10 +24,6 @@ class Disclosure(DisclosureV4, Generic[DocTypeT]):
     to the enumeration of possible document types.
     """
 
-    # __name__ must be overridden so that Pydantic uses the correct type
-    # name in the generated JSON schema
-    __name__ = "Disclosure"
-
 
 class CarbonTxtFile(CarbonTxtFileV4):
     """

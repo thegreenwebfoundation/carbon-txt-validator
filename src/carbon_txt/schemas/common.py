@@ -1,6 +1,14 @@
-from typing import Annotated, Generic, Literal, TypeAlias, TypeVar
+from typing import Annotated, Any, Generic, Literal, TypeAlias, TypeVar
 
 from pydantic import AfterValidator, BaseModel, ConfigDict, Field, HttpUrl
+from pydantic.json_schema import (
+    DEFAULT_REF_TEMPLATE,
+    CoreModeRef,
+    CoreRef,
+    DefsRef,
+    GenerateJsonSchema,
+    JsonSchemaMode,
+)
 from pydantic_extra_types.domain import DomainStr
 from tomlkit import (
     TOMLDocument,
@@ -43,8 +51,45 @@ def validate_http_url(value: str) -> str:
 HttpUrlStr: TypeAlias = Annotated[str, AfterValidator(validate_http_url)]
 
 
+class CarbonTxtJsonSchemaGenerator(GenerateJsonSchema):
+    """
+    Pydantic bakes a parametrized generic's full type argument into its
+    $defs key -- e.g. our version-specific `Disclosure[Literal[...]]` ends
+    up as `Disclosure_Literal__web-page____other___`. We only parametrize
+    Disclosure/Organisation to vary the version-specific doc_type Literal,
+    and only ever generate a schema for one version at a time, so we drop
+    the generated generic cruft. Note that this assumes that we never include
+    two different versions of the disclosure in a single schema version, but I
+    think that that's a safe assumption!
+    """
+
+    def get_defs_ref(self, core_mode_ref: CoreModeRef) -> DefsRef:
+        core_ref, mode = core_mode_ref
+        base = core_ref.split("[", 1)[0]
+        return super().get_defs_ref((CoreRef(base), mode))
+
+
 class CarbonTxtModel(BaseModel):
     model_config = ConfigDict(extra="forbid")
+
+    # Override the default schema generation to use our
+    # custom generator defined above:
+    @classmethod
+    def model_json_schema(
+        cls,
+        by_alias: bool = True,
+        ref_template: str = DEFAULT_REF_TEMPLATE,
+        schema_generator: type[GenerateJsonSchema] = CarbonTxtJsonSchemaGenerator,
+        mode: JsonSchemaMode = "validation",
+        **kwargs,
+    ) -> dict:
+        return super().model_json_schema(
+            by_alias=by_alias,
+            ref_template=ref_template,
+            schema_generator=schema_generator,
+            mode=mode,
+            **kwargs,
+        )
 
     @property
     def toml_fields(self) -> list[str]:
@@ -168,9 +213,11 @@ class Organisation(CarbonTxtModel, Generic[DisclosureType]):
     if it is exclusively relying on services from upstream providers for its green claims.
     """
 
-    # __name__ must be overridden so that Pydantic uses the correct type
-    # name in the generated JSON schema
-    __name__ = "Organisation"
+    # The auto-generated name in the JSON schema for generic classes is
+    # extremely verbose, we override it with a more sensible one:
+    @classmethod
+    def model_parametrized_name(cls, params: tuple[type[Any], ...]) -> str:
+        return "Organisation"
 
     disclosures: list[DisclosureType] = Field(..., min_length=1)
 
@@ -201,9 +248,11 @@ class Disclosure(CarbonTxtModel, Generic[DocTypeT]):
     be to be used to substantiate a claim like running on green energy, and so on.
     """
 
-    # __name__ must be overridden so that Pydantic uses the correct type
-    # name in the generated JSON schema
-    __name__ = "Disclosure"
+    # The auto-generated name in the JSON schema for generic classes is
+    # extremely verbose, we override it with a more sensible one:
+    @classmethod
+    def model_parametrized_name(cls, params: tuple[type[Any], ...]) -> str:
+        return "Disclosure"
 
     doc_type: DocTypeT
     url: HttpUrlStr
