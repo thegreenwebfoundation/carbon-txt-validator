@@ -110,10 +110,10 @@ class TestCSRDProcessorValidate:
 
         assert len(res) is not None
 
-        first_renewables_percentage, *rest = [
+        first_renewables_percentage, *_rest = [
             datapoint for datapoint in res if datapoint.short_code == short_codes[0]
         ]
-        first_renewables_consumption, *rest = [
+        first_renewables_consumption, *_rest = [
             datapoint for datapoint in res if datapoint.short_code == short_codes[1]
         ]
 
@@ -137,8 +137,6 @@ class TestCSRDProcessorValidate:
     "Skipped in CI, as we only use it to check local EFRAG example reports in bulk"
 )  # type: ignore
 class TestGreenwebCSRDProcessorEFRAGValidateAll:
-    """ """
-
     def test_all_efrag_docs(self):
         data_dir = pathlib.Path(__file__).parent.parent / "data" / "Set1" / "InlineXBRL"
         xhtml_files = list(data_dir.rglob("*.xhtml"))

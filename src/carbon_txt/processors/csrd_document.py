@@ -213,7 +213,7 @@ class GreenwebCSRDProcessor:
 
     report_url: str | None = None
     arelle_processor: ArelleProcessor | None = None
-    esrs_datapoints: dict[str, str] = {
+    esrs_datapoints: typing.ClassVar[dict[str, str]] = {
         "esrs:PercentageOfRenewableSourcesInTotalEnergyConsumption": "E1-5 AR 34 Percentage of renewable sources in total energy consumption",
         "esrs:PercentageOfEnergyConsumptionFromNuclearSourcesInTotalEnergyConsumption": "E1-5 AR 34 Percentage of nuclear in total energy consumption",
         "esrs:EnergyConsumptionRelatedToOwnOperations": "E1-5 37 Total energy consumption related to own operations",

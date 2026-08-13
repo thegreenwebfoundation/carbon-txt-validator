@@ -1,5 +1,4 @@
-from datetime import date
-from typing import Dict
+from datetime import UTC, datetime
 
 from .version_0_2 import CarbonTxtFile as CarbonTxtFile0_2
 from .version_0_3 import CarbonTxtFile as CarbonTxtFile0_3
@@ -58,7 +57,7 @@ def build_carbontxt_file(data: dict) -> CarbonTxtFile:
     FileClass = VERSIONS[version]
 
     if "last_updated" in FileClass.model_fields and "last_updated" not in data:
-        data["last_updated"] = date.today()
+        data["last_updated"] = datetime.now(tz=UTC).date()
 
     # ModelValidate will build the entire tree of pydantic objects, or raise a ValidationError if the
     # supplied data is invalid.

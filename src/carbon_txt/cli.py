@@ -226,7 +226,7 @@ def serve(
     """Run the carbon.txt validator web server"""
 
     # Check web deps and get django components
-    django, settings, execute_from_command_line, _ = _check_web_deps()
+    _django, settings, execute_from_command_line, _ = _check_web_deps()
 
     try:
         # override the prod / non prod switch if a custom settings module is provided
@@ -254,7 +254,7 @@ def serve(
         else:
             try:
                 execute_from_command_line(["manage.py", "migrate", "--check"])
-            except SystemExit as e:
+            except SystemExit:
                 rich.print(
                     "[bold red]There are database migrations pending that must be applied before running the server![/bold red]"
                 )
@@ -264,7 +264,7 @@ def serve(
                 rich.print(
                     f"Your current [bold]DATABASE_URL[/bold] is: [cyan bold]{settings.DATABASE_URL}[/cyan bold]."
                 )
-                raise e
+                raise
 
         if server == "granian":
             rich.print("Running with Granian server")
@@ -284,7 +284,7 @@ def serve(
                 "--access-log",
                 "carbon_txt.web.config.wsgi:application",
             ]
-            subprocess.run(cmd_args)
+            subprocess.run(cmd_args, check=False)
         else:
             execute_from_command_line(["manage.py", "runserver", f"{host}:{port}"])
     except exceptions.InsecureKeyException as e:
@@ -294,7 +294,7 @@ def serve(
         )
         typer.Exit(code=1)
     # anything unexpected we provide a clear path to raising an issue to fix it
-    except Exception as e:
+    except Exception as e:  # noqa
         rich.print(f"An error occurred: {e}")
         rich.print(
             "Please consider raising an issue at: "

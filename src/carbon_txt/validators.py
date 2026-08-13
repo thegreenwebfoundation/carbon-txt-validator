@@ -48,9 +48,9 @@ class CarbonTxtValidator:
 
     # we maintain a list of events that happen during validation, so we can
     # expose them to a user for debugging
-    event_log: list = []
-    active_plugins: list = []
-    plugins_dir: str | None = None
+    event_log: list
+    active_plugins: list
+    plugins_dir: str | None
 
     def __init__(
         self,
@@ -63,6 +63,9 @@ class CarbonTxtValidator:
         Initialise the validator, registering any required plugins in the
         provided plugin directory `plugins_dir`, and activating any plugins
         """
+
+        self.event_log = []
+        self.active_plugins = []
 
         logger.debug(
             f"plugins_dir: {plugins_dir}",
@@ -100,6 +103,8 @@ class CarbonTxtValidator:
                 except ValueError:
                     # Plugin already registered, do nothing
                     logger.warning(f"Plugin already registered: {mod}")
+        else:
+            self.active_plugins = []
 
         logger.debug(f"PLUGINS: {pm.get_plugins()}\n")
 
@@ -187,7 +192,7 @@ class CarbonTxtValidator:
             return ValidationResult(
                 result=validation_results, logs=self.event_log, exceptions=errors
             )
-        except Exception as ex:
+        except Exception as ex:  # noqa
             message = f"An unexpected error occurred: {ex}"
             log_exception_safely(ex, message, errors, self.event_log)
             validation_results = None
@@ -277,7 +282,7 @@ class CarbonTxtValidator:
                 result=validation_results, logs=self.event_log, exceptions=errors
             )
 
-        except Exception as ex:
+        except Exception as ex:  # noqa
             message = f"An unexpected error occurred: {ex}"
             log_exception_safely(ex, message, errors, self.event_log)
             validation_results = None
@@ -321,7 +326,7 @@ class CarbonTxtValidator:
                 delegation_method=finder_result.delegation_method,
                 url=finder_result.uri,
             )
-        except Exception as ex:
+        except Exception as ex:  # noqa
             message = f"An unexpected error occurred: {ex}"
             log_exception_safely(ex, message, errors, self.event_log)
             validation_results = None

@@ -40,5 +40,5 @@ def module_from_path(path: str, name: str):
     mod.__file__ = path
     with open(path, "r") as file:
         code = compile(file.read(), path, "exec", dont_inherit=True)
-    exec(code, mod.__dict__)
+    exec(code, mod.__dict__)  # noqa
     return mod

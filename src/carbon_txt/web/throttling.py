@@ -16,14 +16,13 @@ class AuthRateThrottleWithInternalOverride(AuthRateThrottle):
         ):
             return True
         result = super().allow_request(request)
-        if not result:
-            if request.auth:
-                username = request.auth.get("username")
-                user_id = request.auth.get("user_id")
-                logger.warning(
-                    "request_throttled",
-                    username=username,
-                    user_id=user_id,
-                    path=request.path,
-                )
+        if not result and request.auth:
+            username = request.auth.get("username")
+            user_id = request.auth.get("user_id")
+            logger.warning(
+                "request_throttled",
+                username=username,
+                user_id=user_id,
+                path=request.path,
+            )
         return result

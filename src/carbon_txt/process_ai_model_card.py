@@ -67,7 +67,7 @@ def process_document(
                 "document_results": results,
                 "logs": logs,
             }
-        except Exception as e:
+        except Exception as e:  # noqa
             log_safely(
                 f"Error occurred when loading report at {document.url}: {e}", logs=logs
             )

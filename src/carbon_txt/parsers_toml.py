@@ -48,7 +48,7 @@ def is_valid_html(html_string, logs=None):
         log_safely("String parsed as valid HTML.", logs)
         return True
 
-    except Exception as ex:
+    except Exception as ex:  # noqa
         log_safely(f"HTML parsing failed: {ex!s}", logs, level=logging.WARNING)
         return False
 
@@ -107,9 +107,9 @@ class CarbonTxtParser:
                 message = f"Parsed TOML was recognised as valid Carbon.txt file with syntax version {version}.\n"
                 log_safely(message, logs)
                 return carb_txt_obj
-            except pydantic.ValidationError as ex:
+            except pydantic.ValidationError:
                 log_safely("Validation failed.", logs, level=logging.WARNING)
-                raise ex
+                raise
         else:
             version = parsed["version"]
             log_safely(

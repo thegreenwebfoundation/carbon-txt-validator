@@ -57,7 +57,7 @@ class TestCLI:
         assert result.exit_code == 0
         assert "JSON Schema for a carbon.txt file" in result.stderr
         assert "CarbonTxtFile" in parsed_schema.get("title")
-        assert "$defs" in parsed_schema.keys()
+        assert "$defs" in parsed_schema
 
     def test_lookup_domain_with_test_plugin(self, mocked_carbon_txt_domain):
         """

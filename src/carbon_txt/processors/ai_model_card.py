@@ -1,6 +1,6 @@
 import logging
 from collections.abc import Callable
-from typing import TypeAlias
+from typing import ClassVar, TypeAlias
 
 from pydantic import BaseModel
 from structlog import get_logger
@@ -85,7 +85,7 @@ class GreenwebAIModelCardProcessor:
     with an error message.
     """
 
-    FIELDS = [
+    FIELDS: ClassVar[list[FieldSpec]] = [
         FieldSpec(
             short_code="emissions",
             format=float,

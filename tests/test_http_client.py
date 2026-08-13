@@ -19,7 +19,7 @@ class TestHttpClient:
 
         # Then the http transport library should be called with the timeout.
         for request in httpx_mock.get_requests():
-            assert set(request.extensions["timeout"].values()) == set([timeout])
+            assert set(request.extensions["timeout"].values()) == {timeout}
 
     def test_passing_user_agent_to_finder(self, mocked_carbon_txt_domain, httpx_mock):
         """

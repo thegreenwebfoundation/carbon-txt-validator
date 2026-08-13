@@ -13,10 +13,16 @@ all_paths = ["/not/validation"] + validation_paths
 
 
 class TestLogValidationMiddleware:
-    def setup(self, path, request={}, response={}):
+    def setup(self, path, request=None, response=None):
         """
         Setup mocks for the request, response and loggers.
         """
+        if request is None:
+            request = {}
+
+        if response is None:
+            response = {}
+
         self.request = MagicMock(HttpRequest)
         self.request.path = path
         self.request.body = json.dumps(request).encode("utf-8")

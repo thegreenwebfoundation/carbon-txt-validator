@@ -15,7 +15,7 @@ from .common import (
 from .common import (
     Disclosure as BaseDisclosure,
 )
-from .version_0_2 import DisclosureDocType as DisclosureDocType
+from .version_0_2 import DisclosureDocType
 
 
 class Disclosure(BaseDisclosure[DocTypeT], Generic[DocTypeT]):
