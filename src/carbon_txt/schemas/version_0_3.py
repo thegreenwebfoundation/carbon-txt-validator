@@ -26,10 +26,6 @@ class Disclosure(BaseDisclosure[DocTypeT], Generic[DocTypeT]):
     version 0.2, plus an optional valid_until date.
     """
 
-    # __name__ must be overridden so that Pydantic uses the correct type
-    # name in the generated JSON schema
-    __name__ = "Disclosure"
-
     valid_until: date | None = None
 
     @property
