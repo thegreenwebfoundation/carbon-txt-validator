@@ -1,4 +1,3 @@
-from typing import Optional
 import importlib.metadata
 
 import httpx
@@ -10,9 +9,7 @@ class HTTPClient:
     everywhere that the validator makes HTTP requests.
     """
 
-    def __init__(
-        self, http_timeout: float = 5.0, http_user_agent: Optional[str] = None
-    ):
+    def __init__(self, http_timeout: float = 5.0, http_user_agent: str | None = None):
         self.http_timeout = http_timeout
 
         if http_user_agent is not None:

@@ -1,10 +1,12 @@
-from typing import Optional, List
+from typing import Generic
 
-from .common import Organisation
-from .version_0_3 import CarbonTxtFile as CarbonTxtFileV3, Disclosure as DisclosureV3
+from .common import DocTypeT, Organisation
+from .version_0_2 import DisclosureDocType
+from .version_0_3 import CarbonTxtFile as CarbonTxtFileV3
+from .version_0_3 import Disclosure as DisclosureV3
 
 
-class Disclosure(DisclosureV3):
+class Disclosure(DisclosureV3[DocTypeT], Generic[DocTypeT]):
     """
     Disclosures are essentially supporting documentation shared by an organisation than can
     be to be used to substantiate a claim like running on green energy, and so on.
@@ -16,10 +18,10 @@ class Disclosure(DisclosureV3):
     # name in the generated JSON schema
     __name__ = "Disclosure"
 
-    title: Optional[str] = None
+    title: str | None = None
 
     @property
-    def toml_fields(self) -> List[str]:
+    def toml_fields(self) -> list[str]:
         return super().toml_fields + ["title"]
 
 
@@ -32,4 +34,4 @@ class CarbonTxtFile(CarbonTxtFileV3):
     attribute for disclosures.
     """
 
-    org: Organisation[Disclosure]
+    org: Organisation[Disclosure[DisclosureDocType]]

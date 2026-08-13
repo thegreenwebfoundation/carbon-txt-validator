@@ -56,10 +56,11 @@ def test_authorized_request_with_valid_key_in_header_allowed_when_auth_required(
     mock_settings.REQUIRE_API_KEY = True
     mock_settings.API_KEY_INTROSPECTION_URL = "http://example.com/introspect"
     mock_settings.GWF_SHARED_SECRET = "def456"
-    mock_settings.CARBON_TXT_AUTH_SERVICE_NAME="carbon_txt"
+    mock_settings.CARBON_TXT_AUTH_SERVICE_NAME = "carbon_txt"
 
     httpx_mock.add_response(
-            url=mock_settings.API_KEY_INTROSPECTION_URL, json={"active": True, "service": "carbon_txt"}
+        url=mock_settings.API_KEY_INTROSPECTION_URL,
+        json={"active": True, "service": "carbon_txt"},
     )
 
     # WHEN I make a request with an authorized token in the request headers
@@ -135,7 +136,8 @@ def test_authorized_request_with_valid_key_for_wrong_service_in_header_not_allow
     mock_settings.GWF_SHARED_SECRET = "def456"
 
     httpx_mock.add_response(
-        url=mock_settings.API_KEY_INTROSPECTION_URL, json={"active": True, "service": "greencheck"}
+        url=mock_settings.API_KEY_INTROSPECTION_URL,
+        json={"active": True, "service": "greencheck"},
     )
 
     # When I make a request with an authorized token for a different service in the request headers

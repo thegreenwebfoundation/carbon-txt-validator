@@ -16,7 +16,6 @@ import pathlib
 import environ  # type: ignore
 import sentry_sdk
 import structlog
-
 from corsheaders.defaults import default_headers
 
 from carbon_txt.exceptions import InsecureKeyException
@@ -174,9 +173,7 @@ AUTH_PASSWORD_VALIDATORS = [
 # CORS
 # for docs see:
 # https://github.com/adamchainz/django-cors-headers
-CORS_ALLOW_HEADERS = list(default_headers) + [
-    "X-Api-Key"
-]
+CORS_ALLOW_HEADERS = list(default_headers) + ["X-Api-Key"]
 
 CORS_ALLOW_ALL_ORIGINS = True
 

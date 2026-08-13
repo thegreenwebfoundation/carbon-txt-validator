@@ -6,7 +6,7 @@
 
 By default, the carbon.txt validator does not run with any plugins activated.
 
-You can run the validator as a *server*, which exposes its functionality over an API. 
+You can run the validator as a *server*, which exposes its functionality over an API.
 
 ```{admonition} Requires the [web] extra
 :class: important

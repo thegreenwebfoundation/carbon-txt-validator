@@ -1,16 +1,15 @@
+import logging
+
+from structlog import get_logger
+
 from .hookspecs import hookimpl
 from .http_client import HTTPClient
 from .schemas.version_0_5 import Disclosure
-import logging
-from typing import Optional
-
-
-from structlog import get_logger
 
 logger = get_logger()
 
 
-def log_safely(log_message: str, logs: Optional[list], level=logging.INFO):
+def log_safely(log_message: str, logs: list | None, level=logging.INFO):
     """
     Log a message, and append it to a list of logs
     """
@@ -21,17 +20,19 @@ def log_safely(log_message: str, logs: Optional[list], level=logging.INFO):
 
 plugin_name = "ai-model-card_greenweb"
 
-#Guarded import - the AI model card processor requires the 'ai_model_cards' extra
+# Guarded import - the AI model card processor requires the 'ai_model_cards' extra
 try:
     from .processors.ai_model_card import GreenwebAIModelCardProcessor
+
     AI_MODEL_CARD_PROCESSOR_AVAILABLE = True
 except ImportError:
     AI_MODEL_CARD_PROCESSOR_AVAILABLE = False
-    GreenwebAIModelCardProcessor = None # type: ignore
+    GreenwebAIModelCardProcessor = None  # type: ignore
+
 
 @hookimpl
 def process_document(
-    document: Disclosure, logs: Optional[list], http_client: Optional[HTTPClient] = None
+    document: Disclosure, logs: list | None, http_client: HTTPClient | None = None
 ):
     """
     Listen for documents linked in the carbon.txt file that are AI Model Cards,
@@ -66,7 +67,7 @@ def process_document(
                 "document_results": results,
                 "logs": logs,
             }
-        except Exception as e:
+        except Exception as e:  # noqa
             log_safely(
                 f"Error occurred when loading report at {document.url}: {e}", logs=logs
             )

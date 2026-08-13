@@ -1,6 +1,6 @@
-import pytest
-from datetime import date
+from datetime import UTC, date, datetime
 
+import pytest
 from pydantic import ValidationError
 
 from carbon_txt import build_carbontxt_file
@@ -122,7 +122,7 @@ def test_last_updated_default():
         }
     }
     result = build_carbontxt_file(data)
-    assert result.last_updated == date.today()
+    assert result.last_updated == datetime.now(tz=UTC).date()
 
 
 def test_last_updated_explicit_null():

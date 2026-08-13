@@ -2,14 +2,13 @@ import importlib
 import logging
 import pathlib
 from dataclasses import dataclass
-from typing import Optional, Union
 
 import httpx
 import pydantic
 import pydantic_core
 import structlog
 
-from . import exceptions, finders, parsers_toml, schemas  # noqa
+from . import exceptions, finders, parsers_toml, schemas
 from .http_client import HTTPClient
 from .plugins import module_from_path, pm
 
@@ -22,15 +21,15 @@ logger = structlog.get_logger()
 class ValidationResult:
     logs: list
     exceptions: list
-    result: Optional[schemas.CarbonTxtFile]
-    url: Optional[str] = None
-    document_results: Optional[dict[str, list]] = None
+    result: schemas.CarbonTxtFile | None
+    url: str | None = None
+    document_results: dict[str, list] | None = None
     delegation_method: finders.DelegationMethod = None
 
 
 def log_exception_safely(
     exception: Exception, message: str, errors: list, logs: list, level=logging.WARNING
-):  # noqa
+):
     """
     Log an an exception, and append it to a list of errors in a form that can
     be displayed as JSON.
@@ -49,21 +48,24 @@ class CarbonTxtValidator:
 
     # we maintain a list of events that happen during validation, so we can
     # expose them to a user for debugging
-    event_log: list = []
-    active_plugins: list = []
-    plugins_dir: Optional[str] = None
+    event_log: list
+    active_plugins: list
+    plugins_dir: str | None
 
     def __init__(
         self,
-        plugins_dir: Optional[str] = None,
-        active_plugins: Optional[list[str]] = None,
+        plugins_dir: str | None = None,
+        active_plugins: list[str] | None = None,
         http_timeout: float = 5.0,
-        http_user_agent: Optional[str] = None,
+        http_user_agent: str | None = None,
     ):
         """
         Initialise the validator, registering any required plugins in the
         provided plugin directory `plugins_dir`, and activating any plugins
         """
+
+        self.event_log = []
+        self.active_plugins = []
 
         logger.debug(
             f"plugins_dir: {plugins_dir}",
@@ -91,7 +93,6 @@ class CarbonTxtValidator:
                 except ValueError:
                     logger.warning(f"Plugin already registered: {mod}")
                     # Plugin already registered
-                    pass
         # allow for overriding of plugins
         if active_plugins:
             self.active_plugins = active_plugins
@@ -102,7 +103,8 @@ class CarbonTxtValidator:
                 except ValueError:
                     # Plugin already registered, do nothing
                     logger.warning(f"Plugin already registered: {mod}")
-                    pass
+        else:
+            self.active_plugins = []
 
         logger.debug(f"PLUGINS: {pm.get_plugins()}\n")
 
@@ -161,7 +163,7 @@ class CarbonTxtValidator:
         or raises a list of validation exceptions if the contents are invalid.
         """
         self.event_log = []  # Reset event log for each validation
-        errors: list[Union[Exception, pydantic_core.ErrorDetails, dict]] = []
+        errors: list[Exception | pydantic_core.ErrorDetails | dict] = []
 
         try:
             message = f"Attempting to validate contents of {contents[:40]}"
@@ -190,7 +192,7 @@ class CarbonTxtValidator:
             return ValidationResult(
                 result=validation_results, logs=self.event_log, exceptions=errors
             )
-        except Exception as ex:
+        except Exception as ex:  # noqa
             message = f"An unexpected error occurred: {ex}"
             log_exception_safely(ex, message, errors, self.event_log)
             validation_results = None
@@ -203,7 +205,7 @@ class CarbonTxtValidator:
         Validate a carbon.txt file at a given URL.
         """
         self.event_log = []  # Reset event log for each validation
-        errors: list[Union[Exception, pydantic_core.ErrorDetails, dict]] = []
+        errors: list[Exception | pydantic_core.ErrorDetails | dict] = []
 
         try:
             message = f"Attempting to validate url: {url}"
@@ -280,7 +282,7 @@ class CarbonTxtValidator:
                 result=validation_results, logs=self.event_log, exceptions=errors
             )
 
-        except Exception as ex:
+        except Exception as ex:  # noqa
             message = f"An unexpected error occurred: {ex}"
             log_exception_safely(ex, message, errors, self.event_log)
             validation_results = None
@@ -295,7 +297,7 @@ class CarbonTxtValidator:
         a list of logs, and a list of exceptions.
         """
         self.event_log = []  # Reset event log for each validation
-        errors: list[Union[Exception, pydantic_core.ErrorDetails, dict]] = []
+        errors: list[Exception | pydantic_core.ErrorDetails | dict] = []
 
         try:
             message = f"Attempting to resolve domain: {domain}"
@@ -324,7 +326,7 @@ class CarbonTxtValidator:
                 delegation_method=finder_result.delegation_method,
                 url=finder_result.uri,
             )
-        except Exception as ex:
+        except Exception as ex:  # noqa
             message = f"An unexpected error occurred: {ex}"
             log_exception_safely(ex, message, errors, self.event_log)
             validation_results = None

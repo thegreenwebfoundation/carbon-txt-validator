@@ -4,15 +4,11 @@ class InsecureKeyException(Exception):
     production django server environment
     """
 
-    pass
-
 
 class UnreachableCarbonTxtFile(Exception):
     """
     Raised when we can't reach the carbon.txt file
     """
-
-    pass
 
 
 class NotParseableTOML(Exception):
@@ -21,16 +17,12 @@ class NotParseableTOML(Exception):
     URL, but it is not parsable TOML file.
     """
 
-    pass
-
 
 class NotValidCarbonTxtVersion(Exception):
     """
     Raised when the carbon.txt syntax version specified in the
     file is not recognised
     """
-
-    pass
 
 
 class NotParseableTOMLButHTML(Exception):
@@ -41,8 +33,6 @@ class NotParseableTOMLButHTML(Exception):
     no carbon.txt file at the expected /carbon.txt or
     ./.well-known/carbon.txt paths.
     """
-
-    pass
 
 
 class NoMatchingDatapointsError(ValueError):
@@ -88,5 +78,3 @@ class NoLoadableCSRDFile(ValueError):
     """
     Thrown when a the link CSRD file can't be loaded by Arelle.
     """
-
-    pass

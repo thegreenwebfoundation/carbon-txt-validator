@@ -1,8 +1,7 @@
 # import pytest
-from carbon_txt import validators  # type: ignore
-
-
 from structlog import get_logger
+
+from carbon_txt import validators  # type: ignore
 
 logger = get_logger()
 

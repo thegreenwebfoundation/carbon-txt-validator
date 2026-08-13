@@ -1,7 +1,7 @@
 import json
-import pytest
 from unittest.mock import MagicMock
 
+import pytest
 from django.http import HttpRequest, HttpResponse
 from structlog.stdlib import BoundLogger
 
@@ -13,10 +13,16 @@ all_paths = ["/not/validation"] + validation_paths
 
 
 class TestLogValidationMiddleware:
-    def setup(self, path, request={}, response={}):
+    def setup(self, path, request=None, response=None):
         """
         Setup mocks for the request, response and loggers.
         """
+        if request is None:
+            request = {}
+
+        if response is None:
+            response = {}
+
         self.request = MagicMock(HttpRequest)
         self.request.path = path
         self.request.body = json.dumps(request).encode("utf-8")
@@ -205,7 +211,11 @@ class TestLogValidationMiddleware:
         self.setup(
             path="/api/validate/domain",
             request={"domain": "www.example.com"},
-            response={"success": True, "url": "https://www.example.com/carbon.txt", "data": { "version": "0.5" }},
+            response={
+                "success": True,
+                "url": "https://www.example.com/carbon.txt",
+                "data": {"version": "0.5"},
+            },
         )
 
         # When the request is made

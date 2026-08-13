@@ -1,5 +1,6 @@
+from collections.abc import Callable
+
 from django.http import HttpRequest, HttpResponse
-from typing import Callable
 
 
 class AddTrailingSlashMiddleware:

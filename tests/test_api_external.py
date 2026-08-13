@@ -2,7 +2,6 @@ from pathlib import Path
 
 import httpx
 import pytest
-
 from structlog import get_logger
 
 logger = get_logger()
@@ -179,7 +178,6 @@ def test_hitting_validate_with_plugins_dir_set(
     assert res.status_code == 200
 
     parsed_response = res.json()
-    parsed_response
 
     # do we have the output from the Test Plugin in the logs?
     assert res.status_code == 200
@@ -199,7 +197,6 @@ def test_hitting_validate_with_plugins_raising_errors(
     transactional_db,
     live_server,
 ):
-    """ """
     api_url = f"{live_server.url}/api/validate/url"
     data = {
         "url": "https://used-in-tests.carbontxt.org/carbon-txt-with-csrd-no-renewables-data.txt"
@@ -208,13 +205,12 @@ def test_hitting_validate_with_plugins_raising_errors(
     assert res.status_code == 200
 
     parsed_response = res.json()
-    parsed_response
 
     # do we have the output from the csrd plugin? in the logs?
     assert res.status_code == 200
 
     # csrd_greenweb is the plugin we active for this data
-    assert "csrd_greenweb" in parsed_response.get("document_data").keys()
+    assert "csrd_greenweb" in parsed_response.get("document_data")
 
     # do we see the return values of the hook function in document results?
     plugin_data = parsed_response.get("document_data").get("csrd_greenweb")
@@ -223,9 +219,9 @@ def test_hitting_validate_with_plugins_raising_errors(
 
     # we should see an error key in every item in the plugin data
     for item in plugin_data:
-        assert "error" in item.keys()
-        assert "datapoint_short_code" in item.keys()
-        assert "datapoint_readable_label" in item.keys()
+        assert "error" in item
+        assert "datapoint_short_code" in item
+        assert "datapoint_readable_label" in item
         assert item["error"] == "NoMatchingDatapointsError"
 
     # check that we see the correct datapoint short code and human friendly value
@@ -251,5 +247,5 @@ def test_hitting_validate_with_zero_plugins_set(
     res = httpx.post(api_url, json=data, follow_redirects=True, timeout=None)
     assert res.status_code == 200
     parsed_response = res.json()
-    assert "document_data" in parsed_response.keys()
+    assert "document_data" in parsed_response
     assert parsed_response["document_data"] == {}
