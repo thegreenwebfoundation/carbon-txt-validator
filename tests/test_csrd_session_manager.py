@@ -246,6 +246,13 @@ class TestPluginEarlyExit:
             status_code=200,
             headers={"content-type": "application/xhtml+xml"},
         )
+        # Content sniffing does a GET — must return iXBRL markers
+        httpx_mock.add_response(
+            url=url,
+            method="GET",
+            status_code=200,
+            content=b'<html xmlns:ix="http://www.xbrl.org/2013/inlineXBRL"><body>iXBRL report</body></html>',
+        )
 
         doc = Disclosure(
             doc_type="csrd-report",
