@@ -12,6 +12,10 @@ Fixed, Changed, Added, Removed, Fixed, Security
 
 ## [0.0.28]
 
+### Fixed
+
+- Added checks for csrd_report doctypes - we now gracefully recover when a csrd_report doctype points to a resource that is not actually a ESEF formatted CSRD report. #136
+
 ### Added
 
 - ADR-05 documenting the decision and tradeoffs for splitting optional dependencies into extras `[csrd]` and `[web]`.
