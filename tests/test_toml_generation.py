@@ -95,7 +95,9 @@ def test_version_0_6_round_trip_retains_certification_schemes(
     result = CarbonTxtValidator().validate_contents(toml).result
     org = result.org
 
-    assert org.certification_schemes is not None, "our certication_schemes should be here on the org"
+    assert org.certification_schemes is not None, (
+        "our certication_schemes should be here on the org"
+    )
     assert org.certification_schemes[0].id == "b-corp"
     assert org.certification_schemes[0].title == "B Corp"
     assert org.certification_schemes[0].description == "A B Corp certified org"

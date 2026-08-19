@@ -2,6 +2,13 @@ from typing import Literal, Self, TypeAlias
 
 from pydantic import model_validator
 from pydantic_core import PydanticCustomError
+from tomlkit import (
+    TOMLDocument,
+    inline_table,
+)
+from tomlkit.items import (
+    AbstractTable as TOMLTable,
+)
 
 from .common import (
     CarbonTxtModel,
@@ -50,6 +57,10 @@ class Disclosure(DisclosureV5):
 
     certification_schemes: list[str] | None = None
 
+    @property
+    def toml_fields(self) -> list[str]:
+        return super().toml_fields + ["description", "certification_schemes"]
+
 
 class CertificationScheme(CarbonTxtModel):
     """
@@ -64,6 +75,13 @@ class CertificationScheme(CarbonTxtModel):
     url: HttpUrlStr
     title: str | None = None
     description: str | None = None
+
+    def toml_root(self, **_kwargs) -> TOMLDocument | TOMLTable:
+        return inline_table()
+
+    @property
+    def toml_fields(self) -> list[str]:
+        return ["id", "url", "title", "description"]
 
 
 class Organisation(OrganisationV5[Disclosure]):
@@ -108,6 +126,10 @@ class Organisation(OrganisationV5[Disclosure]):
                         {"cs_id": cs_id, "ids": ", ".join(ids)},
                     )
         return self
+
+    @property
+    def toml_fields(self) -> list[str]:
+        return ["certification_schemes"] + super().toml_fields
 
 
 class CarbonTxtFile(CarbonTxtFileV5):
