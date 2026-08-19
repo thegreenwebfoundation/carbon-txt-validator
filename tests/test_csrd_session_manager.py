@@ -10,14 +10,12 @@ import pytest
 from arelle import ModelXbrl  # type: ignore
 
 import carbon_txt.processors.csrd_document as csrd_module
+from carbon_txt.exceptions import NoLoadableCSRDFile
 from carbon_txt.processors.csrd_document import (
     ArelleProcessor,
     ArelleSessionManager,
-    GreenwebCSRDProcessor,
     get_shared_session_manager,
 )
-from carbon_txt.exceptions import NoLoadableCSRDFile
-
 
 FIXTURE_DIR = pathlib.Path(__file__).parent / "fixtures"
 LOCAL_FILE_1 = str(FIXTURE_DIR / "esrs-e1-efrag-2026-12-31-en.xhtml")
@@ -32,14 +30,14 @@ def reset_shared_session_manager():
     if old is not None:
         try:
             old.close()
-        except Exception:
+        except Exception:  # noqa
             pass
     csrd_module._shared_session_manager = None
     yield
     if csrd_module._shared_session_manager is not None:
         try:
             csrd_module._shared_session_manager.close()
-        except Exception:
+        except Exception:  # noqa
             pass
     csrd_module._shared_session_manager = None
 
@@ -236,6 +234,7 @@ class TestPluginEarlyExit:
         loads the fixture directly.
         """
         from unittest.mock import patch
+
         from carbon_txt.process_csrd_document import process_document
         from carbon_txt.schemas.common import Disclosure
 
@@ -268,8 +267,10 @@ class TestPluginEarlyExit:
             "carbon_txt.process_csrd_document.GreenwebCSRDProcessor"
         ) as mock_proc_class:
             from carbon_txt.processors.csrd_document import (
-                GreenwebCSRDProcessor as RealProcessor,
                 ArelleProcessor,
+            )
+            from carbon_txt.processors.csrd_document import (
+                GreenwebCSRDProcessor as RealProcessor,
             )
 
             real_arelle = ArelleProcessor(LOCAL_FILE_1)
@@ -284,13 +285,12 @@ class TestPluginEarlyExit:
         # Check we got actual DataPoint objects back
         from carbon_txt.processors.csrd_document import DataPoint
 
-        datapoints = [
-            r for r in result["document_results"] if isinstance(r, DataPoint)
-        ]
+        datapoints = [r for r in result["document_results"] if isinstance(r, DataPoint)]
         assert len(datapoints) > 0
         # Verify a known datapoint is present
         renewable_pct = [
-            dp for dp in datapoints
+            dp
+            for dp in datapoints
             if dp.short_code == "PercentageOfRenewableSourcesInTotalEnergyConsumption"
         ]
         assert len(renewable_pct) > 0

@@ -26,8 +26,6 @@ except ImportError:
     RuntimeOptions = None  # type: ignore
 
 
-
-
 class ArelleSessionManager:
     """
     Manages a reusable Arelle Session to avoid the overhead of creating
@@ -42,7 +40,7 @@ class ArelleSessionManager:
 
     def __init__(self) -> None:
         _require_arelle()
-        self._session: "Session | None" = None
+        self._session: Session | None = None
 
     def load_report(self, report_url: str) -> "ModelXbrl.ModelXbrl":
         """
@@ -264,9 +262,7 @@ class ArelleProcessor:
             # because endDate is handled differently to both datetimes
             start_date = item.context.startDatetime.date()
             end_date = item.context.endDatetime.date()
-            document_line_reference = (
-                f"item.modelDocument.basename - {item.sourceline}"
-            )
+            document_line_reference = f"item.modelDocument.basename - {item.sourceline}"
             qname = str(item.qname)
             value = item.value
 

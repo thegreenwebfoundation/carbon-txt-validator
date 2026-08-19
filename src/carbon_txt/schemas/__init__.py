@@ -4,9 +4,14 @@ from .version_0_2 import CarbonTxtFile as CarbonTxtFile0_2
 from .version_0_3 import CarbonTxtFile as CarbonTxtFile0_3
 from .version_0_4 import CarbonTxtFile as CarbonTxtFile0_4
 from .version_0_5 import CarbonTxtFile as CarbonTxtFile0_5
+from .version_0_6 import CarbonTxtFile as CarbonTxtFile0_6
 
 CarbonTxtFile = (
-    CarbonTxtFile0_2 | CarbonTxtFile0_3 | CarbonTxtFile0_4 | CarbonTxtFile0_5
+    CarbonTxtFile0_2
+    | CarbonTxtFile0_3
+    | CarbonTxtFile0_4
+    | CarbonTxtFile0_5
+    | CarbonTxtFile0_6
 )
 CarbonTxtFileType = (
     type[CarbonTxtFile0_2]
@@ -20,11 +25,12 @@ VERSIONS: dict[str, CarbonTxtFileType] = {
     "0.3": CarbonTxtFile0_3,
     "0.4": CarbonTxtFile0_4,
     "0.5": CarbonTxtFile0_5,
+    "0.6": CarbonTxtFile0_6,
 }
 
 DEFAULT_VERSION: str = "0.2"
 
-LATEST_VERSION: str = "0.5"
+LATEST_VERSION: str = "0.6"
 
 
 class InvalidVersionError(ValueError):

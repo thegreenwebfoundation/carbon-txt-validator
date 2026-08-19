@@ -14,7 +14,13 @@ logger = get_logger()
 ESEF_VALID_EXTENSIONS = {".xhtml", ".xbrl", ".xml", ".zip", ".htm", ".html"}
 
 # Content types that could plausibly be ESEF iXBRL documents
-ESEF_VALID_CONTENT_TYPES = {"xhtml", "html", "xml", "application/zip", "application/octet-stream"}
+ESEF_VALID_CONTENT_TYPES = {
+    "xhtml",
+    "html",
+    "xml",
+    "application/zip",
+    "application/octet-stream",
+}
 
 # Markers that indicate a document is actually iXBRL/XBRL rather than a
 # regular HTML page. We check for these in a small snippet of the response
@@ -112,7 +118,9 @@ def _quick_validate_remote_csrd_url(
             return False
 
         content_type = response.headers.get("content-type", "").lower()
-        if content_type and not any(ct in content_type for ct in ESEF_VALID_CONTENT_TYPES):
+        if content_type and not any(
+            ct in content_type for ct in ESEF_VALID_CONTENT_TYPES
+        ):
             log_safely(
                 f"CSRD pre-check: URL {url} has content-type '{content_type}' "
                 f"which doesn't look like an ESEF document",
@@ -138,7 +146,7 @@ def _quick_validate_remote_csrd_url(
                 return False
             # Only check the first few KB — iXBRL markers appear early
             body_snippet = get_response.content[:_SNIFF_BYTES]
-        except Exception as sniff_err:
+        except Exception as sniff_err:  # noqa
             log_safely(
                 f"CSRD pre-check: could not sniff content at {url}: {sniff_err}",
                 logs,
@@ -159,7 +167,7 @@ def _quick_validate_remote_csrd_url(
             return False
 
         return True
-    except Exception as e:
+    except Exception as e:  # noqa
         log_safely(
             f"CSRD pre-check: could not reach {url}: {e}",
             logs,
