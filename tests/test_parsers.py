@@ -1,4 +1,5 @@
 import pytest
+from pydantic import ValidationError
 
 from carbon_txt.exceptions import NotParseableTOMLButHTML
 from carbon_txt.parsers_toml import CarbonTxtParser
@@ -183,3 +184,131 @@ class TestParseCarbonTxt:
         parsed = parser.parse_toml(version_0_5_carbon_txt_full, logs=[])
         result = parser.validate_as_carbon_txt(parsed, logs=[])
         assert result.version == "0.5"
+
+    def test_parse_version_0_6(self, version_0_6_carbon_txt_full):
+        """
+        A version 0.6 carbon.txt with all fields defined is valid.
+        """
+        parsed = parser.parse_toml(version_0_6_carbon_txt_full, logs=[])
+        result = parser.validate_as_carbon_txt(parsed, logs=[])
+        assert result.version == "0.6"
+
+    def test_parse_version_0_6_no_certification_scheme_description(
+        self, version_0_6_carbon_txt_no_certification_scheme_description
+    ):
+        """
+        A version 0.6 carbon.txt without a certification scheme description is still valid
+        """
+        parsed = parser.parse_toml(
+            version_0_6_carbon_txt_no_certification_scheme_description, logs=[]
+        )
+        result = parser.validate_as_carbon_txt(parsed, logs=[])
+        assert result.version == "0.6"
+
+    def test_parse_version_0_6_no_certification_scheme_title(
+        self, version_0_6_carbon_txt_no_certification_scheme_title
+    ):
+        """
+        A version 0.6 carbon.txt without a certification scheme title is still valid
+        """
+        parsed = parser.parse_toml(
+            version_0_6_carbon_txt_no_certification_scheme_title, logs=[]
+        )
+        result = parser.validate_as_carbon_txt(parsed, logs=[])
+        assert result.version == "0.6"
+
+    def test_parse_version_0_6_no_disclosure_description(
+        self, version_0_6_carbon_txt_no_disclosure_description
+    ):
+        """
+        A version 0.6 carbon.txt without a disclosure description is still valid
+        """
+        parsed = parser.parse_toml(
+            version_0_6_carbon_txt_no_disclosure_description, logs=[]
+        )
+        result = parser.validate_as_carbon_txt(parsed, logs=[])
+        assert result.version == "0.6"
+
+    def test_parse_version_0_6_no_certification_schemes(
+        self, version_0_6_carbon_txt_no_certification_schemes
+    ):
+        """
+        A version 0.6 carbon.txt without any certification schemes is still valid
+        """
+        parsed = parser.parse_toml(
+            version_0_6_carbon_txt_no_certification_schemes, logs=[]
+        )
+        result = parser.validate_as_carbon_txt(parsed, logs=[])
+        assert result.version == "0.6"
+
+    def test_parse_version_0_6_no_certification_scheme_title_or_description(
+        self, version_0_6_carbon_txt_no_certification_scheme_title_or_description
+    ):
+        """
+        A version 0.6 carbon.txt without a certification scheme title or description is still valid
+        """
+        parsed = parser.parse_toml(
+            version_0_6_carbon_txt_no_certification_scheme_title_or_description, logs=[]
+        )
+        result = parser.validate_as_carbon_txt(parsed, logs=[])
+        assert result.version == "0.6"
+
+    def test_parse_version_0_6_multiple_certification_schemes(
+        self, version_0_6_carbon_txt_multiple_certification_schemes
+    ):
+        """
+        A version 0.6 carbon.txt with a disclosure referencing multiple certification schemes is still valid
+        """
+        parsed = parser.parse_toml(
+            version_0_6_carbon_txt_multiple_certification_schemes, logs=[]
+        )
+        result = parser.validate_as_carbon_txt(parsed, logs=[])
+        assert result.version == "0.6"
+
+    def test_parse_version_0_6_no_certification_scheme_id(
+        self, version_0_6_carbon_txt_no_certification_scheme_id
+    ):
+        """
+        A version 0.6 carbon.txt without a certification scheme id is not valid
+        """
+        with pytest.raises(ValidationError):
+            parsed = parser.parse_toml(
+                version_0_6_carbon_txt_no_certification_scheme_id, logs=[]
+            )
+            parser.validate_as_carbon_txt(parsed, logs=[])
+
+    def test_parse_version_0_6_no_certification_scheme_url(
+        self, version_0_6_carbon_txt_no_certification_scheme_url
+    ):
+        """
+        A version 0.6 carbon.txt without a certification scheme id is not valid
+        """
+        with pytest.raises(ValidationError):
+            parsed = parser.parse_toml(
+                version_0_6_carbon_txt_no_certification_scheme_url, logs=[]
+            )
+            parser.validate_as_carbon_txt(parsed, logs=[])
+
+    def test_parse_version_0_6_duplicate_certification_scheme_id(
+        self, version_0_6_carbon_txt_duplicate_certification_scheme_id
+    ):
+        """
+        A version 0.6 carbon.txt with more than one certification scheme with the same id is not valid
+        """
+        with pytest.raises(ValidationError):
+            parsed = parser.parse_toml(
+                version_0_6_carbon_txt_duplicate_certification_scheme_id, logs=[]
+            )
+            parser.validate_as_carbon_txt(parsed, logs=[])
+
+    def test_parse_version_0_6_undefined_certification_scheme_id(
+        self, version_0_6_carbon_txt_undefined_certification_scheme_id
+    ):
+        """
+        A version 0.6 carbon.txt with a disclosure that refers to an undefined certification scheme id is not valid
+        """
+        with pytest.raises(ValidationError):
+            parsed = parser.parse_toml(
+                version_0_6_carbon_txt_undefined_certification_scheme_id, logs=[]
+            )
+            parser.validate_as_carbon_txt(parsed, logs=[])

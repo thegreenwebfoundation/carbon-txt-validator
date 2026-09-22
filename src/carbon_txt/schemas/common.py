@@ -124,7 +124,7 @@ class CarbonTxtModel(BaseModel):
                         # If not (eg service_types of a service) they are not.
                         is_multiline = True
                     if result:
-                        arr.add_line(result)
+                        arr.append(result)
                 return arr.multiline(is_multiline)
             elif isinstance(value, CarbonTxtModel):
                 result = value.toml_tree(**kwargs)

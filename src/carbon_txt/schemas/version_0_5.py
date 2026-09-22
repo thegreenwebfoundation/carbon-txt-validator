@@ -8,7 +8,7 @@ from .version_0_4 import CarbonTxtFile as CarbonTxtFileV4
 from .version_0_4 import Disclosure as DisclosureV4
 
 SpecificDisclosureDocType: TypeAlias = Literal[
-    SpecificDisclosureDocTypeV2, "ai-model-card", OtherDisclosureDocType
+    SpecificDisclosureDocTypeV2, "ai-model-card"
 ]
 
 DisclosureDocType: TypeAlias = Literal[

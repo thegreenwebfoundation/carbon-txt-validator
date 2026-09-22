@@ -200,3 +200,81 @@ def version_0_4_carbon_txt_no_upstreams():
 def version_0_5_carbon_txt_full():
     with open("tests/fixtures/version_0.5/full.toml") as file:
         return file.read()
+
+
+@pytest.fixture()
+def version_0_6_carbon_txt_full():
+    with open("tests/fixtures/version_0.6/full.toml") as file:
+        return file.read()
+
+
+@pytest.fixture()
+def version_0_6_carbon_txt_no_certification_scheme_description():
+    with open(
+        "tests/fixtures/version_0.6/no_certification_scheme_description.toml"
+    ) as file:
+        return file.read()
+
+
+@pytest.fixture()
+def version_0_6_carbon_txt_no_certification_scheme_title():
+    with open("tests/fixtures/version_0.6/no_certification_scheme_title.toml") as file:
+        return file.read()
+
+
+@pytest.fixture()
+def version_0_6_carbon_txt_no_disclosure_description():
+    with open("tests/fixtures/version_0.6/no_disclosure_description.toml") as file:
+        return file.read()
+
+
+@pytest.fixture()
+def version_0_6_carbon_txt_no_certification_schemes():
+    with open("tests/fixtures/version_0.6/no_certification_schemes.toml") as file:
+        return file.read()
+
+
+@pytest.fixture()
+def version_0_6_carbon_txt_no_certification_scheme_title_or_description():
+    with open(
+        "tests/fixtures/version_0.6/no_certification_scheme_title_or_description.toml"
+    ) as file:
+        return file.read()
+
+
+@pytest.fixture()
+def version_0_6_carbon_txt_multiple_certification_schemes():
+    with open("tests/fixtures/version_0.6/multiple_certification_schemes.toml") as file:
+        return file.read()
+
+
+@pytest.fixture()
+def version_0_6_carbon_txt_no_certification_scheme_id():
+    with open(
+        "tests/fixtures/version_0.6/invalid/no_certification_scheme_id.toml"
+    ) as file:
+        return file.read()
+
+
+@pytest.fixture()
+def version_0_6_carbon_txt_no_certification_scheme_url():
+    with open(
+        "tests/fixtures/version_0.6/invalid/no_certification_scheme_url.toml"
+    ) as file:
+        return file.read()
+
+
+@pytest.fixture()
+def version_0_6_carbon_txt_duplicate_certification_scheme_id():
+    with open(
+        "tests/fixtures/version_0.6/invalid/duplicate_certification_scheme_id.toml"
+    ) as file:
+        return file.read()
+
+
+@pytest.fixture()
+def version_0_6_carbon_txt_undefined_certification_scheme_id():
+    with open(
+        "tests/fixtures/version_0.6/invalid/undefined_certification_scheme_id.toml"
+    ) as file:
+        return file.read()
