@@ -307,7 +307,7 @@ wheels = [
 
 [[package]]
 name = "carbon-txt"
-version = "0.0.28"
+version = "0.0.29"
 source = { editable = "." }
 dependencies = [
     { name = "dnspython" },
