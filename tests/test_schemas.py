@@ -2,7 +2,7 @@ import pytest
 from pydantic import ValidationError
 
 from carbon_txt.schemas.common import Organisation
-from carbon_txt.schemas.version_0_2 import Disclosure
+from carbon_txt.schemas.version_0_6 import Disclosure
 
 
 class TestOrganisation:

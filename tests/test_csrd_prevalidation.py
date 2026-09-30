@@ -5,14 +5,12 @@ Arelle XBRL processor.
 """
 
 import httpx
-import pytest
 
 from carbon_txt.process_csrd_document import (
     _looks_like_esef_url,
     _looks_like_ixbrl_content,
     _quick_validate_remote_csrd_url,
 )
-
 
 # ---------------------------------------------------------------------------
 # _looks_like_esef_url
@@ -274,7 +272,7 @@ class TestPrevalidationRejectsHtmlPage:
             content=(
                 b'<?xml version="1.0"?>'
                 b'<html xmlns:ix="http://www.xbrl.org/2013/inlineXBRL">'
-                b'<body><ix:nonNumeric>100</ix:nonNumeric></body></html>'
+                b"<body><ix:nonNumeric>100</ix:nonNumeric></body></html>"
             ),
         )
         logs = []
