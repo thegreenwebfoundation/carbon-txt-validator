@@ -175,6 +175,11 @@ class FileFinder:
             logs,
         )
         response = self.http_client.head(f"https://{domain}")
+
+        log_safely(
+            f"Made HTTP HEAD request to URL: https://{domain} and received response {response.status_code}",
+            logs
+        )
         if "carbontxt-location" in response.headers:
             header_url = response.headers.get("carbontxt-location")
             if header_url is not None:
@@ -203,6 +208,10 @@ class FileFinder:
         if uri.startswith("http"):
             try:
                 response = self.http_client.get(uri)
+                log_safely(
+                    f"Made HTTP GET request to URL: {uri} and received response {response.status_code}",
+                    logs
+                )
                 response.raise_for_status()
                 result = response.text
                 return result
@@ -334,6 +343,10 @@ class FileFinder:
         # If the URI is a valid HTTP or HTTPS URI, check if the URI is reachable.
         try:
             response = self.http_client.head(parsed_uri.geturl())
+            log_safely(
+                f"Made HTTP HEAD request to URL: {parsed_uri.geturl()} and received response {response.status_code}",
+                logs
+            )
         except httpx.ConnectError:
             raise UnreachableCarbonTxtFile(
                 f"Could not connect to {parsed_uri.geturl()}."
