@@ -10,6 +10,12 @@ Fixed, Changed, Added, Removed, Fixed, Security
 
 ## Unreleased
 
+## [0.0.29]
+
+### Added
+- Syntax v0.6 - This includes the new "measurement-data" disclosure document type, optional disclosure descriptions, and support for certification schemes.
+- The finder now logs all http requests made with response codes, for ease of debugging issues with anti-scraping firewalls in production.
+
 ## [0.0.28]
 
 ### Fixed
