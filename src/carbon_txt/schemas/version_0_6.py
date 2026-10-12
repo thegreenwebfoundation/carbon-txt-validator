@@ -1,6 +1,7 @@
-from typing import Literal, Self, TypeAlias
+import re
+from typing import Annotated, Literal, Self, TypeAlias
 
-from pydantic import model_validator
+from pydantic import AfterValidator, model_validator
 from pydantic_core import PydanticCustomError
 from tomlkit import (
     TOMLDocument,
@@ -35,6 +36,21 @@ SpecificDisclosureDocType: TypeAlias = Literal[
 DisclosureDocType: TypeAlias = Literal[
     SpecificDisclosureDocType, OtherDisclosureDocType
 ]
+
+ID_PATTERN = r"^[0-9a-zA-Z][0-9a-zA-Z-_]+$"
+
+
+def validate_id(id: str) -> str:
+    if not re.fullmatch(ID_PATTERN, id):
+        raise PydanticCustomError(
+            "malformed_id_error",
+            "Certification scheme id '{id}' must be made up of alphanumeric characters, hyphens (-) or underscores (_), and cannot be blank!",
+            {"id": id},
+        )
+    return id
+
+
+IDStr = Annotated[str, AfterValidator(validate_id)]
 
 
 class Disclosure(DisclosureV5):
@@ -71,7 +87,7 @@ class CertificationScheme(CarbonTxtModel):
 
     """
 
-    id: str
+    id: IDStr
     url: HttpUrlStr
     title: str | None = None
     description: str | None = None
@@ -103,7 +119,7 @@ class Organisation(OrganisationV5[Disclosure]):
             for cs in self.certification_schemes:
                 if cs.id in seen:
                     raise PydanticCustomError(
-                        "custom_value_error",
+                        "duplicate_certification_scheme_error",
                         "Certification Scheme id  {cs_id} is used more than once in the same carbon.txt document. Certification scheme ids must be unique!",
                         {"cs_id": cs.id},
                     )
@@ -121,7 +137,7 @@ class Organisation(OrganisationV5[Disclosure]):
             for cs_id in disclosure.certification_schemes or []:
                 if cs_id not in ids:
                     raise PydanticCustomError(
-                        "custom_value_error",
+                        "unknown_certification_scheme_error",
                         "Certification Scheme id {cs_id} does not correspond to a certification_scheme defined in this carbon.txt document. Possible values: {ids}",
                         {"cs_id": cs_id, "ids": ", ".join(ids)},
                     )
