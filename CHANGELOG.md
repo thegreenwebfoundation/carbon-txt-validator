@@ -10,6 +10,11 @@ Fixed, Changed, Added, Removed, Fixed, Security
 
 ## Unreleased
 
+## [0.0.30]
+
+### Fixed
+- Validator now reports an error if certificaiton ID is malformed
+
 ## [0.0.29]
 
 ### Added
