@@ -1,6 +1,6 @@
 [project]
 name = "carbon-txt"
-version = "0.0.30"
+version = "0.0.31"
 description = "A command line tool containing a validator for carbon.txt files, by the Green Web Foundation"
 authors = [
     { name = "Chris Adams" },
@@ -43,8 +43,12 @@ ai_model_cards = [
     "mistletoe>=1.6.0",
 ]
 
+dist = [
+  "json-source-map>=1.0.5",
+  "jsonschema>=4.26.0"
+]
 
-all = ["carbon-txt[csrd,web,ai_model_cards]"]
+all = ["carbon-txt[csrd,web,ai_model_cards,dist]"]
 
 [project.scripts]
 carbon-txt = "carbon_txt.cli:app"

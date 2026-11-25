@@ -10,6 +10,11 @@ Fixed, Changed, Added, Removed, Fixed, Security
 
 ## Unreleased
 
+## [0.0.31]
+
+### Security
+ - Updated dependencies to latest versions to patch security vulnerabilities
+
 ## [0.0.30]
 
 ### Fixed
