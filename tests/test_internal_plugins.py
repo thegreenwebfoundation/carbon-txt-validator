@@ -47,3 +47,4 @@ class TestCarbonTxtValidatorWithCSRDPlugin:
 
         assert res.result
         assert not res.exceptions
+

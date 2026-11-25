@@ -336,12 +336,18 @@ all = [
     { name = "django-ninja" },
     { name = "django-structlog" },
     { name = "granian" },
+    { name = "json-source-map" },
+    { name = "jsonschema" },
     { name = "mistletoe" },
     { name = "python-frontmatter" },
     { name = "sentry-sdk", extra = ["django"] },
 ]
 csrd = [
     { name = "arelle-release" },
+]
+dist = [
+    { name = "json-source-map" },
+    { name = "jsonschema" },
 ]
 web = [
     { name = "django" },
@@ -378,7 +384,7 @@ dev = [
 [package.metadata]
 requires-dist = [
     { name = "arelle-release", marker = "extra == 'csrd'", specifier = ">=2.44.2" },
-    { name = "carbon-txt", extras = ["csrd", "web", "ai-model-cards"], marker = "extra == 'all'" },
+    { name = "carbon-txt", extras = ["csrd", "web", "ai-model-cards", "dist"], marker = "extra == 'all'" },
     { name = "django", marker = "extra == 'web'", specifier = "~=5.2.16" },
     { name = "django-cors-headers", marker = "extra == 'web'", specifier = ">=4.9.0" },
     { name = "django-environ", marker = "extra == 'web'", specifier = ">=0.14.0" },
@@ -387,6 +393,8 @@ requires-dist = [
     { name = "dnspython", specifier = ">=2.8.0" },
     { name = "granian", marker = "extra == 'web'", specifier = ">=2.8.1" },
     { name = "httpx", specifier = ">=0.28.1" },
+    { name = "json-source-map", marker = "extra == 'dist'", specifier = ">=1.0.5" },
+    { name = "jsonschema", marker = "extra == 'dist'", specifier = ">=4.26.0" },
     { name = "mistletoe", marker = "extra == 'ai-model-cards'", specifier = ">=1.6.0" },
     { name = "pluggy", specifier = ">=1.6.0" },
     { name = "pydantic-extra-types", specifier = ">=2.11.1" },
@@ -398,7 +406,7 @@ requires-dist = [
     { name = "tomlkit", specifier = ">=0.15.1" },
     { name = "typer", specifier = ">=0.27.1" },
 ]
-provides-extras = ["csrd", "web", "ai-model-cards", "all"]
+provides-extras = ["csrd", "web", "ai-model-cards", "dist", "all"]
 
 [package.metadata.requires-dev]
 dev = [
@@ -1227,6 +1235,15 @@ dependencies = [
 sdist = { url = "https://files.pythonhosted.org/packages/df/bf/f7da0350254c0ed7c72f3e33cef02e048281fec7ecec5f032d4aac52226b/jinja2-3.1.6.tar.gz", hash = "sha256:0137fb05990d35f1275a587e9aee6d56da821fc83491a0fb838183be43f66d6d", size = 245115, upload-time = "2025-03-05T20:05:02.478Z" }
 wheels = [
     { url = "https://files.pythonhosted.org/packages/62/a1/3d680cbfd5f4b8f15abc1d571870c5fc3e594bb582bc3b64ea099db13e56/jinja2-3.1.6-py3-none-any.whl", hash = "sha256:85ece4451f492d0c13c5dd7c13a64681a86afae63a5f347908daf103ce6d2f67", size = 134899, upload-time = "2025-03-05T20:05:00.369Z" },
+]
+
+[[package]]
+name = "json-source-map"
+version = "1.0.5"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/e6/f0/560df0f36ad3e6c1e9b2a077a297df2c4dc4a2c427580d1995782aff67d1/json_source_map-1.0.5.tar.gz", hash = "sha256:de99103c0637707368eb888d7aaa82bad1e21dbe2d21813998caabaa7c2e52f9", size = 6676, upload-time = "2022-12-20T12:01:25.669Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/2f/5c/bdddb48cf521428117bd1338c531c0027f1c32beba23c89f9713229fe17c/json_source_map-1.0.5-py3-none-any.whl", hash = "sha256:c8ddb8db76dc238fce485abb548e5c7fc2b44d5ae8efb766e90e7c15840afaca", size = 7432, upload-time = "2022-12-20T12:01:24.323Z" },
 ]
 
 [[package]]
