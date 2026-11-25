@@ -63,6 +63,22 @@ The [source code for the plugin](https://github.com/thegreenwebfoundation/carbon
 ---
 ```
 
+### `carbon-txt-greenweb-dist` - the 'Green Web DIST' plugin
+
+The DIST model card plugin for the carbon.txt validator is bundled with the validator, but **requires the `[dist]` extra** to be installed:
+
+```shell
+pip install "carbon-txt[dist]"
+```
+
+The [source code for the plugin](https://github.com/thegreenwebfoundation/carbon-txt-validator/blob/main/src/carbon_txt/process_dist_file.py) as is [the processor it uses to parse reports](https://github.com/thegreenwebfoundation/carbon-txt-validator/blob/main/src/carbon_txt/processors/dist_file.py).
+
+```{admonition} Info
+
+#### What is a DIST file, and why is it relevant?
+[DIST](https://dist.greenweb.org) (The Digital Impacts Schema and Taxonomy) is a convention and set of tools for digital impact reporting created by the Green Web Foundation. It's designed to integrate with carbon.txt, and allows organizations to report on their measured or estimated greenhouse gas impact in a stardised format.
+---
+```
 ## External plugins
 
 ### `carbon-txt-check-online` - the "check Online" plugin
